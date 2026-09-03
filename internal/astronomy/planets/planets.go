@@ -80,10 +80,12 @@ func calculateSinglePlanet(name string, seID int, ctx *domain.CalculationContext
 	dist := res.Data[2]
 	speed := res.Data[3]
 
-	// Calculate Sidereal
-	iflagSid := int32(swisseph.FlagSwieph | swisseph.FlagSpeed | swisseph.FlagSidereal)
-	resSid := swisseph.CalcUT(ctx.JulianDayUT, int32(seID), iflagSid)
-	siderealLon := resSid.Data[0]
+	// Calculate Sidereal by traditional Vedic method (Tropical - Ayanamsa)
+	// Swiss Ephemeris FlagSidereal performs a complex projection that differs by ~4 arc-seconds.
+	siderealLon := math.Mod(tropicalLon-ctx.Ayanamsa, 360.0)
+	if siderealLon < 0 {
+		siderealLon += 360.0
+	}
 
 	pos := domain.PlanetPosition{
 		Planet:            name,

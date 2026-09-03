@@ -20,8 +20,10 @@ func main() {
 	}
 	defer ephemeris.Close()
 
+	// Setup routing
 	http.HandleFunc("/api/v1/chart", handlers.ChartHandler)
 	http.HandleFunc("/api/v1/panchang", handlers.PanchangHandler)
+	http.HandleFunc("/api/v1/tables", handlers.TablesHandler)
 
 	port := ":8080"
 	log.Printf("Server starting on port %s...\n", port)

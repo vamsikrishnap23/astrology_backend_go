@@ -3,8 +3,8 @@ package handlers
 import (
 	"encoding/json"
 	"net/http"
-	"time"
 
+	"github.com/vamsi/astrology_backend_go/internal/astrology/tables"
 	"github.com/vamsi/astrology_backend_go/internal/astronomy/ephemeris"
 	"github.com/vamsi/astrology_backend_go/internal/astronomy/houses"
 	"github.com/vamsi/astrology_backend_go/internal/astronomy/planets"
@@ -12,7 +12,7 @@ import (
 	"github.com/vamsi/astrology_backend_go/internal/domain"
 )
 
-func ChartHandler(w http.ResponseWriter, r *http.Request) {
+func TablesHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
@@ -53,24 +53,14 @@ func ChartHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	ascendant, mc, houseCusps, err := houses.CalculateHouses(&ctx)
+	_, _, houseCusps, err := houses.CalculateHouses(&ctx)
 	if err != nil {
 		http.Error(w, "Error calculating houses", http.StatusInternalServerError)
 		return
 	}
 
-	// 4. Build Response
-	res := domain.ChartData{
-		CalculationTimeUTC:  utcTime.Format(time.RFC3339),
-		JulianDay:           jd,
-		SelectedAyanamsa:    input.Ayanamsa,
-		AyanamsaValue:       ctx.Ayanamsa,
-		SelectedHouseSystem: input.HouseSystem,
-		Ascendant:           ascendant,
-		MC:                  mc,
-		Planets:             planetPositions,
-		Houses:              houseCusps,
-	}
+	// 4. Generate Tables
+	res := tables.GenerateTables(planetPositions, houseCusps)
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(res)
