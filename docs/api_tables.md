@@ -56,6 +56,8 @@ Standard `BirthInput` struct.
       "degree": 5,
       "minute": 20,
       "second": 43.1,
+      "nakshatra": "Ashwini",
+      "nakshatra_pada": 2,
       "sign_lord": "Mars",
       "nakshatra_lord": "Ketu",
       "sub_lord": "Mars",

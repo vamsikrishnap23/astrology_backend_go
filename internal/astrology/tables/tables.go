@@ -132,6 +132,8 @@ func GenerateTables(planets []domain.PlanetPosition, houses []domain.HouseCusp) 
 			Degree:        deg,
 			Minute:        min,
 			Second:        sec,
+			Nakshatra:     h.Nakshatra,
+			NakshatraPada: h.NakshatraPada,
 			SignLord:      sl,
 			NakshatraLord: nl,
 			SubLord:       ssl,

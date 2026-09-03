@@ -26,6 +26,8 @@ type TableHouse struct {
 	Degree        int      `json:"degree"`
 	Minute        int      `json:"minute"`
 	Second        float64  `json:"second"`
+	Nakshatra     string   `json:"nakshatra"`
+	NakshatraPada int      `json:"nakshatra_pada"`
 	SignLord      string   `json:"sign_lord"`
 	NakshatraLord string   `json:"nakshatra_lord"`
 	SubLord       string   `json:"sub_lord"`
