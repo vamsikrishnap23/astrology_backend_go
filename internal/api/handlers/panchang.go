@@ -4,10 +4,10 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/vamsi/astrology_backend_go/internal/astrology/panchang"
-	"github.com/vamsi/astrology_backend_go/internal/astronomy/ephemeris"
-	"github.com/vamsi/astrology_backend_go/internal/astronomy/time"
-	"github.com/vamsi/astrology_backend_go/internal/domain"
+	"github.com/vamsikrishnap23/astrology_backend_go/internal/astrology/panchang"
+	"github.com/vamsikrishnap23/astrology_backend_go/internal/astronomy/ephemeris"
+	"github.com/vamsikrishnap23/astrology_backend_go/internal/astronomy/time"
+	"github.com/vamsikrishnap23/astrology_backend_go/internal/domain"
 )
 
 // PanchangHandler handles panchang calculations.

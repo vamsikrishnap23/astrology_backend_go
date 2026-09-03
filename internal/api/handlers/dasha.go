@@ -4,11 +4,11 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/vamsi/astrology_backend_go/internal/astrology/dasha"
-	"github.com/vamsi/astrology_backend_go/internal/astronomy/ephemeris"
-	"github.com/vamsi/astrology_backend_go/internal/astronomy/planets"
-	astronomyTime "github.com/vamsi/astrology_backend_go/internal/astronomy/time"
-	"github.com/vamsi/astrology_backend_go/internal/domain"
+	"github.com/vamsikrishnap23/astrology_backend_go/internal/astrology/dasha"
+	"github.com/vamsikrishnap23/astrology_backend_go/internal/astronomy/ephemeris"
+	"github.com/vamsikrishnap23/astrology_backend_go/internal/astronomy/planets"
+	astronomyTime "github.com/vamsikrishnap23/astrology_backend_go/internal/astronomy/time"
+	"github.com/vamsikrishnap23/astrology_backend_go/internal/domain"
 )
 
 func DashaHandler(w http.ResponseWriter, r *http.Request) {

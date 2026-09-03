@@ -1,7 +1,7 @@
 package tables
 
 import (
-	"github.com/vamsi/astrology_backend_go/internal/domain"
+	"github.com/vamsikrishnap23/astrology_backend_go/internal/domain"
 	"testing"
 )
 

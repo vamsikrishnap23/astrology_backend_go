@@ -1,8 +1,8 @@
 package vargas
 
 import (
-	astronomyTime "github.com/vamsi/astrology_backend_go/internal/astronomy/time"
-	"github.com/vamsi/astrology_backend_go/internal/domain"
+	astronomyTime "github.com/vamsikrishnap23/astrology_backend_go/internal/astronomy/time"
+	"github.com/vamsikrishnap23/astrology_backend_go/internal/domain"
 )
 
 var signNames = []string{

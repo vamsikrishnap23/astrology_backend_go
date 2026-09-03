@@ -1,0 +1,6 @@
+services:
+  - type: web
+    name: astrology-backend
+    env: go
+    buildCommand: go build -o server cmd/server/main.go
+    startCommand: ./server

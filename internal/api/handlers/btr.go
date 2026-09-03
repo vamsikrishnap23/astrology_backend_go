@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/vamsi/astrology_backend_go/internal/astrology/btr"
-	"github.com/vamsi/astrology_backend_go/internal/domain"
+	"github.com/vamsikrishnap23/astrology_backend_go/internal/astrology/btr"
+	"github.com/vamsikrishnap23/astrology_backend_go/internal/domain"
 )
 
 func BTRHandler(w http.ResponseWriter, r *http.Request) {

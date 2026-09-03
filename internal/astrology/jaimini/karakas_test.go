@@ -4,9 +4,9 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/vamsi/astrology_backend_go/internal/astronomy/ephemeris"
-	astronomyTime "github.com/vamsi/astrology_backend_go/internal/astronomy/time"
-	"github.com/vamsi/astrology_backend_go/internal/domain"
+	"github.com/vamsikrishnap23/astrology_backend_go/internal/astronomy/ephemeris"
+	astronomyTime "github.com/vamsikrishnap23/astrology_backend_go/internal/astronomy/time"
+	"github.com/vamsikrishnap23/astrology_backend_go/internal/domain"
 )
 
 func TestVamsiRegression(t *testing.T) {

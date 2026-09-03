@@ -4,8 +4,8 @@ import (
 	"math"
 
 	"github.com/tejzpr/go-swisseph"
-	"github.com/vamsi/astrology_backend_go/internal/astronomy/ephemeris"
-	"github.com/vamsi/astrology_backend_go/internal/domain"
+	"github.com/vamsikrishnap23/astrology_backend_go/internal/astronomy/ephemeris"
+	"github.com/vamsikrishnap23/astrology_backend_go/internal/domain"
 )
 
 func getMoonDetails(jd float64, ayanamsa float64) domain.MoonDetails {

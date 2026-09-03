@@ -3,10 +3,10 @@ package transit
 import (
 	"time"
 
-	"github.com/vamsi/astrology_backend_go/internal/astrology/tables"
-	"github.com/vamsi/astrology_backend_go/internal/astronomy/houses"
-	"github.com/vamsi/astrology_backend_go/internal/astronomy/planets"
-	"github.com/vamsi/astrology_backend_go/internal/domain"
+	"github.com/vamsikrishnap23/astrology_backend_go/internal/astrology/tables"
+	"github.com/vamsikrishnap23/astrology_backend_go/internal/astronomy/houses"
+	"github.com/vamsikrishnap23/astrology_backend_go/internal/astronomy/planets"
+	"github.com/vamsikrishnap23/astrology_backend_go/internal/domain"
 )
 
 // CalculateTransitChart calculates a complete transit chart for a given date/time,

@@ -5,10 +5,10 @@ import (
 	"time"
 
 	"github.com/tejzpr/go-swisseph"
-	"github.com/vamsi/astrology_backend_go/internal/astrology/ashtakoota"
-	"github.com/vamsi/astrology_backend_go/internal/astronomy/ephemeris"
-	astronomyTime "github.com/vamsi/astrology_backend_go/internal/astronomy/time"
-	"github.com/vamsi/astrology_backend_go/internal/domain"
+	"github.com/vamsikrishnap23/astrology_backend_go/internal/astrology/ashtakoota"
+	"github.com/vamsikrishnap23/astrology_backend_go/internal/astronomy/ephemeris"
+	astronomyTime "github.com/vamsikrishnap23/astrology_backend_go/internal/astronomy/time"
+	"github.com/vamsikrishnap23/astrology_backend_go/internal/domain"
 )
 
 func getAscendant(jd float64, lat float64, lon float64, ayanamsa float64, houseSystem string) (string, float64) {

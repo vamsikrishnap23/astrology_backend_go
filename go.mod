@@ -1,4 +1,4 @@
-module github.com/vamsi/astrology_backend_go
+module github.com/vamsikrishnap23/astrology_backend_go
 
 go 1.27.0
 

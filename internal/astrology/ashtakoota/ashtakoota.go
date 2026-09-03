@@ -3,7 +3,7 @@ package ashtakoota
 import (
 	"fmt"
 
-	"github.com/vamsi/astrology_backend_go/internal/domain"
+	"github.com/vamsikrishnap23/astrology_backend_go/internal/domain"
 )
 
 func getNakshatraIndex(nak string) int {

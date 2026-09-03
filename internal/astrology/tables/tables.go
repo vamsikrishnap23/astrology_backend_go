@@ -3,8 +3,8 @@ package tables
 import (
 	"math"
 
-	astrotime "github.com/vamsi/astrology_backend_go/internal/astronomy/time"
-	"github.com/vamsi/astrology_backend_go/internal/domain"
+	astrotime "github.com/vamsikrishnap23/astrology_backend_go/internal/astronomy/time"
+	"github.com/vamsikrishnap23/astrology_backend_go/internal/domain"
 )
 
 var signLords = map[string]string{
