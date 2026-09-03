@@ -20,7 +20,7 @@ Whenever an endpoint requires standard birth data, use this exact structure:
   "latitude": 16.3938,               // Decimal degrees
   "longitude": 80.1522,              // Decimal degrees
   "timezone": 5.5,                   // Decimal offset from UTC
-  "ayanamsa": "Lahiri",              // e.g. "Lahiri", "Raman", "KP"
+  "ayanamsa": "Lahiri",              // e.g. "Lahiri", "Raman", "Krishnamurti"
   "house_system": "Placidus"         // e.g. "Placidus", "WholeSign"
 }
 ```

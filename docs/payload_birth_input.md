@@ -29,5 +29,5 @@ Across the API documentation, you will see references to the **Standard `BirthIn
 | `latitude` | float | Decimal latitude. Positive for North, Negative for South. | `16.3938` |
 | `longitude` | float | Decimal longitude. Positive for East, Negative for West. | `80.1522` |
 | `timezone` | float | Decimal offset from UTC. Example: IST (+5:30) is `5.5`. EST (-5:00) is `-5.0`. | `5.5` |
-| `ayanamsa` | string | The sidereal zodiac correction factor to apply. Supported values include:<br>- `"Lahiri"` (Chitra Paksha, standard Vedic)<br>- `"Raman"`<br>- `"KP"` (Krishnamurti Paddhati)<br>- `"FaganBradley"`<br>- `"Tropical"` (No correction applied) | `"Lahiri"` |
-| `house_system` | string | The algorithm used to calculate house cusps. Supported values include:<br>- `"Placidus"` (Standard Western/KP)<br>- `"WholeSign"` (Standard Vedic/Parashari)<br>- `"Campanus"`<br>- `"Regiomontanus"`<br>- `"Koch"` | `"Placidus"` |
+| `ayanamsa` | string | The sidereal zodiac correction factor. **Supported values (case-insensitive):**<br>- `"Lahiri"` or `"True ChitraPaksha"` (Default)<br>- `"Raman"`<br>- `"Krishnamurti"`<br>- `"Fagan-Bradley"`<br>- `"Yukteshwar"`<br>- `"J.N. Bhasin"`<br>- `"True Revati"`<br>- `"True Pushya"` | `"Lahiri"` |
+| `house_system` | string | The algorithm used to calculate house cusps. **Supported values (case-insensitive):**<br>- `"Placidus"` (Default)<br>- `"Koch"`<br>- `"Porphyry"`<br>- `"Regiomontanus"`<br>- `"Campanus"`<br>- `"Equal"`<br>- `"Whole Sign"`<br>- `"Sripati"` | `"Placidus"` |
