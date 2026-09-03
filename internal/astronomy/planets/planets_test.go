@@ -10,7 +10,9 @@ import (
 )
 
 func TestCalculatePlanets(t *testing.T) {
-	ephemeris.Init("")
+	if err := ephemeris.Init("../../../ephe_data"); err != nil {
+		t.Fatalf("ephemeris init failed: %v", err)
+	}
 	defer ephemeris.Close()
 
 	utc := time.Date(1998, 4, 28, 9, 0, 0, 0, time.UTC)

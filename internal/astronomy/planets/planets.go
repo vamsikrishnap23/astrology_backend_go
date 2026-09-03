@@ -1,24 +1,26 @@
 package planets
 
 import (
+	"fmt"
 	"math"
+	"strings"
 
-	"github.com/mshafiee/swephgo"
+	"github.com/tejzpr/go-swisseph"
 	"github.com/vamsi/astrology_backend_go/internal/astronomy/time"
 	"github.com/vamsi/astrology_backend_go/internal/domain"
 )
 
 var PlanetMap = map[string]int{
-	"Sun":     swephgo.SeSun,
-	"Moon":    swephgo.SeMoon,
-	"Mars":    swephgo.SeMars,
-	"Mercury": swephgo.SeMercury,
-	"Jupiter": swephgo.SeJupiter,
-	"Venus":   swephgo.SeVenus,
-	"Saturn":  swephgo.SeSaturn,
-	"Uranus":  swephgo.SeUranus,
-	"Neptune": swephgo.SeNeptune,
-	"Pluto":   swephgo.SePluto,
+	"Sun":     swisseph.Sun,
+	"Moon":    swisseph.Moon,
+	"Mars":    swisseph.Mars,
+	"Mercury": swisseph.Mercury,
+	"Jupiter": swisseph.Jupiter,
+	"Venus":   swisseph.Venus,
+	"Saturn":  swisseph.Saturn,
+	"Uranus":  swisseph.Uranus,
+	"Neptune": swisseph.Neptune,
+	"Pluto":   swisseph.Pluto,
 }
 
 // CalculatePlanets calculates the positions of requested planets.
@@ -26,21 +28,27 @@ func CalculatePlanets(ctx *domain.CalculationContext) ([]domain.PlanetPosition, 
 	var positions []domain.PlanetPosition
 
 	// Set Ayanamsa for this calculation
-	swephgo.SetSidMode(ctx.Config.AyanamsaMode, 0, 0)
+	swisseph.SetSidMode(int32(ctx.Config.AyanamsaMode), 0, 0)
 
 	// Pre-calculate ayanamsa value
-	ctx.Ayanamsa = swephgo.GetAyanamsaUt(ctx.JulianDayUT)
+	ctx.Ayanamsa = swisseph.GetAyanamsaUT(ctx.JulianDayUT)
 
 	planetNames := []string{"Sun", "Moon", "Mars", "Mercury", "Jupiter", "Venus", "Saturn", "Uranus", "Neptune", "Pluto"}
 
 	for _, pName := range planetNames {
 		seID := PlanetMap[pName]
-		pos := calculateSinglePlanet(pName, seID, ctx)
+		pos, err := calculateSinglePlanet(pName, seID, ctx)
+		if err != nil {
+			return nil, err
+		}
 		positions = append(positions, pos)
 	}
 
 	// Calculate Nodes (Mean or True based on config, using Mean for now unless specified)
-	rahuPos := calculateSinglePlanet("Rahu", swephgo.SeMeanNode, ctx)
+	rahuPos, err := calculateSinglePlanet("Rahu", swisseph.MeanNode, ctx)
+	if err != nil {
+		return nil, err
+	}
 	// Ketu is Rahu + 180 degrees
 	ketuPos := rahuPos
 	ketuPos.Planet = "Ketu"
@@ -55,22 +63,27 @@ func CalculatePlanets(ctx *domain.CalculationContext) ([]domain.PlanetPosition, 
 	return positions, nil
 }
 
-func calculateSinglePlanet(name string, seID int, ctx *domain.CalculationContext) domain.PlanetPosition {
-	xx := make([]float64, 6)
-	serr := make([]byte, 256)
+func calculateSinglePlanet(name string, seID int, ctx *domain.CalculationContext) (domain.PlanetPosition, error) {
+	// Calculate Tropical (flag = FlagSwieph | FlagSpeed)
+	iflag := int32(swisseph.FlagSwieph | swisseph.FlagSpeed)
+	res := swisseph.CalcUT(ctx.JulianDayUT, int32(seID), iflag)
 
-	// Calculate Tropical (flag = SeflgSwieph | SeflgSpeed)
-	iflag := swephgo.SeflgSwieph | swephgo.SeflgSpeed
-	swephgo.CalcUt(ctx.JulianDayUT, seID, iflag, xx, serr)
-	tropicalLon := xx[0]
-	lat := xx[1]
-	dist := xx[2]
-	speed := xx[3]
+	if (res.Flag & swisseph.FlagSwieph) == 0 {
+		return domain.PlanetPosition{}, fmt.Errorf("failed to use Swiss Ephemeris for %s, fell back to another model (Moshier). Check EPHE_PATH", name)
+	}
+	if res.Error != "" && strings.Contains(strings.ToLower(res.Error), "moshier") {
+		return domain.PlanetPosition{}, fmt.Errorf("Swiss Ephemeris calculation warned about Moshier fallback for %s: %s", name, res.Error)
+	}
+
+	tropicalLon := res.Data[0]
+	lat := res.Data[1]
+	dist := res.Data[2]
+	speed := res.Data[3]
 
 	// Calculate Sidereal
-	iflagSid := swephgo.SeflgSwieph | swephgo.SeflgSpeed | swephgo.SeflgSidereal
-	swephgo.CalcUt(ctx.JulianDayUT, seID, iflagSid, xx, serr)
-	siderealLon := xx[0]
+	iflagSid := int32(swisseph.FlagSwieph | swisseph.FlagSpeed | swisseph.FlagSidereal)
+	resSid := swisseph.CalcUT(ctx.JulianDayUT, int32(seID), iflagSid)
+	siderealLon := resSid.Data[0]
 
 	pos := domain.PlanetPosition{
 		Planet:            name,
@@ -83,7 +96,7 @@ func calculateSinglePlanet(name string, seID int, ctx *domain.CalculationContext
 	}
 
 	setDMS(&pos)
-	return pos
+	return pos, nil
 }
 
 func setDMS(pos *domain.PlanetPosition) {

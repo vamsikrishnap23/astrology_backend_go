@@ -13,7 +13,9 @@ import (
 
 func TestChartHandler(t *testing.T) {
 	// Initialize ephemeris
-	ephemeris.Init("")
+	if err := ephemeris.Init("../../../ephe_data"); err != nil {
+		t.Fatalf("ephemeris init failed: %v", err)
+	}
 	defer ephemeris.Close()
 
 	input := domain.BirthInput{
