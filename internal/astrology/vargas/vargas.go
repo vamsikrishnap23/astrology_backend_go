@@ -91,8 +91,25 @@ func CalculateVargas(tables domain.TablesResult, cusps []domain.HouseCusp) domai
 			})
 		}
 
-		// Add mathematical house cusps for every chart so the frontend can use them anywhere
-		chart.Houses = cusps
+		// Calculate fractional placement for all mathematical house cusps in this divisional chart
+		var vargaHouses []domain.HouseCusp
+		for _, hc := range cusps {
+			cPos := rule.Calculate(hc.Longitude)
+			_, cDeg, cMin, cSec := astronomyTime.DecimalToDMS(cPos.LongitudeInDivision)
+
+			vargaHouses = append(vargaHouses, domain.HouseCusp{
+				HouseNumber:   hc.HouseNumber,
+				Longitude:     hc.Longitude, // Keep original longitude or maybe they want the divisional longitude? The frontend just wants the Sign, Degree, Minute, Second
+				Sign:          signNames[cPos.SignIndex],
+				Degree:        cDeg,
+				Minute:        cMin,
+				Second:        cSec,
+				Nakshatra:     hc.Nakshatra,
+				NakshatraPada: hc.NakshatraPada,
+				NakshatraLord: hc.NakshatraLord,
+			})
+		}
+		chart.Houses = vargaHouses
 
 		res.Vargas = append(res.Vargas, chart)
 	}
