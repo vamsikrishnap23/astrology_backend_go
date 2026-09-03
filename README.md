@@ -8,14 +8,19 @@ The project follows a standard Go layout:
 - `internal/domain/`: Core structs representing inputs, configurations, and outputs.
 
 ## Swiss Ephemeris Integration
-The project uses `github.com/mshafiee/swephgo` to interface with the Swiss Ephemeris C library. 
+The project uses `github.com/tejzpr/go-swisseph` to interface with the Swiss Ephemeris C library. 
 
-### Ephemeris Files Configuration
-By default, Swiss Ephemeris calculates positions using internal analytical models if ephemeris files (`.se1`) are missing. For high precision, you must provide `.se1` files.
-- You can set the `EPHE_PATH` environment variable to the directory containing your `.se1` files before running the server.
+### Ephemeris Files Configuration (Strictly Required)
+For astrological calculations, the system **strictly requires** the high-precision Swiss Ephemeris data files (`.se1`). It will **not** silently fall back to the Moshier analytical model.
+
+You must configure the `EPHE_PATH` environment variable to point to a directory containing at least the following standard ephemeris files (which cover standard planets and the moon for modern dates):
+- `sepl_18.se1`
+- `semo_18.se1`
+
+If these files are missing, the server will intentionally fail to start or return an internal error, ensuring absolute reproducible accuracy.
 
 ```bash
-export EPHE_PATH=/path/to/ephe
+export EPHE_PATH=/path/to/ephe_data
 ```
 
 ## Running the Server
@@ -48,4 +53,3 @@ curl -X POST http://localhost:8080/api/v1/chart \
 
 ### Known Limitations
 - Node calculations use Mean Node by default. True Node toggle isn't exposed in the API yet.
-- Precision depends on the availability of `.se1` ephemeris files. Without them, it falls back to Moshier's analytical model (which is still very accurate but not the maximum precision provided by JPL data).

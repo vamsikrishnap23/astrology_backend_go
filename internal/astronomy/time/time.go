@@ -2,7 +2,7 @@ package time
 
 import (
 	"fmt"
-	"github.com/mshafiee/swephgo"
+	"github.com/tejzpr/go-swisseph"
 	"math"
 	"time"
 )
@@ -35,7 +35,7 @@ func UTCToJulianDay(utc time.Time) float64 {
 	day := utc.Day()
 	hour := float64(utc.Hour()) + float64(utc.Minute())/60.0 + float64(utc.Second())/3600.0
 
-	jd := swephgo.Julday(year, month, day, hour, swephgo.SeGregCal)
+	jd := swisseph.Julday(int32(year), int32(month), int32(day), hour, swisseph.GregCal)
 	return jd
 }
 

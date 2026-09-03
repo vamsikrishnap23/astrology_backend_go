@@ -1,32 +1,29 @@
 package houses
 
 import (
-	"github.com/mshafiee/swephgo"
+	"github.com/tejzpr/go-swisseph"
 	"github.com/vamsi/astrology_backend_go/internal/astronomy/time"
 	"github.com/vamsi/astrology_backend_go/internal/domain"
 )
 
 // CalculateHouses calculates the Ascendant, MC and House cusps.
 func CalculateHouses(ctx *domain.CalculationContext) (float64, float64, []domain.HouseCusp, error) {
-	cusps := make([]float64, 13)
-	ascmc := make([]float64, 10)
 
 	// Set Ayanamsa for Sidereal House calculation
-	swephgo.SetSidMode(ctx.Config.AyanamsaMode, 0, 0)
-	
-	// Need eps, armc? HousesEx calculates this
-	// Sidereal houses
-	swephgo.HousesEx(ctx.JulianDayUT, swephgo.SeflgSidereal, ctx.Input.Latitude, ctx.Input.Longitude, int(ctx.Config.HouseCode), cusps, ascmc)
+	swisseph.SetSidMode(int32(ctx.Config.AyanamsaMode), 0, 0)
 
-	ascendant := ascmc[0]
-	mc := ascmc[1]
+	// Sidereal houses
+	res := swisseph.HousesEx(ctx.JulianDayUT, int32(swisseph.FlagSidereal), ctx.Input.Latitude, ctx.Input.Longitude, ctx.Config.HouseCode)
+
+	ascendant := res.Points[0]
+	mc := res.Points[1]
 
 	var houseCusps []domain.HouseCusp
-	for i := 1; i <= 12; i++ {
-		sign, _, _, _ := time.DecimalToDMS(cusps[i])
+	for i := 0; i < len(res.Houses) && i < 12; i++ {
+		sign, _, _, _ := time.DecimalToDMS(res.Houses[i])
 		houseCusps = append(houseCusps, domain.HouseCusp{
-			HouseNumber: i,
-			Longitude:   cusps[i],
+			HouseNumber: i + 1,
+			Longitude:   res.Houses[i],
 			Sign:        sign,
 		})
 	}

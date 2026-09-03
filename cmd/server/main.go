@@ -11,12 +11,17 @@ import (
 
 func main() {
 	// Initialize Ephemeris
-	// By default, try to find in current directory or system path
 	ephePath := os.Getenv("EPHE_PATH")
-	ephemeris.Init(ephePath)
+	if ephePath == "" {
+		ephePath = "ephe_data" // Fallback to local directory
+	}
+	if err := ephemeris.Init(ephePath); err != nil {
+		log.Fatalf("Failed to initialize ephemeris: %v", err)
+	}
 	defer ephemeris.Close()
 
 	http.HandleFunc("/api/v1/chart", handlers.ChartHandler)
+	http.HandleFunc("/api/v1/panchang", handlers.PanchangHandler)
 
 	port := ":8080"
 	log.Printf("Server starting on port %s...\n", port)

@@ -1,18 +1,18 @@
 package ephemeris
 
 import (
-	"github.com/mshafiee/swephgo"
+	"github.com/tejzpr/go-swisseph"
 	"testing"
 )
 
 func TestGetAyanamsaMode(t *testing.T) {
-	if GetAyanamsaMode("Lahiri") != swephgo.SeSidmLahiri {
+	if GetAyanamsaMode("Lahiri") != swisseph.SidmLahiri {
 		t.Error("Expected Lahiri mode")
 	}
-	if GetAyanamsaMode("Raman") != swephgo.SeSidmRaman {
+	if GetAyanamsaMode("Raman") != swisseph.SidmRaman {
 		t.Error("Expected Raman mode")
 	}
-	if GetAyanamsaMode("Unknown") != swephgo.SeSidmLahiri { // Default
+	if GetAyanamsaMode("Unknown") != swisseph.SidmLahiri { // Default
 		t.Error("Expected fallback to Lahiri")
 	}
 }
