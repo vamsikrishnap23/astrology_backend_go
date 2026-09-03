@@ -1,0 +1,119 @@
+{
+  "rule_set": {
+    "name": "classical-guna-milan-v1",
+    "ayanamsa": "Lahiri"
+  },
+  "groom": {
+    "name": "Groom",
+    "moon": {
+      "longitude": 121.81859918421418,
+      "sign": "Leo",
+      "degree": 1.8185991842141789,
+      "nakshatra": "Magha",
+      "pada": 1,
+      "nakshatra_lord": "Ketu",
+      "rashi_lord": "Sun"
+    }
+  },
+  "bride": {
+    "name": "Bride",
+    "moon": {
+      "longitude": 49.47661015905095,
+      "sign": "Taurus",
+      "degree": 19.47661015905095,
+      "nakshatra": "Rohini",
+      "pada": 3,
+      "nakshatra_lord": "Moon",
+      "rashi_lord": "Venus"
+    }
+  },
+  "kootas": {
+    "varna": {
+      "score": 1,
+      "maximum": 1,
+      "groom_value": "Kshatriya",
+      "bride_value": "Vaishya",
+      "explanation": "Groom varna Kshatriya (Rank 3) vs Bride varna Vaishya (Rank 2)"
+    },
+    "vashya": {
+      "score": 0,
+      "maximum": 2,
+      "groom_value": "Vanchar",
+      "bride_value": "Chatuspada",
+      "explanation": "Groom vashya Vanchar vs Bride vashya Chatuspada"
+    },
+    "tara": {
+      "score": 1.5,
+      "maximum": 3,
+      "groom_to_bride": {
+        "nakshatra_count": 22,
+        "tara": "Kshema",
+        "auspicious": true,
+        "score": 1.5
+      },
+      "bride_to_groom": {
+        "nakshatra_count": 7,
+        "tara": "Vadha",
+        "auspicious": false,
+        "score": 0
+      },
+      "explanation": "Calculated cyclic distances between birth nakshatras."
+    },
+    "yoni": {
+      "score": 1,
+      "maximum": 4,
+      "groom_value": "Rat",
+      "bride_value": "Serpent",
+      "explanation": "Groom yoni Rat vs Bride yoni Serpent"
+    },
+    "graha_maitri": {
+      "score": 0,
+      "maximum": 5,
+      "groom_rashi": "Leo",
+      "bride_rashi": "Taurus",
+      "groom_rashi_lord": "Sun",
+      "bride_rashi_lord": "Venus",
+      "groom_lord_relationship_to_bride_lord": "Enemy",
+      "bride_lord_relationship_to_groom_lord": "Enemy",
+      "explanation": "Natural relationship between moon sign lords."
+    },
+    "gana": {
+      "score": 0,
+      "maximum": 6,
+      "groom_value": "Rakshasa",
+      "bride_value": "Manushya",
+      "explanation": "Groom gana Rakshasa vs Bride gana Manushya"
+    },
+    "bhakoot": {
+      "raw_score": 7,
+      "effective_score": 7,
+      "maximum": 7,
+      "groom_rashi": "Leo",
+      "bride_rashi": "Taurus",
+      "groom_to_bride_distance": 10,
+      "bride_to_groom_distance": 4,
+      "relationship": "10/4",
+      "dosha": false,
+      "cancellation_applied": false,
+      "explanation": "Sign distance between Moons."
+    },
+    "nadi": {
+      "raw_score": 0,
+      "effective_score": 0,
+      "maximum": 8,
+      "groom_nadi": "Antya",
+      "bride_nadi": "Antya",
+      "same_nadi": true,
+      "dosha": true,
+      "cancellation_applied": false,
+      "explanation": "Nadi mapping."
+    }
+  },
+  "summary": {
+    "raw_total": 10.5,
+    "effective_total": 10.5,
+    "maximum": 36,
+    "percentage": 29.166666666666668,
+    "traditional_threshold_met": false
+  }
+}

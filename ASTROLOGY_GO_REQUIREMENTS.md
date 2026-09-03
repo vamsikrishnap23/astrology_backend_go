@@ -786,12 +786,18 @@ The frontend must not recalculate these values.
 
 Provide a progression chart with a year picker.
 
-The API must accept a selected progression year.
+The API must accept a selected progression year (and optionally a month/day, or default to exactly N years from birth).
+
+Methodology chosen: **Secondary Progression**
+- Rule: 1 day after birth equals 1 tropical year of life.
+- The target progressed date = Birth Date + (Age in days).
+- Calculate the planetary positions and houses for this precise progressed date and time.
+- Standard Sidereal Ayanamsa and House systems must still apply to this progressed date.
 
 The response should include:
 
 - progressed date used
-- age
+- age (in years)
 - planets
 - Ascendant
 - houses where applicable
@@ -799,10 +805,6 @@ The response should include:
 - exact positions
 - retrograde state
 - tooltip data
-
-The exact progression method must be explicitly chosen and documented before implementation.
-
-Do not silently assume a progression method.
 
 The API should make the selected year explicit.
 

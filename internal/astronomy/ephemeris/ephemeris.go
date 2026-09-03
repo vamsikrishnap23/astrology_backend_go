@@ -10,6 +10,8 @@ import (
 	"github.com/tejzpr/go-swisseph"
 )
 
+var EphePath string
+
 // Init initializes the Swiss Ephemeris.
 // It explicitly requires a valid ephemeris path containing .se1 files.
 func Init(path string) error {
@@ -32,6 +34,7 @@ func Init(path string) error {
 		}
 	}
 
+	EphePath = path
 	swisseph.SetEphePath(path)
 	return nil
 }

@@ -5,10 +5,15 @@ import (
 	"time"
 
 	"github.com/tejzpr/go-swisseph"
+	"github.com/vamsi/astrology_backend_go/internal/astronomy/ephemeris"
 	"github.com/vamsi/astrology_backend_go/internal/domain"
 )
 
 func CalculatePanchang(ctx *domain.CalculationContext) (domain.PanchangResult, error) {
+	ephemeris.Mu.Lock()
+	defer ephemeris.Mu.Unlock()
+	swisseph.SetEphePath(ephemeris.EphePath)
+
 	swisseph.SetSidMode(int32(ctx.Config.AyanamsaMode), 0, 0)
 
 	tflag := int32(swisseph.FlagSwieph | swisseph.FlagSpeed)

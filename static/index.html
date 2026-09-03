@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>South Indian Chart & Dasha Checker</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: #f5f7fa; padding: 20px; }
+  .container { max-width: 1200px; margin: 0 auto; }
+  .form-card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 20px; }
+  .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; }
+  .form-group { display: flex; flex-direction: column; }
+  label { font-weight: bold; margin-bottom: 5px; font-size: 14px; color: #333; }
+  input, select { padding: 8px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; }
+  button { background: #4a90e2; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-size: 16px; margin-top: 15px; }
+  button:hover { background: #357abd; }
+  
+  .layout-grid { display: flex; gap: 20px; align-items: flex-start; flex-wrap: wrap; }
+  .charts-container { flex: 2; display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; }
+  .dasha-container { flex: 1; min-width: 300px; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); max-height: 80vh; overflow-y: auto; }
+  
+  .chart-wrapper { background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); width: 350px; }
+  .chart-title { text-align: center; font-weight: bold; font-size: 18px; margin-bottom: 15px; color: #2c3e50; }
+  
+  .south-indian-chart {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: repeat(4, 1fr);
+    width: 320px;
+    height: 320px;
+    border: 2px solid #333;
+  }
+  .rasi-box {
+    border: 1px solid #999;
+    padding: 2px;
+    font-size: 11px;
+    position: relative;
+    display: flex;
+    flex-wrap: wrap;
+    align-content: flex-start;
+    gap: 2px;
+  }
+  
+  .sign-Pisces { grid-row: 1; grid-column: 1; }
+  .sign-Aries { grid-row: 1; grid-column: 2; }
+  .sign-Taurus { grid-row: 1; grid-column: 3; }
+  .sign-Gemini { grid-row: 1; grid-column: 4; }
+  .sign-Cancer { grid-row: 2; grid-column: 4; }
+  .sign-Leo { grid-row: 3; grid-column: 4; }
+  .sign-Virgo { grid-row: 4; grid-column: 4; }
+  .sign-Libra { grid-row: 4; grid-column: 3; }
+  .sign-Scorpio { grid-row: 4; grid-column: 2; }
+  .sign-Sagittarius { grid-row: 4; grid-column: 1; }
+  .sign-Capricorn { grid-row: 3; grid-column: 1; }
+  .sign-Aquarius { grid-row: 2; grid-column: 1; }
+  
+  .planet-tag { background: #e1f0fa; color: #0056b3; padding: 1px 4px; border-radius: 3px; font-weight: 500; cursor: help; }
+  .planet-tag.ascendant { background: #ffeeba; color: #856404; font-weight: bold; }
+  
+  .center-logo { grid-row: 2 / 4; grid-column: 2 / 4; display: flex; align-items: center; justify-content: center; color: #ccc; font-size: 24px; font-weight: bold; letter-spacing: 2px; }
+  
+  /* Dasha Styles */
+  .dasha-tree { list-style: none; padding-left: 20px; margin: 0; }
+  .dasha-tree > li { margin: 5px 0; }
+  .dasha-toggle { cursor: pointer; font-weight: bold; color: #4a90e2; user-select: none; }
+  .dasha-toggle::before { content: "▶ "; font-size: 12px; display: inline-block; width: 15px; }
+  .dasha-toggle.open::before { content: "▼ "; }
+  .dasha-content { display: none; margin-top: 5px; }
+  .dasha-content.open { display: block; }
+  .dasha-dates { color: #666; font-size: 0.9em; font-weight: normal; margin-left: 10px; }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="form-card">
+    <h2>Birth Details</h2>
+    <form id="calcForm">
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Date (YYYY-MM-DD)</label>
+          <input type="text" id="date" value="2005-11-23" required>
+        </div>
+        <div class="form-group">
+          <label>Time (HH:MM:SS)</label>
+          <input type="text" id="time" value="15:35:00" required>
+        </div>
+        <div class="form-group">
+          <label>Latitude</label>
+          <input type="number" step="any" id="lat" value="16.3938" required>
+        </div>
+        <div class="form-group">
+          <label>Longitude</label>
+          <input type="number" step="any" id="lng" value="80.1522" required>
+        </div>
+        <div class="form-group">
+          <label>Timezone</label>
+          <input type="number" step="any" id="tz" value="5.5" required>
+        </div>
+        <div class="form-group">
+          <label>Ayanamsa</label>
+          <select id="ayanamsa">
+            <option value="Lahiri">Lahiri</option>
+            <option value="Raman">Raman</option>
+            <option value="KP">KP</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>House System</label>
+          <select id="house">
+            <option value="Placidus">Placidus</option>
+            <option value="Koch">Koch</option>
+            <option value="Porphyry">Porphyry</option>
+          </select>
+        </div>
+      </div>
+      <button type="submit">Calculate Charts & Dashas</button>
+    </form>
+  </div>
+  
+  <div id="loading" style="display:none; text-align:center; margin: 20px;">Generating...</div>
+  
+  <div class="layout-grid">
+    <div class="charts-container" id="chartsContainer"></div>
+    <div class="dasha-container" id="dashaContainer" style="display:none;">
+      <h2>Vimshottari Dasha</h2>
+      <div id="dashaTree"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+document.getElementById('calcForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  
+  const payload = {
+    date_of_birth: document.getElementById('date').value,
+    time_of_birth: document.getElementById('time').value,
+    latitude: parseFloat(document.getElementById('lat').value),
+    longitude: parseFloat(document.getElementById('lng').value),
+    timezone: parseFloat(document.getElementById('tz').value),
+    ayanamsa: document.getElementById('ayanamsa').value,
+    house_system: document.getElementById('house').value
+  };
+
+  document.getElementById('loading').style.display = 'block';
+  document.getElementById('chartsContainer').innerHTML = '';
+  document.getElementById('dashaTree').innerHTML = '';
+  document.getElementById('dashaContainer').style.display = 'none';
+
+  try {
+    const [vargasRes, dashaRes] = await Promise.all([
+      fetch('/api/v1/vargas', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) }),
+      fetch('/api/v1/dasha', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) })
+    ]);
+    
+    if (!vargasRes.ok) throw new Error("Vargas API error");
+    if (!dashaRes.ok) throw new Error("Dasha API error");
+    
+    const vargasData = await vargasRes.json();
+    const dashaData = await dashaRes.json();
+    
+    document.getElementById('loading').style.display = 'none';
+    renderCharts(vargasData.vargas);
+    renderDasha(dashaData);
+    document.getElementById('dashaContainer').style.display = 'block';
+  } catch (err) {
+    document.getElementById('loading').style.display = 'none';
+    alert("Error: " + err.message);
+  }
+});
+
+function getShortName(planet) {
+  const map = {
+    "Ascendant": "Asc", "Sun": "Su", "Moon": "Mo", "Mars": "Ma", "Mercury": "Me",
+    "Jupiter": "Ju", "Venus": "Ve", "Saturn": "Sa", "Rahu": "Ra", "Ketu": "Ke",
+    "Uranus": "Ur", "Neptune": "Ne", "Pluto": "Pl"
+  };
+  return map[planet] || planet.substring(0,2);
+}
+
+function renderCharts(vargas) {
+  const container = document.getElementById('chartsContainer');
+  const signs = ["Aries", "Taurus", "Gemini", "Cancer", "Leo", "Virgo", "Libra", "Scorpio", "Sagittarius", "Capricorn", "Aquarius", "Pisces"];
+  
+  vargas.forEach(varga => {
+    const wrapper = document.createElement('div');
+    wrapper.className = 'chart-wrapper';
+    wrapper.innerHTML = `<div class="chart-title">${varga.name}</div>`;
+    
+    const grid = document.createElement('div');
+    grid.className = 'south-indian-chart';
+    const signBoxes = {};
+    signs.forEach(s => {
+      const box = document.createElement('div');
+      box.className = `rasi-box sign-${s}`;
+      signBoxes[s] = box;
+      grid.appendChild(box);
+    });
+    
+    const center = document.createElement('div');
+    center.className = 'center-logo';
+    center.innerText = varga.name;
+    grid.appendChild(center);
+    
+    if (varga.ascendant && varga.ascendant.divisional_sign) {
+      const ascTag = document.createElement('div');
+      ascTag.className = 'planet-tag ascendant';
+      ascTag.innerText = 'Asc';
+      ascTag.title = `${varga.ascendant.degree}°${varga.ascendant.minute}'`;
+      signBoxes[varga.ascendant.divisional_sign].appendChild(ascTag);
+    }
+    
+    if (varga.planets) {
+      varga.planets.forEach(p => {
+        const pTag = document.createElement('div');
+        pTag.className = 'planet-tag';
+        pTag.innerText = (p.retrograde ? `(${getShortName(p.planet)})` : getShortName(p.planet));
+        pTag.title = `${p.planet}\n${p.degree}°${p.minute}'`;
+        signBoxes[p.divisional_sign].appendChild(pTag);
+      });
+    }
+    
+    wrapper.appendChild(grid);
+    container.appendChild(wrapper);
+  });
+}
+
+function formatDate(ds) {
+  return new Date(ds).toLocaleDateString();
+}
+
+function createDashaNode(title, start, end, childrenHTML) {
+  const li = document.createElement('li');
+  
+  const span = document.createElement('span');
+  span.className = 'dasha-toggle';
+  span.innerHTML = `${title} <span class="dasha-dates">(${formatDate(start)} - ${formatDate(end)})</span>`;
+  
+  const content = document.createElement('ul');
+  content.className = 'dasha-tree dasha-content';
+  if (childrenHTML) content.innerHTML = childrenHTML;
+  
+  span.onclick = () => {
+    span.classList.toggle('open');
+    content.classList.toggle('open');
+  };
+  
+  li.appendChild(span);
+  li.appendChild(content);
+  return li;
+}
+
+function renderDasha(dashaData) {
+  const container = document.getElementById('dashaTree');
+  const ul = document.createElement('ul');
+  ul.className = 'dasha-tree';
+  
+  dashaData.mahadasha.forEach(md => {
+    let adHTML = '';
+    md.antardasha.forEach(ad => {
+      let pdHTML = '';
+      ad.pratyantardasha.forEach(pd => {
+        let sdHTML = '';
+        pd.sookshma.forEach(sd => {
+          sdHTML += `<li>${sd.lord} <span class="dasha-dates">(${formatDate(sd.start_date)} - ${formatDate(sd.end_date)})</span></li>`;
+        });
+        pdHTML += `<li><span class="dasha-toggle" onclick="this.classList.toggle('open'); this.nextElementSibling.classList.toggle('open')">${pd.lord} <span class="dasha-dates">(${formatDate(pd.start_date)} - ${formatDate(pd.end_date)})</span></span><ul class="dasha-tree dasha-content">${sdHTML}</ul></li>`;
+      });
+      adHTML += `<li><span class="dasha-toggle" onclick="this.classList.toggle('open'); this.nextElementSibling.classList.toggle('open')">${ad.lord} <span class="dasha-dates">(${formatDate(ad.start_date)} - ${formatDate(ad.end_date)})</span></span><ul class="dasha-tree dasha-content">${pdHTML}</ul></li>`;
+    });
+    const mdNode = createDashaNode(md.lord, md.start_date, md.end_date, adHTML);
+    ul.appendChild(mdNode);
+  });
+  
+  container.appendChild(ul);
+}
+</script>
+</body>
+</html>

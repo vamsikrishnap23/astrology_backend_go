@@ -39,6 +39,23 @@ func UTCToJulianDay(utc time.Time) float64 {
 	return jd
 }
 
+// JulianDayToUTC converts Julian Day (UT) back to a time.Time UTC object.
+func JulianDayToUTC(jd float64) time.Time {
+	res := swisseph.Revjul(jd, swisseph.GregCal)
+
+	year := int(res.Year)
+	month := time.Month(res.Month)
+	day := int(res.Day)
+
+	hourFloat := res.Hour
+	h := int(hourFloat)
+	rem := (hourFloat - float64(h)) * 60.0
+	m := int(rem)
+	s := int((rem - float64(m)) * 60.0)
+
+	return time.Date(year, month, day, h, m, s, 0, time.UTC)
+}
+
 // ConvertDecimalToDegree minute second
 func DecimalToDMS(decimal float64) (sign string, deg int, min int, sec float64) {
 	// Normalize between 0 and 360

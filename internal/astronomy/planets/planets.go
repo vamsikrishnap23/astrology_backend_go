@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/tejzpr/go-swisseph"
+	"github.com/vamsi/astrology_backend_go/internal/astronomy/ephemeris"
 	"github.com/vamsi/astrology_backend_go/internal/astronomy/time"
 	"github.com/vamsi/astrology_backend_go/internal/domain"
 )
@@ -26,6 +27,15 @@ var PlanetMap = map[string]int{
 // CalculatePlanets calculates the positions of requested planets.
 func CalculatePlanets(ctx *domain.CalculationContext) ([]domain.PlanetPosition, error) {
 	var positions []domain.PlanetPosition
+
+	// Lock the global ephemeris mutex to prevent C-level concurrency corruption
+	ephemeris.Mu.Lock()
+	defer ephemeris.Mu.Unlock()
+
+	// IMPORTANT: Swiss Ephemeris C library uses thread-local storage.
+	// Since Go routines jump between OS threads, we MUST explicitly set the path
+	// for the current OS thread before every calculation.
+	swisseph.SetEphePath(ephemeris.EphePath)
 
 	// Set Ayanamsa for this calculation
 	swisseph.SetSidMode(int32(ctx.Config.AyanamsaMode), 0, 0)
@@ -55,6 +65,7 @@ func CalculatePlanets(ctx *domain.CalculationContext) ([]domain.PlanetPosition, 
 	ketuPos.TropicalLongitude = math.Mod(rahuPos.TropicalLongitude+180.0, 360.0)
 	ketuPos.SiderealLongitude = math.Mod(rahuPos.SiderealLongitude+180.0, 360.0)
 	ketuPos.Latitude = -rahuPos.Latitude // Opposite latitude
+	ketuPos.Declination = -rahuPos.Declination
 
 	setDMS(&ketuPos)
 
@@ -80,6 +91,11 @@ func calculateSinglePlanet(name string, seID int, ctx *domain.CalculationContext
 	dist := res.Data[2]
 	speed := res.Data[3]
 
+	// Get Equatorial coordinates for Declination
+	equatFlag := int32(swisseph.FlagSwieph | swisseph.FlagEquatorial)
+	resEq := swisseph.CalcUT(ctx.JulianDayUT, int32(seID), equatFlag)
+	declination := resEq.Data[1]
+
 	// Calculate Sidereal by traditional Vedic method (Tropical - Ayanamsa)
 	// Swiss Ephemeris FlagSidereal performs a complex projection that differs by ~4 arc-seconds.
 	siderealLon := math.Mod(tropicalLon-ctx.Ayanamsa, 360.0)
@@ -92,6 +108,7 @@ func calculateSinglePlanet(name string, seID int, ctx *domain.CalculationContext
 		TropicalLongitude: tropicalLon,
 		SiderealLongitude: siderealLon,
 		Latitude:          lat,
+		Declination:       declination,
 		Distance:          dist,
 		Speed:             speed,
 		Retrograde:        speed < 0,

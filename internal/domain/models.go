@@ -39,6 +39,7 @@ type PlanetPosition struct {
 	TropicalLongitude float64 `json:"tropical_longitude"`
 	SiderealLongitude float64 `json:"sidereal_longitude"`
 	Latitude          float64 `json:"latitude,omitempty"`
+	Declination       float64 `json:"declination,omitempty"`
 	Distance          float64 `json:"distance,omitempty"`
 	Speed             float64 `json:"speed"`
 	Retrograde        bool    `json:"retrograde"`
