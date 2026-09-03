@@ -38,6 +38,13 @@ func main() {
 	}
 	defer ephemeris.Close()
 
+	// Health Check
+	http.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte(`{"status":"ok"}`))
+	})
+
 	// Setup routing
 	http.HandleFunc("/api/chart", handlers.ChartHandler)
 	http.HandleFunc("/api/panchang", handlers.PanchangHandler)
