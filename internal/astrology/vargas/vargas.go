@@ -3,6 +3,7 @@ package vargas
 import (
 	astronomyTime "github.com/vamsikrishnap23/astrology_backend_go/internal/astronomy/time"
 	"github.com/vamsikrishnap23/astrology_backend_go/internal/domain"
+	"math"
 )
 
 var signNames = []string{
@@ -52,11 +53,7 @@ func CalculateVargas(tables domain.TablesResult, cusps []domain.HouseCusp) domai
 			pos := rule.Calculate(ascLon)
 			// Need to convert the pos.LongitudeInDivision (0-30) into deg/min/sec
 			_, deg, min, sec := astronomyTime.DecimalToDMS(pos.LongitudeInDivision)
-
-			// We need to calculate Nakshatra inside the divisional chart if requested,
-			// but wait, standard Varga tooltip usually means the "original" nakshatra or the nakshatra IN the divisional chart?
-			// The requirements say: "Do not overwrite the original planetary longitude. Be careful to distinguish: source natal longitude, calculated divisional sign, degree within the divisional sign".
-			// Let's map the degree inside the divisional sign. We won't re-calculate Nakshatra inside the varga unless explicitly requested. We'll use the original Nakshatra for the tooltip as metadata, or we can just leave Nakshatra as original.
+			nakName, nakPada, nakLord := getNakshatraInfo(pos.SignIndex, pos.LongitudeInDivision)
 
 			chart.Ascendant = domain.VargaPlanet{
 				Planet:          "Ascendant",
@@ -65,8 +62,9 @@ func CalculateVargas(tables domain.TablesResult, cusps []domain.HouseCusp) domai
 				Degree:          deg,
 				Minute:          min,
 				Second:          sec,
-				Nakshatra:       ascTableHouse.NakshatraLord, // We can just provide the lord or original name
-				NakshatraPada:   0,                           // Asc doesn't natively have pada mapped in TableHouse
+				Nakshatra:       nakName,
+				NakshatraPada:   nakPada,
+				NakshatraLord:   nakLord,
 				SignLord:        signLords[pos.SignIndex],
 				Retrograde:      false,
 			}
@@ -76,6 +74,7 @@ func CalculateVargas(tables domain.TablesResult, cusps []domain.HouseCusp) domai
 		for _, p := range tables.PlanetaryTable {
 			pos := rule.Calculate(p.ExactLongitude)
 			_, deg, min, sec := astronomyTime.DecimalToDMS(pos.LongitudeInDivision)
+			nakName, nakPada, nakLord := getNakshatraInfo(pos.SignIndex, pos.LongitudeInDivision)
 
 			chart.Planets = append(chart.Planets, domain.VargaPlanet{
 				Planet:          p.PlanetName,
@@ -84,8 +83,9 @@ func CalculateVargas(tables domain.TablesResult, cusps []domain.HouseCusp) domai
 				Degree:          deg,
 				Minute:          min,
 				Second:          sec,
-				Nakshatra:       p.Nakshatra,
-				NakshatraPada:   p.NakshatraPada,
+				Nakshatra:       nakName,
+				NakshatraPada:   nakPada,
+				NakshatraLord:   nakLord,
 				SignLord:        signLords[pos.SignIndex],
 				Retrograde:      p.Retrograde,
 			})
@@ -96,17 +96,19 @@ func CalculateVargas(tables domain.TablesResult, cusps []domain.HouseCusp) domai
 		for _, hc := range cusps {
 			cPos := rule.Calculate(hc.Longitude)
 			_, cDeg, cMin, cSec := astronomyTime.DecimalToDMS(cPos.LongitudeInDivision)
+			nakName, nakPada, nakLord := getNakshatraInfo(cPos.SignIndex, cPos.LongitudeInDivision)
+			absLon := float64(cPos.SignIndex*30) + cPos.LongitudeInDivision
 
 			vargaHouses = append(vargaHouses, domain.HouseCusp{
 				HouseNumber:   hc.HouseNumber,
-				Longitude:     hc.Longitude, // Keep original longitude or maybe they want the divisional longitude? The frontend just wants the Sign, Degree, Minute, Second
+				Longitude:     absLon, // Pass the projected mathematical longitude instead of the source longitude!
 				Sign:          signNames[cPos.SignIndex],
 				Degree:        cDeg,
 				Minute:        cMin,
 				Second:        cSec,
-				Nakshatra:     hc.Nakshatra,
-				NakshatraPada: hc.NakshatraPada,
-				NakshatraLord: hc.NakshatraLord,
+				Nakshatra:     nakName,
+				NakshatraPada: nakPada,
+				NakshatraLord: nakLord,
 			})
 		}
 		chart.Houses = vargaHouses
@@ -115,4 +117,25 @@ func CalculateVargas(tables domain.TablesResult, cusps []domain.HouseCusp) domai
 	}
 
 	return res
+}
+
+var nakshatras = []string{
+	"Ashwini", "Bharani", "Krittika", "Rohini", "Mrigashira", "Ardra",
+	"Punarvasu", "Pushya", "Ashlesha", "Magha", "Purva Phalguni", "Uttara Phalguni",
+	"Hasta", "Chitra", "Swati", "Vishakha", "Anuradha", "Jyeshtha",
+	"Mula", "Purva Ashadha", "Uttara Ashadha", "Shravana", "Dhanishta", "Shatabhisha",
+	"Purva Bhadrapada", "Uttara Bhadrapada", "Revati",
+}
+
+var nakshatraLords = []string{"Ketu", "Venus", "Sun", "Moon", "Mars", "Rahu", "Jupiter", "Saturn", "Mercury"}
+
+func getNakshatraInfo(signIndex int, lonInDiv float64) (string, int, string) {
+	absLon := float64(signIndex*30) + lonInDiv
+	interval := 13.0 + 1.0/3.0
+	nakIdx := int(math.Floor(absLon / interval))
+	nakName := nakshatras[nakIdx%27]
+	nakLord := nakshatraLords[nakIdx%9]
+	nakProgress := math.Mod(absLon, interval) / interval * 100.0
+	pada := int(math.Floor(nakProgress/25.0)) + 1
+	return nakName, pada, nakLord
 }
