@@ -48,13 +48,22 @@ type PlanetPosition struct {
 	Degree            int     `json:"degree"`
 	Minute            int     `json:"minute"`
 	Second            float64 `json:"second"`
+	Nakshatra         string  `json:"nakshatra,omitempty"`
+	NakshatraPada     int     `json:"nakshatra_pada,omitempty"`
+	NakshatraLord     string  `json:"nakshatra_lord,omitempty"`
 }
 
 // HouseCusp represents a single house cusp.
 type HouseCusp struct {
-	HouseNumber int     `json:"house_number"`
-	Longitude   float64 `json:"longitude"`
-	Sign        string  `json:"sign"`
+	HouseNumber   int     `json:"house_number"`
+	Longitude     float64 `json:"longitude"`
+	Sign          string  `json:"sign"`
+	Degree        int     `json:"degree"`
+	Minute        int     `json:"minute"`
+	Second        float64 `json:"second"`
+	Nakshatra     string  `json:"nakshatra"`
+	NakshatraPada int     `json:"nakshatra_pada"`
+	NakshatraLord string  `json:"nakshatra_lord"`
 }
 
 // ChartData is the overall chart response.

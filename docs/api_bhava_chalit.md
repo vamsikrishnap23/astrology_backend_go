@@ -20,6 +20,9 @@ Standard `BirthInput`.
       "degree": 5,
       "minute": 20,
       "second": 43.1,
+      "nakshatra": "Ashwini",
+      "nakshatra_pada": 2,
+      "nakshatra_lord": "Ketu",
       "occupants": [
         {
           "planet_name": "Rahu",
@@ -28,7 +31,10 @@ Standard `BirthInput`.
           "degree": 17,
           "minute": 5,
           "second": 12.0,
-          "exact_longitude": 347.086
+          "exact_longitude": 347.086,
+          "nakshatra": "Revati",
+          "nakshatra_pada": 1,
+          "nakshatra_lord": "Mercury"
         }
       ]
     },

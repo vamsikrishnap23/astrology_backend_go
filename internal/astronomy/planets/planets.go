@@ -124,5 +124,25 @@ func setDMS(pos *domain.PlanetPosition) {
 	pos.Degree = deg
 	pos.Minute = min
 	pos.Second = sec
+
+	var nakshatras = []string{
+		"Ashwini", "Bharani", "Krittika", "Rohini", "Mrigashira", "Ardra",
+		"Punarvasu", "Pushya", "Ashlesha", "Magha", "Purva Phalguni", "Uttara Phalguni",
+		"Hasta", "Chitra", "Swati", "Vishakha", "Anuradha", "Jyeshtha",
+		"Mula", "Purva Ashadha", "Uttara Ashadha", "Shravana", "Dhanishta", "Shatabhisha",
+		"Purva Bhadrapada", "Uttara Bhadrapada", "Revati",
+	}
+	var nakshatraLords = []string{"Ketu", "Venus", "Sun", "Moon", "Mars", "Rahu", "Jupiter", "Saturn", "Mercury"}
+
+	interval := 13.0 + 1.0/3.0
+	nakIdx := int(math.Floor(pos.SiderealLongitude / interval))
+	nakName := nakshatras[nakIdx%27]
+	nakLord := nakshatraLords[nakIdx%9]
+	nakProgress := math.Mod(pos.SiderealLongitude, interval) / interval * 100.0
+	pada := int(math.Floor(nakProgress/25.0)) + 1
+
+	pos.Nakshatra = nakName
+	pos.NakshatraPada = pada
+	pos.NakshatraLord = nakLord
 	pos.DegreeInSign = float64(deg) + float64(min)/60.0 + sec/3600.0
 }

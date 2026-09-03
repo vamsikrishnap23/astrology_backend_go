@@ -39,7 +39,7 @@ func CalculateShadbala(ctx *domain.CalculationContext) (domain.ShadbalaResult, e
 	// Get Vargas
 	hCusps := []domain.HouseCusp{{HouseNumber: 1, Longitude: ascLon}} // Minimal houses for tables if full isn't required. Or calculate full.
 	tablesRes := tables.GenerateTables(calcPlanets, hCusps)
-	vargasRes := vargas.CalculateVargas(tablesRes)
+	vargasRes := vargas.CalculateVargas(tablesRes, hCusps)
 
 	// Create lookup maps
 	lons := make(map[string]float64)

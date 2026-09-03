@@ -26,7 +26,8 @@ func CalculateBhavaChalit(ctx *domain.CalculationContext) (domain.BhavaChalitRes
 		Ascendant: ascendant,
 	}
 
-	for _, th := range tblRes.HouseTable {
+	for i, th := range tblRes.HouseTable {
+		hc := houseCusps[i] // They align 1:1
 		bh := domain.BhavaChalitHouse{
 			HouseNumber:   th.HouseNumber,
 			CuspLongitude: th.CuspLongitude,
@@ -34,6 +35,9 @@ func CalculateBhavaChalit(ctx *domain.CalculationContext) (domain.BhavaChalitRes
 			Degree:        th.Degree,
 			Minute:        th.Minute,
 			Second:        th.Second,
+			Nakshatra:     hc.Nakshatra,
+			NakshatraPada: hc.NakshatraPada,
+			NakshatraLord: hc.NakshatraLord,
 			Occupants:     []domain.BhavaChalitPlanet{},
 		}
 
@@ -50,6 +54,9 @@ func CalculateBhavaChalit(ctx *domain.CalculationContext) (domain.BhavaChalitRes
 						Minute:         tp.Minute,
 						Second:         tp.Second,
 						ExactLongitude: tp.ExactLongitude,
+						Nakshatra:      tp.Nakshatra,
+						NakshatraPada:  tp.NakshatraPada,
+						NakshatraLord:  tp.NakshatraLord,
 					}
 					bh.Occupants = append(bh.Occupants, bp)
 					break

@@ -61,7 +61,7 @@ func VargasHandler(w http.ResponseWriter, r *http.Request) {
 	tblRes := tables.GenerateTables(planetPositions, houseCusps)
 
 	// Delegate to the vargas engine
-	vargasRes := vargas.CalculateVargas(tblRes)
+	vargasRes := vargas.CalculateVargas(tblRes, houseCusps)
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(vargasRes)

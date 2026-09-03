@@ -16,7 +16,7 @@ var signLords = []string{
 }
 
 // CalculateVargas generates all registered Varga charts based on planetary sidereal longitudes and Ascendant.
-func CalculateVargas(tables domain.TablesResult) domain.VargasResult {
+func CalculateVargas(tables domain.TablesResult, cusps []domain.HouseCusp) domain.VargasResult {
 	var res domain.VargasResult
 
 	// Find the Ascendant from the House Table (House 1)
@@ -90,6 +90,9 @@ func CalculateVargas(tables domain.TablesResult) domain.VargasResult {
 				Retrograde:      p.Retrograde,
 			})
 		}
+
+		// Add mathematical house cusps for every chart so the frontend can use them anywhere
+		chart.Houses = cusps
 
 		res.Vargas = append(res.Vargas, chart)
 	}

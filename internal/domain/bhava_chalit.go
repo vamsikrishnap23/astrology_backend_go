@@ -9,6 +9,9 @@ type BhavaChalitPlanet struct {
 	Minute         int     `json:"minute"`
 	Second         float64 `json:"second"`
 	ExactLongitude float64 `json:"exact_longitude"`
+	Nakshatra      string  `json:"nakshatra"`
+	NakshatraPada  int     `json:"nakshatra_pada"`
+	NakshatraLord  string  `json:"nakshatra_lord"`
 }
 
 // BhavaChalitHouse represents a house in the Bhava Chalit chart.
@@ -19,6 +22,9 @@ type BhavaChalitHouse struct {
 	Degree        int                 `json:"degree"`
 	Minute        int                 `json:"minute"`
 	Second        float64             `json:"second"`
+	Nakshatra     string              `json:"nakshatra"`
+	NakshatraPada int                 `json:"nakshatra_pada"`
+	NakshatraLord string              `json:"nakshatra_lord"`
 	Occupants     []BhavaChalitPlanet `json:"occupants"`
 }
 

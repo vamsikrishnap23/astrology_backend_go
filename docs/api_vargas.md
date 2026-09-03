@@ -24,6 +24,7 @@ Standard `BirthInput`.
         "second": 43.1,
         "nakshatra": "Rohini",
         "nakshatra_pada": 3,
+        "nakshatra_lord": "Moon",
         "sign_lord": "Venus",
         "retrograde": false
       },
@@ -37,8 +38,22 @@ Standard `BirthInput`.
           "second": 12.0,
           "nakshatra": "Pushya",
           "nakshatra_pada": 1,
+          "nakshatra_lord": "Saturn",
           "sign_lord": "Moon",
           "retrograde": false
+        }
+      ],
+      "houses": [
+        {
+          "house_number": 1,
+          "longitude": 5.3453,
+          "sign": "Aries",
+          "degree": 5,
+          "minute": 20,
+          "second": 43.1,
+          "nakshatra": "Ashwini",
+          "nakshatra_pada": 2,
+          "nakshatra_lord": "Ketu"
         }
       ]
     }
