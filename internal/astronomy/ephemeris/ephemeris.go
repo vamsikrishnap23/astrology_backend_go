@@ -52,8 +52,10 @@ func GetAyanamsaMode(name string) int {
 		return swisseph.SidmLahiri
 	case "raman":
 		return swisseph.SidmRaman
-	case "krishnamurti":
+	case "krishnamurti", "kp":
 		return swisseph.SidmKrishnamurti
+	case "kpnew", "krishnamurti-senthilathiban":
+		return swisseph.SidmKrishnamurtiVP291
 	case "fagan-bradley":
 		return swisseph.SidmFaganBradley
 	case "yukteshwar":
