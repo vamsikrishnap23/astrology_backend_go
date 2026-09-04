@@ -14,24 +14,32 @@ Standard `BirthInput`.
 ```json
 {
   "calculation_time_utc": "2005-11-23T10:05:00Z",
-  "karakas": [
+  "planets": [
     {
       "planet": "Venus",
       "karaka": "AK",
-      "sign": "Sagittarius",
+      "source_longitude": 268.2616,
+      "divisional_sign": "Sagittarius",
       "degree": 28,
       "minute": 15,
       "second": 42.1,
+      "nakshatra": "Uttara Ashadha",
+      "nakshatra_pada": 1,
+      "nakshatra_lord": "Sun",
       "degree_in_sign": 28.2616,
       "retrograde": false
     },
     {
       "planet": "Mercury",
       "karaka": "AmK",
-      "sign": "Scorpio",
+      "source_longitude": 234.1700,
+      "divisional_sign": "Scorpio",
       "degree": 24,
       "minute": 10,
       "second": 12.0,
+      "nakshatra": "Jyeshtha",
+      "nakshatra_pada": 3,
+      "nakshatra_lord": "Mercury",
       "degree_in_sign": 24.1700,
       "retrograde": false
     }

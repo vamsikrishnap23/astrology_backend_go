@@ -42,18 +42,17 @@ func TestCalculateBhavaChalit(t *testing.T) {
 		t.Errorf("Expected 12 houses, got %d", len(res.Houses))
 	}
 
-	// Test if occupants are matched and mapped properly
-	var totalOccupants int
-	for _, h := range res.Houses {
-		totalOccupants += len(h.Occupants)
-		for _, occ := range h.Occupants {
-			if occ.PlanetName == "" || occ.Sign == "" {
-				t.Errorf("Occupant missing fields: %+v", occ)
-			}
-		}
+	// Test if planets are correctly flattened and contain house numbers
+	if len(res.Planets) < 10 { // Sun through Pluto + Rahu/Ketu = 12 total usually
+		t.Errorf("Expected at least 10 planets mapped, got %d", len(res.Planets))
 	}
 
-	if totalOccupants < 10 { // Sun through Pluto + Rahu/Ketu = 12 total usually
-		t.Errorf("Expected at least 10 occupants mapped into houses, got %d", totalOccupants)
+	for _, p := range res.Planets {
+		if p.Planet == "" || p.DivisionalSign == "" {
+			t.Errorf("Planet missing fields: %+v", p)
+		}
+		if p.HouseNumber < 1 || p.HouseNumber > 12 {
+			t.Errorf("Invalid house number for planet %s: %d", p.Planet, p.HouseNumber)
+		}
 	}
 }

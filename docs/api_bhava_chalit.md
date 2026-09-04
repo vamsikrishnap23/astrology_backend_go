@@ -12,40 +12,44 @@ Standard `BirthInput`.
 ```json
 {
   "ascendant": 5.3453,
+  "planets": [
+    {
+      "planet": "Rahu",
+      "source_longitude": 347.086,
+      "divisional_sign": "Pisces",
+      "degree": 17,
+      "minute": 5,
+      "second": 12.0,
+      "nakshatra": "Revati",
+      "nakshatra_pada": 1,
+      "nakshatra_lord": "Mercury",
+      "sign_lord": "Jupiter",
+      "retrograde": true,
+      "house_number": 1
+    }
+  ],
   "houses": [
     {
       "house_number": 1,
-      "cusp_longitude": 5.3453,
+      "longitude": 5.3453,
       "sign": "Aries",
       "degree": 5,
       "minute": 20,
       "second": 43.1,
       "nakshatra": "Ashwini",
       "nakshatra_pada": 2,
-      "nakshatra_lord": "Ketu",
-      "occupants": [
-        {
-          "planet_name": "Rahu",
-          "house_number": 1,
-          "sign": "Pisces",
-          "degree": 17,
-          "minute": 5,
-          "second": 12.0,
-          "exact_longitude": 347.086,
-          "nakshatra": "Revati",
-          "nakshatra_pada": 1,
-          "nakshatra_lord": "Mercury"
-        }
-      ]
+      "nakshatra_lord": "Ketu"
     },
     {
       "house_number": 2,
-      "cusp_longitude": 36.4,
+      "longitude": 36.4,
       "sign": "Taurus",
       "degree": 6,
       "minute": 24,
       "second": 0.0,
-      "occupants": []
+      "nakshatra": "Krittika",
+      "nakshatra_pada": 3,
+      "nakshatra_lord": "Sun"
     }
   ]
 }

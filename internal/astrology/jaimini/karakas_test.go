@@ -37,14 +37,14 @@ func TestVamsiRegression(t *testing.T) {
 		t.Fatalf("Failed to calculate jaimini karakas: %v", err)
 	}
 
-	if len(res.Karakas) != 7 {
-		t.Fatalf("Expected 7 karakas, got %d", len(res.Karakas))
+	if len(res.Planets) != 7 {
+		t.Fatalf("Expected 7 karakas, got %d", len(res.Planets))
 	}
 
 	expectedKarakas := []string{"Venus", "Saturn", "Mars", "Jupiter", "Mercury", "Sun", "Moon"}
 	expectedNames := []string{"AK", "AmK", "BK", "MK", "PK", "GK", "DK"}
 
-	for i, k := range res.Karakas {
+	for i, k := range res.Planets {
 		if k.Planet != expectedKarakas[i] {
 			t.Errorf("Rank %d: Expected Planet %s, got %s", i+1, expectedKarakas[i], k.Planet)
 		}

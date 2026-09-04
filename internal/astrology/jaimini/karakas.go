@@ -41,13 +41,17 @@ func CalculateCharaKarakas(ctx *domain.CalculationContext) (domain.JaiminiKaraka
 
 		if isJaimini {
 			candidates = append(candidates, domain.CharaKaraka{
-				Planet:       p.Planet,
-				Sign:         p.Sign,
-				Degree:       p.Degree,
-				Minute:       p.Minute,
-				Second:       p.Second,
-				DegreeInSign: p.DegreeInSign,
-				Retrograde:   p.Retrograde,
+				Planet:          p.Planet,
+				SourceLongitude: p.SiderealLongitude,
+				DivisionalSign:  p.Sign,
+				Degree:          p.Degree,
+				Minute:          p.Minute,
+				Second:          p.Second,
+				Nakshatra:       p.Nakshatra,
+				NakshatraPada:   p.NakshatraPada,
+				NakshatraLord:   p.NakshatraLord,
+				DegreeInSign:    p.DegreeInSign,
+				Retrograde:      p.Retrograde,
 			})
 		}
 	}
@@ -70,6 +74,6 @@ func CalculateCharaKarakas(ctx *domain.CalculationContext) (domain.JaiminiKaraka
 
 	return domain.JaiminiKarakasResult{
 		CalculationTimeUTC: ctx.UTCTime.Format(time.RFC3339),
-		Karakas:            candidates,
+		Planets:            candidates,
 	}, nil
 }

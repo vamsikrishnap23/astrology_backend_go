@@ -24,47 +24,27 @@ func CalculateBhavaChalit(ctx *domain.CalculationContext) (domain.BhavaChalitRes
 
 	res := domain.BhavaChalitResult{
 		Ascendant: ascendant,
+		Planets:   []domain.BhavaChalitPlanet{},
+		Houses:    houseCusps, // Direct assignment of the full array
 	}
 
-	for i, th := range tblRes.HouseTable {
-		hc := houseCusps[i] // They align 1:1
-		bh := domain.BhavaChalitHouse{
-			HouseNumber:   th.HouseNumber,
-			CuspLongitude: th.CuspLongitude,
-			Sign:          th.Sign,
-			Degree:        th.Degree,
-			Minute:        th.Minute,
-			Second:        th.Second,
-			Nakshatra:     hc.Nakshatra,
-			NakshatraPada: hc.NakshatraPada,
-			NakshatraLord: hc.NakshatraLord,
-			Occupants:     []domain.BhavaChalitPlanet{},
+	// Build the flattened planets array
+	for _, tp := range tblRes.PlanetaryTable {
+		bp := domain.BhavaChalitPlanet{
+			Planet:          tp.PlanetName,
+			SourceLongitude: tp.ExactLongitude,
+			DivisionalSign:  tp.Sign,
+			Degree:          tp.Degree,
+			Minute:          tp.Minute,
+			Second:          tp.Second,
+			Nakshatra:       tp.Nakshatra,
+			NakshatraPada:   tp.NakshatraPada,
+			NakshatraLord:   tp.NakshatraLord,
+			SignLord:        tp.SignLord,
+			Retrograde:      tp.Retrograde,
+			HouseNumber:     tp.HouseNumber,
 		}
-
-		// Find the occupants
-		for _, occName := range th.Occupants {
-			// Find planet in planetaryTable
-			for _, tp := range tblRes.PlanetaryTable {
-				if tp.PlanetName == occName {
-					bp := domain.BhavaChalitPlanet{
-						PlanetName:     tp.PlanetName,
-						HouseNumber:    tp.HouseNumber,
-						Sign:           tp.Sign,
-						Degree:         tp.Degree,
-						Minute:         tp.Minute,
-						Second:         tp.Second,
-						ExactLongitude: tp.ExactLongitude,
-						Nakshatra:      tp.Nakshatra,
-						NakshatraPada:  tp.NakshatraPada,
-						NakshatraLord:  tp.NakshatraLord,
-					}
-					bh.Occupants = append(bh.Occupants, bp)
-					break
-				}
-			}
-		}
-
-		res.Houses = append(res.Houses, bh)
+		res.Planets = append(res.Planets, bp)
 	}
 
 	return res, nil
