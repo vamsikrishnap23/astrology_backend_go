@@ -28,52 +28,53 @@ func CalculateCharaKarakas(ctx *domain.CalculationContext) (domain.JaiminiKaraka
 		return domain.JaiminiKarakasResult{}, err
 	}
 
-	var candidates []domain.CharaKaraka
+	var allPlanets []domain.CharaKaraka
 
 	for _, p := range calcPlanets {
-		isJaimini := false
+		allPlanets = append(allPlanets, domain.CharaKaraka{
+			Planet:          p.Planet,
+			SourceLongitude: p.SiderealLongitude,
+			DivisionalSign:  p.Sign,
+			Degree:          p.Degree,
+			Minute:          p.Minute,
+			Second:          p.Second,
+			Nakshatra:       p.Nakshatra,
+			NakshatraPada:   p.NakshatraPada,
+			NakshatraLord:   p.NakshatraLord,
+			DegreeInSign:    p.DegreeInSign,
+			Retrograde:      p.Retrograde,
+		})
+	}
+
+	// Filter out the 7 core planets for Jaimini ranking
+	var jaiminiRefs []*domain.CharaKaraka
+	for i := range allPlanets {
 		for _, jp := range JaiminiPlanets {
-			if jp == p.Planet {
-				isJaimini = true
+			if jp == allPlanets[i].Planet {
+				jaiminiRefs = append(jaiminiRefs, &allPlanets[i])
 				break
 			}
-		}
-
-		if isJaimini {
-			candidates = append(candidates, domain.CharaKaraka{
-				Planet:          p.Planet,
-				SourceLongitude: p.SiderealLongitude,
-				DivisionalSign:  p.Sign,
-				Degree:          p.Degree,
-				Minute:          p.Minute,
-				Second:          p.Second,
-				Nakshatra:       p.Nakshatra,
-				NakshatraPada:   p.NakshatraPada,
-				NakshatraLord:   p.NakshatraLord,
-				DegreeInSign:    p.DegreeInSign,
-				Retrograde:      p.Retrograde,
-			})
 		}
 	}
 
 	// Sort by DegreeInSign descending
-	sort.Slice(candidates, func(i, j int) bool {
-		if candidates[i].DegreeInSign == candidates[j].DegreeInSign {
+	sort.Slice(jaiminiRefs, func(i, j int) bool {
+		if jaiminiRefs[i].DegreeInSign == jaiminiRefs[j].DegreeInSign {
 			// Deterministic tie-breaker based on standard planetary order
-			return getFallbackPriority(candidates[i].Planet) < getFallbackPriority(candidates[j].Planet)
+			return getFallbackPriority(jaiminiRefs[i].Planet) < getFallbackPriority(jaiminiRefs[j].Planet)
 		}
-		return candidates[i].DegreeInSign > candidates[j].DegreeInSign
+		return jaiminiRefs[i].DegreeInSign > jaiminiRefs[j].DegreeInSign
 	})
 
 	// Assign Karakas
-	for i := range candidates {
+	for i := range jaiminiRefs {
 		if i < len(KarakaNames) {
-			candidates[i].Karaka = KarakaNames[i]
+			jaiminiRefs[i].Karaka = KarakaNames[i]
 		}
 	}
 
 	return domain.JaiminiKarakasResult{
 		CalculationTimeUTC: ctx.UTCTime.Format(time.RFC3339),
-		Planets:            candidates,
+		Planets:            allPlanets,
 	}, nil
 }

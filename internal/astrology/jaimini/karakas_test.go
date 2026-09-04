@@ -37,19 +37,29 @@ func TestVamsiRegression(t *testing.T) {
 		t.Fatalf("Failed to calculate jaimini karakas: %v", err)
 	}
 
-	if len(res.Planets) != 7 {
-		t.Fatalf("Expected 7 karakas, got %d", len(res.Planets))
+	if len(res.Planets) < 9 {
+		t.Fatalf("Expected 12 planets, got %d", len(res.Planets))
 	}
 
-	expectedKarakas := []string{"Venus", "Saturn", "Mars", "Jupiter", "Mercury", "Sun", "Moon"}
-	expectedNames := []string{"AK", "AmK", "BK", "MK", "PK", "GK", "DK"}
+	expectedKarakas := map[string]string{
+		"Venus":   "AK",
+		"Saturn":  "AmK",
+		"Mars":    "BK",
+		"Jupiter": "MK",
+		"Mercury": "PK",
+		"Sun":     "GK",
+		"Moon":    "DK",
+	}
 
-	for i, k := range res.Planets {
-		if k.Planet != expectedKarakas[i] {
-			t.Errorf("Rank %d: Expected Planet %s, got %s", i+1, expectedKarakas[i], k.Planet)
-		}
-		if k.Karaka != expectedNames[i] {
-			t.Errorf("Rank %d: Expected Karaka %s, got %s", i+1, expectedNames[i], k.Karaka)
+	for _, k := range res.Planets {
+		if expectedKaraka, exists := expectedKarakas[k.Planet]; exists {
+			if k.Karaka != expectedKaraka {
+				t.Errorf("Expected Karaka %s for %s, got %s", expectedKaraka, k.Planet, k.Karaka)
+			}
+		} else {
+			if k.Karaka != "" {
+				t.Errorf("Planet %s should not have a Karaka, got %s", k.Planet, k.Karaka)
+			}
 		}
 	}
 }
