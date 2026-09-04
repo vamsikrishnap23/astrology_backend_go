@@ -34,6 +34,7 @@ var Registry = []VargaRule{
 	&RuleD40{},
 	&RuleD45{},
 	&RuleD60{},
+	&RuleD150{},
 }
 
 // Common helper to wrap signs between 0 and 11
@@ -429,4 +430,29 @@ func (r *RuleD60) Calculate(lon float64) VargaPosition {
 
 	divSign := baseSign + part
 	return VargaPosition{SignIndex: wrapSign(divSign), LongitudeInDivision: math.Mod(rem, partLen) * 60.0}
+}
+
+// --- D150 Nadiamsha ---
+type RuleD150 struct{}
+
+func (r *RuleD150) Name() string  { return "D150" }
+func (r *RuleD150) Division() int { return 150 }
+func (r *RuleD150) Calculate(lon float64) VargaPosition {
+	baseSign := int(math.Floor(lon / 30.0))
+	rem := math.Mod(lon, 30.0)
+	partLen := 30.0 / 150.0
+	part := int(math.Floor(rem / partLen))
+
+	modality := baseSign % 3
+	var startSign int
+	if modality == 0 { // Movable
+		startSign = baseSign
+	} else if modality == 1 { // Fixed
+		startSign = baseSign + 8
+	} else { // Dual
+		startSign = baseSign + 4
+	}
+
+	divSign := startSign + part
+	return VargaPosition{SignIndex: wrapSign(divSign), LongitudeInDivision: math.Mod(rem, partLen) * 150.0}
 }
