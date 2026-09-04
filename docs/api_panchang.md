@@ -3,7 +3,7 @@
 **Endpoint:** `POST /api/panchang`
 
 ## Description
-Calculates the 5 limbs of the Vedic calendar (Panchang): Tithi, Vara, Nakshatra, Yoga, and Karana, along with daily sun/moon timings and inauspicious periods (Rahu Kalam, Yamaganda, Gulika).
+Calculates the 5 limbs of the Vedic calendar (Panchang): Tithi, Vara, Nakshatra, Yoga, and Karana, along with daily sun/moon timings and inauspicious periods (Rahu Kalam, Yamaganda, Durmuhurtam, Varjyam).
 
 ## Request Payload
 
@@ -90,9 +90,17 @@ Calculates the 5 limbs of the Vedic calendar (Panchang): Tithi, Vara, Nakshatra,
     "start": "2005-11-23T03:40:00Z",
     "end": "2005-11-23T05:10:00Z"
   },
-  "gulika_kalam": {
-    "start": "2005-11-23T05:10:00Z",
-    "end": "2005-11-23T06:40:00Z"
-  }
+  "durmuhurtam": [
+    {
+      "start": "2005-11-23T05:36:00Z",
+      "end": "2005-11-23T06:24:00Z"
+    }
+  ],
+  "varjyam": [
+    {
+      "start": "2005-11-23T15:10:00Z",
+      "end": "2005-11-23T16:46:00Z"
+    }
+  ]
 }
 ```

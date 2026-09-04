@@ -39,7 +39,7 @@ func CalculatePanchang(ctx *domain.CalculationContext) (domain.PanchangResult, e
 	yoga := calculateYoga(ctx.JulianDayUT, sunSid, moonSid)
 	karana := calculateKarana(ctx.JulianDayUT, sunTrop, moonTrop)
 
-	rahu, yama, gulika := calculateDailyPeriods(sunriseJD, sunsetJD, vara.Number)
+	rahu, yama, durmuhurtams := calculateDailyPeriods(sunriseJD, sunsetJD, vara.Number)
 
 	tzOff := time.Duration(ctx.Input.Timezone * float64(time.Hour))
 	loc := time.FixedZone("Local", int(tzOff.Seconds()))
@@ -65,7 +65,23 @@ func CalculatePanchang(ctx *domain.CalculationContext) (domain.PanchangResult, e
 		Karana:    formatKarana(karana, formatTime),
 		RahuKalam: domain.DailyPeriod{Start: formatTime(rahu[0]), End: formatTime(rahu[1])},
 		Yamaganda: domain.DailyPeriod{Start: formatTime(yama[0]), End: formatTime(yama[1])},
-		Gulika:    domain.DailyPeriod{Start: formatTime(gulika[0]), End: formatTime(gulika[1])},
+	}
+
+	for _, d := range durmuhurtams {
+		res.Durmuhurtam = append(res.Durmuhurtam, domain.DailyPeriod{Start: formatTime(d[0]), End: formatTime(d[1])})
+	}
+
+	// Calculate Varjyam (Tyajyam)
+	varjyamGhatis := []float64{50, 4, 30, 40, 14, 21, 30, 21, 33, 30, 20, 1, 21, 20, 14, 14, 17, 21, 20, 20, 20, 10, 10, 18, 16, 16, 50}
+	nNum := nakshatra.Number - 1 // 0-indexed Nakshatra
+	if nNum >= 0 && nNum < 27 && nakshatra.StartJD > 0 && nakshatra.EndJD > 0 {
+		vStartGhati := varjyamGhatis[nNum]
+		vStartFrac := vStartGhati / 60.0
+		vEndFrac := (vStartGhati + 4.0) / 60.0
+		nakDur := nakshatra.EndJD - nakshatra.StartJD
+		vStartJD := nakshatra.StartJD + vStartFrac*nakDur
+		vEndJD := nakshatra.StartJD + vEndFrac*nakDur
+		res.Varjyam = append(res.Varjyam, domain.DailyPeriod{Start: formatTime(vStartJD), End: formatTime(vEndJD)})
 	}
 
 	return res, nil
