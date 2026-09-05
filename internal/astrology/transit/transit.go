@@ -19,8 +19,10 @@ var nakshatras = []string{
 }
 var nakshatraLords = []string{"Ketu", "Venus", "Sun", "Moon", "Mars", "Rahu", "Jupiter", "Saturn", "Mercury"}
 
-// CalculateTransitChart calculates a complete transit chart for a given date/time,
-// using the natal moon (Chandra Lagna) as the reference point for Whole-Sign house cusps.
+// CalculateTransitChart calculates a complete transit chart for a given date/time.
+// It implements the "Equal House from Moon" (Chandra Lagna) method, which is the
+// standard Vedic astrology technique for Gochara (Transits). The 1st house cusp is
+// pegged exactly to the Natal Moon's Sidereal Longitude.
 func CalculateTransitChart(natalCtx *domain.CalculationContext, transitCtx *domain.CalculationContext) (domain.TransitResult, error) {
 	// 1. Calculate Natal Planets to find the Natal Moon
 	natalPlanets, err := planets.CalculatePlanets(natalCtx)
@@ -36,19 +38,12 @@ func CalculateTransitChart(natalCtx *domain.CalculationContext, transitCtx *doma
 		}
 	}
 
-	// 2. Calculate Transit Planets
-	progPlanets, err := planets.CalculatePlanets(transitCtx)
-	if err != nil {
-		return domain.TransitResult{}, err
-	}
-
-	// 3. Generate Whole Sign houses based on the Natal Moon's sign (Chandra Lagna)
+	// 2. Generate "Equal House from Moon" Cusps
 	var moonHouseCusps []domain.HouseCusp
-	moonSignIndex := int(math.Floor(natalMoon.SiderealLongitude / 30.0))
+	baseLongitude := natalMoon.SiderealLongitude
 
 	for i := 0; i < 12; i++ {
-		signIdx := (moonSignIndex + i) % 12
-		siderealLon := float64(signIdx * 30.0)
+		siderealLon := math.Mod(baseLongitude+float64(i*30), 360.0)
 
 		sign, deg, min, sec := astronomyTime.DecimalToDMS(siderealLon)
 
@@ -72,6 +67,13 @@ func CalculateTransitChart(natalCtx *domain.CalculationContext, transitCtx *doma
 		})
 	}
 
+	// 3. Calculate Transit Planets
+	progPlanets, err := planets.CalculatePlanets(transitCtx)
+	if err != nil {
+		return domain.TransitResult{}, err
+	}
+
+	// 4. Superimpose Transiting Planets onto Moon Houses
 	tblRes := tables.GenerateTables(progPlanets, moonHouseCusps)
 
 	res := domain.TransitResult{

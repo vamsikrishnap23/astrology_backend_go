@@ -4,7 +4,7 @@
 **Endpoint:** `POST /api/transits/chart`
 
 ### Description
-Calculates the snapshot of current/historical planetary positions for a specified target date/time, localized to the original birth location constraints. The transit house cusps are dynamically built as a **Whole Sign** system starting from the **Natal Moon's Sign (Chandra Lagna)**, which is the most standard Vedic astrological method for reading Gochara (transits). Reuses the exhaustive `TablesResult` structure to provide identical formatting for direct overlay comparisons in UIs.
+Calculates the snapshot of current/historical planetary positions for a specified target date/time. It implements the **Equal House from Moon** (Chandra Lagna) method, the authoritative Vedic standard for calculating Gochara (transits). The 1st house cusp is pegged exactly to the Sidereal Longitude of the user's Natal Moon, providing highly precise mathematical cusps instead of `0`s. Reuses the exhaustive `TablesResult` structure to provide identical formatting for direct overlay comparisons in UIs.
 
 ### Request Payload
 Standard `BirthInput`, plus the `transit_date` and `transit_time`.
