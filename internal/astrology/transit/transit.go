@@ -9,30 +9,26 @@ import (
 	"github.com/vamsikrishnap23/astrology_backend_go/internal/domain"
 )
 
-// CalculateTransitChart calculates a complete transit chart for a given date/time.
-// It mathematically superimposes the Transiting Planets directly onto the user's
-// exact Natal House Cusps (D1 Chart), respecting their chosen house system (e.g., Placidus).
-func CalculateTransitChart(natalCtx *domain.CalculationContext, transitCtx *domain.CalculationContext) (domain.TransitResult, error) {
-	// 1. Calculate exact Natal Houses (D1)
-	natalAsc, _, natalHouseCusps, err := houses.CalculateHouses(natalCtx)
+// CalculateTransitChart calculates a complete transit chart for a given date/time,
+// using the natal configuration for location, house system, and ayanamsa.
+func CalculateTransitChart(ctx *domain.CalculationContext) (domain.TransitResult, error) {
+	progPlanets, err := planets.CalculatePlanets(ctx)
 	if err != nil {
 		return domain.TransitResult{}, err
 	}
 
-	// 2. Calculate Transit Planets
-	progPlanets, err := planets.CalculatePlanets(transitCtx)
+	progAsc, _, progHouseCusps, err := houses.CalculateHouses(ctx)
 	if err != nil {
 		return domain.TransitResult{}, err
 	}
 
-	// 3. Superimpose Transiting Planets onto Natal (D1) Houses
-	tblRes := tables.GenerateTables(progPlanets, natalHouseCusps)
+	tblRes := tables.GenerateTables(progPlanets, progHouseCusps)
 
 	res := domain.TransitResult{
-		TransitDateUTC: transitCtx.UTCTime.Format(time.RFC3339),
-		JulianDay:      transitCtx.JulianDayUT,
-		Ayanamsa:       transitCtx.Ayanamsa,
-		Ascendant:      natalAsc,
+		TransitDateUTC: ctx.UTCTime.Format(time.RFC3339),
+		JulianDay:      ctx.JulianDayUT,
+		Ayanamsa:       ctx.Ayanamsa,
+		Ascendant:      progAsc,
 		TransitData:    tblRes,
 	}
 

@@ -23,24 +23,6 @@ func TestCalculateTransitChart(t *testing.T) {
 	utcTime, _ := astronomyTime.ParseLocalToUTC(transitStr, timeStr, tz)
 	jd := astronomyTime.UTCToJulianDay(utcTime)
 
-	natalStr := "2005-11-23"
-	natalTimeStr := "15:35:00"
-	natalUtcTime, _ := astronomyTime.ParseLocalToUTC(natalStr, natalTimeStr, tz)
-	natalJd := astronomyTime.UTCToJulianDay(natalUtcTime)
-
-	natalCtx := domain.CalculationContext{
-		Input: domain.BirthInput{
-			Latitude:  16.3938,
-			Longitude: 80.1522,
-		},
-		Config: domain.CalculationConfig{
-			AyanamsaMode: ephemeris.GetAyanamsaMode("Lahiri"),
-			HouseCode:    ephemeris.GetHouseSystemCode("Placidus"),
-		},
-		UTCTime:     natalUtcTime,
-		JulianDayUT: natalJd,
-	}
-
 	transitCtx := domain.CalculationContext{
 		Input: domain.BirthInput{
 			Latitude:  16.3938,
@@ -54,7 +36,7 @@ func TestCalculateTransitChart(t *testing.T) {
 		JulianDayUT: jd,
 	}
 
-	res, err := CalculateTransitChart(&natalCtx, &transitCtx)
+	res, err := CalculateTransitChart(&transitCtx)
 	if err != nil {
 		t.Fatalf("Transit failed: %v", err)
 	}
