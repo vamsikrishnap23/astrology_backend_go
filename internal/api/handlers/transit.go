@@ -41,6 +41,19 @@ func TransitHandler(w http.ResponseWriter, r *http.Request) {
 		HouseCode:    ephemeris.GetHouseSystemCode(input.HouseSystem),
 	}
 
+	natalUtc, err := astronomyTime.ParseLocalToUTC(input.DateOfBirth, input.TimeOfBirth, input.Timezone)
+	if err != nil {
+		http.Error(w, "Invalid birth date/time format", http.StatusBadRequest)
+		return
+	}
+
+	natalCtx := domain.CalculationContext{
+		Input:       input.BirthInput,
+		Config:      config,
+		UTCTime:     natalUtc,
+		JulianDayUT: astronomyTime.UTCToJulianDay(natalUtc),
+	}
+
 	transitCtx := domain.CalculationContext{
 		Input:       input.BirthInput,
 		Config:      config,
@@ -49,7 +62,7 @@ func TransitHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Run Transit
-	res, err := transit.CalculateTransitChart(&transitCtx)
+	res, err := transit.CalculateTransitChart(&natalCtx, &transitCtx)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
