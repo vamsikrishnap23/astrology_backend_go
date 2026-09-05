@@ -8,13 +8,17 @@ import (
 	"github.com/vamsikrishnap23/astrology_backend_go/internal/domain"
 )
 
-// CalculateSecondaryProgression calculates the progressed chart for a given year.
+// CalculateSecondaryProgression calculates the progressed chart for a given date.
 // Rule: 1 day after birth = 1 tropical year of life.
-func CalculateSecondaryProgression(natalCtx *domain.CalculationContext, targetYear int) (domain.ProgressionResult, error) {
-	birthYear := natalCtx.UTCTime.Year()
-	ageInYears := float64(targetYear - birthYear)
+func CalculateSecondaryProgression(natalCtx *domain.CalculationContext, targetDate string, targetJD float64) (domain.ProgressionResult, error) {
+	// Tropical year length in days
+	tropicalYear := 365.242190402
 
-	// 1 day = 1 year. We add 'ageInYears' days to the Julian Day.
+	// How many days have they been alive?
+	daysAlive := targetJD - natalCtx.JulianDayUT
+
+	// 1 day = 1 year, so the fraction of days to add to natal JD is daysAlive / tropicalYear
+	ageInYears := daysAlive / tropicalYear
 	progressedJD := natalCtx.JulianDayUT + ageInYears
 
 	// Add days to the UTC time as well
@@ -42,7 +46,7 @@ func CalculateSecondaryProgression(natalCtx *domain.CalculationContext, targetYe
 
 	res := domain.ProgressionResult{
 		NatalDateUTC:          natalCtx.UTCTime.Format(time.RFC3339),
-		TargetProgressionYear: targetYear,
+		TargetProgressionDate: targetDate,
 		AgeInYears:            ageInYears,
 		ProgressedDateUTC:     progressedUTC.Format(time.RFC3339),
 		ProgressedJulianDay:   progressedJD,

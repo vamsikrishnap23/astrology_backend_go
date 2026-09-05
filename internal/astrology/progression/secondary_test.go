@@ -36,19 +36,22 @@ func TestCalculateSecondaryProgression(t *testing.T) {
 		JulianDayUT: jd,
 	}
 
-	targetYear := 2040
-	res, err := CalculateSecondaryProgression(&natalCtx, targetYear)
+	targetDate := "2040-11-23"
+	targetUtc, _ := astronomyTime.ParseLocalToUTC(targetDate, timeStr, tz)
+	targetJD := astronomyTime.UTCToJulianDay(targetUtc)
+
+	res, err := CalculateSecondaryProgression(&natalCtx, targetDate, targetJD)
 	if err != nil {
 		t.Fatalf("Progression failed: %v", err)
 	}
 
-	if res.TargetProgressionYear != 2040 {
-		t.Errorf("Expected year 2040, got %d", res.TargetProgressionYear)
+	if res.TargetProgressionDate != targetDate {
+		t.Errorf("Expected date %s, got %s", targetDate, res.TargetProgressionDate)
 	}
 
-	expectedAge := 2040.0 - 2005.0
+	expectedAge := (targetJD - jd) / 365.242190402
 	if math.Abs(res.AgeInYears-expectedAge) > 1e-6 {
-		t.Errorf("Expected age 35, got %f", res.AgeInYears)
+		t.Errorf("Expected age ~35, got %f", res.AgeInYears)
 	}
 
 	expectedProgressedJD := jd + expectedAge
@@ -61,9 +64,6 @@ func TestCalculateSecondaryProgression(t *testing.T) {
 		t.Errorf("Expected Progressed UTC %s, got %s", expectedProgressedUTC, res.ProgressedDateUTC)
 	}
 
-	// Wait, we need to check if Sun progressed by about 35 degrees (slightly less since tropical year is ~365.24, day is 360/365.24 deg)
-	// Actually Sun moves ~1 degree per day. Age = 35 days. Sun moves ~35 degrees.
-	// Let's just ensure we have planets.
 	if len(res.ProgressedPlanets) < 10 {
 		t.Errorf("Expected at least 10 planets, got %d", len(res.ProgressedPlanets))
 	}
@@ -98,8 +98,8 @@ func TestCalculateSecondaryProgression_ZeroElapsed(t *testing.T) {
 		JulianDayUT: jd,
 	}
 
-	targetYear := 2005 // Zero elapsed
-	res, err := CalculateSecondaryProgression(&natalCtx, targetYear)
+	targetDate := "2005-11-23"
+	res, err := CalculateSecondaryProgression(&natalCtx, targetDate, jd)
 	if err != nil {
 		t.Fatalf("Progression failed: %v", err)
 	}

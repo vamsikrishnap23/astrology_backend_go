@@ -22,8 +22,8 @@ func ProgressionHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if input.ProgressionYear == 0 {
-		http.Error(w, "progression_year is required", http.StatusBadRequest)
+	if input.ProgressionDate == "" {
+		http.Error(w, "progression_date is required", http.StatusBadRequest)
 		return
 	}
 
@@ -35,6 +35,14 @@ func ProgressionHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	jd := astronomyTime.UTCToJulianDay(utcTime)
+
+	// Parse Progression Date (assume time is noon locally, or just use time of birth)
+	progUtcTime, err := astronomyTime.ParseLocalToUTC(input.ProgressionDate, input.TimeOfBirth, input.Timezone)
+	if err != nil {
+		http.Error(w, "Invalid progression date format", http.StatusBadRequest)
+		return
+	}
+	progJd := astronomyTime.UTCToJulianDay(progUtcTime)
 
 	config := domain.CalculationConfig{
 		AyanamsaMode: ephemeris.GetAyanamsaMode(input.Ayanamsa),
@@ -49,7 +57,7 @@ func ProgressionHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Run Progression
-	res, err := progression.CalculateSecondaryProgression(&natalCtx, input.ProgressionYear)
+	res, err := progression.CalculateSecondaryProgression(&natalCtx, input.ProgressionDate, progJd)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

@@ -19,7 +19,7 @@ Standard `BirthInput`, plus the `progression_year` target.
   "timezone": 5.5,
   "ayanamsa": "Lahiri",
   "house_system": "Placidus",
-  "progression_year": 2040
+  "progression_date": "2040-05-15"
 }
 ```
 
@@ -27,10 +27,10 @@ Standard `BirthInput`, plus the `progression_year` target.
 ```json
 {
   "natal_date_utc": "2005-11-23T10:05:00Z",
-  "target_progression_year": 2040,
-  "age_in_years": 34.1,
-  "progressed_date_utc": "2005-12-27T12:29:00Z",
-  "progressed_julian_day": 2453732.02,
+  "target_progression_date": "2040-05-15",
+  "age_in_years": 34.47,
+  "progressed_date_utc": "2005-12-27T21:21:48Z",
+  "progressed_julian_day": 2453732.3901,
   "progressed_ayanamsa": 23.95,
   "ascendant": 12.35,
   "mc": 284.15,
