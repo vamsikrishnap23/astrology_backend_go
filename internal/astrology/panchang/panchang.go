@@ -28,9 +28,21 @@ func CalculatePanchang(ctx *domain.CalculationContext) (domain.PanchangResult, e
 	sunSid := sunSidRes.Data[0]
 	moonSid := moonSidRes.Data[0]
 
-	// Calculate Solar and Lunar Times
-	sunriseJD, sunsetJD := calculateRiseSet(ctx.JulianDayUT, ctx.Input.Latitude, ctx.Input.Longitude, swisseph.Sun)
-	moonriseJD, moonsetJD := calculateRiseSet(ctx.JulianDayUT, ctx.Input.Latitude, ctx.Input.Longitude, swisseph.Moon)
+	// Find the Julian day for 00:00:00 of the input date in the input timezone
+	tzOff := time.Duration(ctx.Input.Timezone * float64(time.Hour))
+	loc := time.FixedZone("Local", int(tzOff.Seconds()))
+
+	t, _ := time.Parse("2006-01-02", ctx.Input.DateOfBirth)
+	localStart := time.Date(t.Year(), t.Month(), t.Day(), 0, 0, 0, 0, loc)
+	utcStart := localStart.UTC()
+
+	// Convert UTC time to JD manually (or use swisseph if time is not imported)
+	// swisseph.Julday takes year, month, day, hour (decimal)
+	startOfDayJD := swisseph.Julday(int32(utcStart.Year()), int32(utcStart.Month()), int32(utcStart.Day()), float64(utcStart.Hour())+float64(utcStart.Minute())/60.0+float64(utcStart.Second())/3600.0, swisseph.GregCal)
+
+	// Calculate Solar and Lunar Times from Start of Day
+	sunriseJD, sunsetJD := calculateRiseSet(startOfDayJD, ctx.Input.Latitude, ctx.Input.Longitude, swisseph.Sun)
+	moonriseJD, moonsetJD := calculateRiseSet(startOfDayJD, ctx.Input.Latitude, ctx.Input.Longitude, swisseph.Moon)
 	noonJD := (sunriseJD + sunsetJD) / 2.0
 
 	tithi := calculateTithi(ctx.JulianDayUT, sunTrop, moonTrop)
@@ -40,9 +52,6 @@ func CalculatePanchang(ctx *domain.CalculationContext) (domain.PanchangResult, e
 	karana := calculateKarana(ctx.JulianDayUT, sunTrop, moonTrop)
 
 	rahu, yama, durmuhurtams := calculateDailyPeriods(sunriseJD, sunsetJD, vara.Number)
-
-	tzOff := time.Duration(ctx.Input.Timezone * float64(time.Hour))
-	loc := time.FixedZone("Local", int(tzOff.Seconds()))
 
 	formatTime := func(jd float64) string {
 		utc := jdToUTC(jd)
@@ -107,9 +116,9 @@ func jdToUTC(jd float64) time.Time {
 func calculateRiseSet(jd, lat, lon float64, body int32) (float64, float64) {
 	geopos := [3]float64{lon, lat, 0}
 
-	// Start search from roughly 12 hours before to ensure we catch today's sunrise/sunset
-	// even if the birth time is late in the day.
-	searchJD := jd - 0.5
+	// We start the search from exactly the given jd.
+	// If jd is 00:00 Local Time, the next rise/set will accurately be today's events.
+	searchJD := jd
 
 	// Removed BitDiscCenter and BitNoRefraction to calculate apparent visual upper limb sunrise/sunset
 	resRise := swisseph.RiseTrans(searchJD, body, "", int32(swisseph.FlagSwieph), int32(swisseph.CalcRise), geopos, 0, 0)
