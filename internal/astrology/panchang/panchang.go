@@ -58,6 +58,13 @@ func CalculatePanchang(ctx *domain.CalculationContext) (domain.PanchangResult, e
 		return utc.In(loc).Format("2006-01-02T15:04:05-07:00")
 	}
 
+	zodiacSigns := []string{"Aries", "Taurus", "Gemini", "Cancer", "Leo", "Virgo", "Libra", "Scorpio", "Sagittarius", "Capricorn", "Aquarius", "Pisces"}
+	moonSignIdx := int(math.Floor(moonSid/30.0)) % 12
+	if moonSignIdx < 0 {
+		moonSignIdx += 12
+	}
+	rasiName := zodiacSigns[moonSignIdx]
+
 	res := domain.PanchangResult{
 		Date:      ctx.Input.DateOfBirth,
 		LocalTime: ctx.Input.TimeOfBirth,
@@ -67,6 +74,7 @@ func CalculatePanchang(ctx *domain.CalculationContext) (domain.PanchangResult, e
 		SolarNoon: formatTime(noonJD),
 		Moonrise:  formatTime(moonriseJD),
 		Moonset:   formatTime(moonsetJD),
+		Rasi:      rasiName,
 		Vara:      vara,
 		Tithi:     formatTithi(tithi, formatTime),
 		Nakshatra: formatNakshatra(nakshatra, formatTime),

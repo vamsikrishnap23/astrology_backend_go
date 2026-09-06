@@ -9,6 +9,7 @@ type PanchangResult struct {
 	SolarNoon   string        `json:"solar_noon"`
 	Moonrise    string        `json:"moonrise"`
 	Moonset     string        `json:"moonset"`
+	Rasi        string        `json:"rasi"`
 	Vara        Vara          `json:"vara"`
 	Tithi       Tithi         `json:"tithi"`
 	Nakshatra   Nakshatra     `json:"nakshatra"`
