@@ -25,6 +25,9 @@ func calculateYoga(jd, sunSid, moonSid float64) elementData {
 	angle := math.Mod(sunSid+moonSid+360.0, 360.0)
 	interval := 13.0 + 1.0/3.0
 	idx := int(math.Floor(angle / interval))
+	if idx >= 27 {
+		idx = 26
+	}
 	progress := math.Mod(angle, interval) / interval * 100.0
 	start, end := findElementBoundaries(jd, angle, interval, calcYogaAngle)
 	return elementData{

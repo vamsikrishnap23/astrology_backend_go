@@ -88,17 +88,31 @@ func CalculatePanchang(ctx *domain.CalculationContext) (domain.PanchangResult, e
 		res.Durmuhurtam = append(res.Durmuhurtam, domain.DailyPeriod{Start: formatTime(d[0]), End: formatTime(d[1])})
 	}
 
-	// Calculate Varjyam (Tyajyam)
-	varjyamGhatis := []float64{50, 4, 30, 40, 14, 21, 30, 21, 33, 30, 20, 1, 21, 20, 14, 14, 17, 21, 20, 20, 20, 10, 10, 18, 16, 16, 50}
+	// Standard Varjyam (Visha Ghatis) starting ghatis for 27 Nakshatras
+	varjyamGhatis := []float64{50, 24, 30, 40, 14, 21, 30, 20, 32, 30, 20, 18, 21, 20, 14, 14, 10, 14, 56, 24, 20, 10, 10, 18, 16, 24, 30}
+
+	// Standard Amrita Kalam starting ghatis for 27 Nakshatras
+	amruthaGhatis := []float64{54, 52, 38, 35, 54, 44, 56, 54, 44, 40, 45, 44, 38, 38, 34, 38, 44, 48, 44, 54, 34, 32, 40, 48, 54, 42, 48}
+
 	nNum := nakshatra.Number - 1 // 0-indexed Nakshatra
 	if nNum >= 0 && nNum < 27 && nakshatra.StartJD > 0 && nakshatra.EndJD > 0 {
+		nakDur := nakshatra.EndJD - nakshatra.StartJD
+
+		// Calculate Varjyam (duration is 4 ghatis)
 		vStartGhati := varjyamGhatis[nNum]
 		vStartFrac := vStartGhati / 60.0
 		vEndFrac := (vStartGhati + 4.0) / 60.0
-		nakDur := nakshatra.EndJD - nakshatra.StartJD
 		vStartJD := nakshatra.StartJD + vStartFrac*nakDur
 		vEndJD := nakshatra.StartJD + vEndFrac*nakDur
 		res.Varjyam = append(res.Varjyam, domain.DailyPeriod{Start: formatTime(vStartJD), End: formatTime(vEndJD)})
+
+		// Calculate Amrutha Ghadiyalu (duration is 4 ghatis)
+		aStartGhati := amruthaGhatis[nNum]
+		aStartFrac := aStartGhati / 60.0
+		aEndFrac := (aStartGhati + 4.0) / 60.0
+		aStartJD := nakshatra.StartJD + aStartFrac*nakDur
+		aEndJD := nakshatra.StartJD + aEndFrac*nakDur
+		res.AmruthaGhadiyalu = append(res.AmruthaGhadiyalu, domain.DailyPeriod{Start: formatTime(aStartJD), End: formatTime(aEndJD)})
 	}
 
 	return res, nil

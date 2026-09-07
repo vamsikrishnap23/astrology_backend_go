@@ -26,6 +26,9 @@ func calculateTithi(jd, sunTrop, moonTrop float64) elementData {
 	angle := math.Mod(moonTrop-sunTrop+360.0, 360.0)
 	interval := 12.0
 	idx := int(math.Floor(angle / interval))
+	if idx >= 30 {
+		idx = 29
+	}
 	progress := math.Mod(angle, interval) / interval * 100.0
 	start, end := findElementBoundaries(jd, angle, interval, calcTithiAngle)
 	return elementData{

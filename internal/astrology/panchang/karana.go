@@ -25,6 +25,9 @@ func calculateKarana(jd, sunTrop, moonTrop float64) elementData {
 	angle := math.Mod(moonTrop-sunTrop+360.0, 360.0)
 	interval := 6.0
 	idx := int(math.Floor(angle / interval))
+	if idx >= 60 {
+		idx = 59
+	}
 	progress := math.Mod(angle, interval) / interval * 100.0
 	start, end := findElementBoundaries(jd, angle, interval, calcTithiAngle)
 	return elementData{

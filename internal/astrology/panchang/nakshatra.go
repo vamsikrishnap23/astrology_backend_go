@@ -30,6 +30,9 @@ func calcNakshatraAngle(jd float64) float64 {
 func calculateNakshatra(jd, moonSid float64) elementData {
 	interval := 13.0 + 1.0/3.0
 	idx := int(math.Floor(moonSid / interval))
+	if idx >= 27 {
+		idx = 26
+	}
 	progress := math.Mod(moonSid, interval) / interval * 100.0
 	start, end := findElementBoundaries(jd, moonSid, interval, calcNakshatraAngle)
 	return elementData{
@@ -43,6 +46,9 @@ func calculateNakshatra(jd, moonSid float64) elementData {
 func formatNakshatra(data elementData, formatter func(float64) string) domain.Nakshatra {
 	padaProgress := data.Progress / 25.0
 	pada := int(math.Floor(padaProgress)) + 1
+	if pada > 4 {
+		pada = 4
+	}
 	idx := data.Number - 1
 	return domain.Nakshatra{
 		Number:   data.Number,
