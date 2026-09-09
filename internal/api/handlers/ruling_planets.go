@@ -51,11 +51,19 @@ func RulingPlanetsHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// For Ruling Planets, we MUST use the exact query time Ascendant, NOT the Horary Ascendant.
+	// So we temporarily bypass the horary number for this calculation.
+	originalHorary := ctx.Input.HoraryNumber
+	ctx.Input.HoraryNumber = 0
+
 	_, _, houseCusps, err := houses.CalculateHouses(&ctx)
 	if err != nil {
 		http.Error(w, "Error calculating houses", http.StatusInternalServerError)
 		return
 	}
+
+	// Restore original horary number just in case
+	ctx.Input.HoraryNumber = originalHorary
 
 	tblRes := tables.GenerateTables(planetPositions, houseCusps)
 	rpRes := kp.CalculateRulingPlanets(input, tblRes)

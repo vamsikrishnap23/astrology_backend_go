@@ -21,12 +21,45 @@ func CalculateHouses(ctx *domain.CalculationContext) (float64, float64, []domain
 	// Set Ayanamsa for Sidereal House calculation
 	swisseph.SetSidMode(int32(ctx.Config.AyanamsaMode), 0, 0)
 
-	// Calculate Tropical houses first
-	// (Vedic astrology subtracts Ayanamsa directly to get Sidereal, avoiding SE's complex projection)
-	res := swisseph.HousesEx(ctx.JulianDayUT, 0, ctx.Input.Latitude, ctx.Input.Longitude, ctx.Config.HouseCode)
-
-	// Pre-calculate ayanamsa value (ensure it's available in context, or fetch here)
+	// Pre-calculate ayanamsa value
 	ctx.Ayanamsa = swisseph.GetAyanamsaUT(ctx.JulianDayUT)
+
+	calcJD := ctx.JulianDayUT
+
+	if ctx.Input.HoraryNumber > 0 && ctx.Input.HoraryNumber <= 249 {
+		targetSiderealAsc, _ := GetHoraryAscendant(ctx.Input.HoraryNumber)
+		targetTropAsc := math.Mod(targetSiderealAsc+ctx.Ayanamsa, 360.0)
+
+		// Initial guess for the Phantom JD
+		resGuess := swisseph.HousesEx(calcJD, 0, ctx.Input.Latitude, ctx.Input.Longitude, ctx.Config.HouseCode)
+		currentTropAsc := resGuess.Points[0]
+
+		diff := math.Mod(targetTropAsc-currentTropAsc+540.0, 360.0) - 180.0
+		timeOffset := (diff / 360.0) * 0.997269 // Approx days it takes for Asc to move 'diff' degrees
+		calcJD += timeOffset
+
+		// Bisection search within a tight +/- 0.1 day window around the guess
+		low := calcJD - 0.1
+		high := calcJD + 0.1
+		for i := 0; i < 50; i++ {
+			mid := (low + high) / 2.0
+			resMid := swisseph.HousesEx(mid, 0, ctx.Input.Latitude, ctx.Input.Longitude, ctx.Config.HouseCode)
+			val := resMid.Points[0]
+			d := math.Mod(val-targetTropAsc+540.0, 360.0) - 180.0
+			if math.Abs(d) < 0.000001 {
+				calcJD = mid
+				break
+			}
+			if d < 0 {
+				low = mid
+			} else {
+				high = mid
+			}
+		}
+	}
+
+	// Calculate Tropical houses using either real time or Phantom time
+	res := swisseph.HousesEx(calcJD, 0, ctx.Input.Latitude, ctx.Input.Longitude, ctx.Config.HouseCode)
 
 	// Convert points to Sidereal
 	ascendant := res.Points[0] - ctx.Ayanamsa

@@ -13,6 +13,7 @@ type BirthInput struct {
 	Timezone     float64 `json:"timezone"` // Decimal offset from UTC
 	Ayanamsa     string  `json:"ayanamsa"`
 	HouseSystem  string  `json:"house_system"`
+	HoraryNumber int     `json:"horary_number,omitempty"`
 }
 
 // CalculationConfig represents the resolved configuration.
