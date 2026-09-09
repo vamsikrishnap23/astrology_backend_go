@@ -15,8 +15,28 @@ type PanchangResult struct {
 	Nakshatra        Nakshatra     `json:"nakshatra"`
 	Yoga             Yoga          `json:"yoga"`
 	Karana           Karana        `json:"karana"`
-	RahuKalam        DailyPeriod   `json:"rahu_kalam"`
-	Yamaganda        DailyPeriod   `json:"yamaganda"`
+	RahuKalam        []DailyPeriod `json:"rahu_kalam"`
+	Yamaganda        []DailyPeriod `json:"yamaganda"`
+	Durmuhurtam      []DailyPeriod `json:"durmuhurtam"`
+	Varjyam          []DailyPeriod `json:"varjyam"`
+	AmruthaGhadiyalu []DailyPeriod `json:"amrutha_ghadiyalu"`
+}
+
+type DailyPanchangResult struct {
+	Date             string        `json:"date"`
+	Timezone         float64       `json:"timezone"`
+	Sunrise          string        `json:"sunrise"`
+	Sunset           string        `json:"sunset"`
+	SolarNoon        string        `json:"solar_noon"`
+	Moonrise         string        `json:"moonrise"`
+	Moonset          string        `json:"moonset"`
+	Vara             Vara          `json:"vara"`
+	Tithis           []Tithi       `json:"tithis"`
+	Nakshatras       []Nakshatra   `json:"nakshatras"`
+	Yogas            []Yoga        `json:"yogas"`
+	Karanas          []Karana      `json:"karanas"`
+	RahuKalam        []DailyPeriod `json:"rahu_kalam"`
+	Yamaganda        []DailyPeriod `json:"yamaganda"`
 	Durmuhurtam      []DailyPeriod `json:"durmuhurtam"`
 	Varjyam          []DailyPeriod `json:"varjyam"`
 	AmruthaGhadiyalu []DailyPeriod `json:"amrutha_ghadiyalu"`

@@ -1,6 +1,6 @@
 package panchang
 
-func calculateDailyPeriods(sunriseJD, sunsetJD float64, weekday int) ([2]float64, [2]float64, [][2]float64) {
+func calculateDailyPeriods(sunriseJD, sunsetJD float64, weekday int) ([][2]float64, [][2]float64, [][2]float64) {
 	dayDur := sunsetJD - sunriseJD
 	partDur := dayDur / 8.0
 
@@ -10,8 +10,8 @@ func calculateDailyPeriods(sunriseJD, sunsetJD float64, weekday int) ([2]float64
 	rIdx := float64(rahuMap[weekday])
 	yIdx := float64(yamaMap[weekday])
 
-	rahu := [2]float64{sunriseJD + rIdx*partDur, sunriseJD + (rIdx+1)*partDur}
-	yama := [2]float64{sunriseJD + yIdx*partDur, sunriseJD + (yIdx+1)*partDur}
+	rahu := [][2]float64{{sunriseJD + rIdx*partDur, sunriseJD + (rIdx+1)*partDur}}
+	yama := [][2]float64{{sunriseJD + yIdx*partDur, sunriseJD + (yIdx+1)*partDur}}
 
 	muhurtaDur := dayDur / 15.0
 	nightDur := 1.0 - dayDur // Approximate 24h - day duration for night

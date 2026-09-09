@@ -27,7 +27,8 @@ func calcNakshatraAngle(jd float64) float64 {
 	return math.Mod(moon+360.0, 360.0)
 }
 
-func calculateNakshatra(jd, moonSid float64) elementData {
+func calculateNakshatra(jd float64) elementData {
+	moonSid := calcNakshatraAngle(jd)
 	interval := 13.0 + 1.0/3.0
 	idx := int(math.Floor(moonSid / interval))
 	if idx >= 27 {

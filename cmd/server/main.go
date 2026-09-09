@@ -48,6 +48,7 @@ func main() {
 	// Setup routing
 	http.HandleFunc("/api/chart", handlers.ChartHandler)
 	http.HandleFunc("/api/panchang", handlers.PanchangHandler)
+	http.HandleFunc("/api/panchang/daily", handlers.DailyPanchangHandler)
 	http.HandleFunc("/api/tables", handlers.TablesHandler)
 	http.HandleFunc("/api/significators", handlers.SignificatorsHandler)
 	http.HandleFunc("/api/ruling-planets", handlers.RulingPlanetsHandler)

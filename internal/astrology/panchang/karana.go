@@ -21,8 +21,8 @@ func getKaranaDetails(karanaIndex int) (string, string) {
 	return movingKaranas[movingIdx], "Moving"
 }
 
-func calculateKarana(jd, sunTrop, moonTrop float64) elementData {
-	angle := math.Mod(moonTrop-sunTrop+360.0, 360.0)
+func calculateKarana(jd float64) elementData {
+	angle := calcTithiAngle(jd)
 	interval := 6.0
 	idx := int(math.Floor(angle / interval))
 	if idx >= 60 {

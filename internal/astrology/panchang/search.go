@@ -34,3 +34,14 @@ func findElementBoundaries(jd, currentPos, interval float64, calcFunc func(float
 
 	return startJD, endJD
 }
+
+func getTimeline(startJD, endJD float64, calcFunc func(float64) elementData) []elementData {
+	var elements []elementData
+	curr := startJD
+	for curr < endJD {
+		el := calcFunc(curr)
+		elements = append(elements, el)
+		curr = el.EndJD + 0.001 // Advance time slightly past the end boundary to find the next element
+	}
+	return elements
+}

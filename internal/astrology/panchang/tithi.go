@@ -22,8 +22,8 @@ func calcTithiAngle(jd float64) float64 {
 	return math.Mod(moon-sun+360.0, 360.0)
 }
 
-func calculateTithi(jd, sunTrop, moonTrop float64) elementData {
-	angle := math.Mod(moonTrop-sunTrop+360.0, 360.0)
+func calculateTithi(jd float64) elementData {
+	angle := calcTithiAngle(jd)
 	interval := 12.0
 	idx := int(math.Floor(angle / interval))
 	if idx >= 30 {

@@ -16,16 +16,8 @@ func CalculatePanchang(ctx *domain.CalculationContext) (domain.PanchangResult, e
 
 	swisseph.SetSidMode(int32(ctx.Config.AyanamsaMode), 0, 0)
 
-	tflag := int32(swisseph.FlagSwieph | swisseph.FlagSpeed)
-	sunRes := swisseph.CalcUT(ctx.JulianDayUT, swisseph.Sun, tflag)
-	moonRes := swisseph.CalcUT(ctx.JulianDayUT, swisseph.Moon, tflag)
-	sunTrop := sunRes.Data[0]
-	moonTrop := moonRes.Data[0]
-
 	sflag := int32(swisseph.FlagSwieph | swisseph.FlagSpeed | swisseph.FlagSidereal)
-	sunSidRes := swisseph.CalcUT(ctx.JulianDayUT, swisseph.Sun, sflag)
 	moonSidRes := swisseph.CalcUT(ctx.JulianDayUT, swisseph.Moon, sflag)
-	sunSid := sunSidRes.Data[0]
 	moonSid := moonSidRes.Data[0]
 
 	// Find the Julian day for 00:00:00 of the input date in the input timezone
@@ -45,11 +37,11 @@ func CalculatePanchang(ctx *domain.CalculationContext) (domain.PanchangResult, e
 	moonriseJD, moonsetJD := calculateRiseSet(startOfDayJD, ctx.Input.Latitude, ctx.Input.Longitude, swisseph.Moon)
 	noonJD := (sunriseJD + sunsetJD) / 2.0
 
-	tithi := calculateTithi(ctx.JulianDayUT, sunTrop, moonTrop)
+	tithi := calculateTithi(ctx.JulianDayUT)
 	vara := calculateVara(ctx.Input.DateOfBirth, ctx.Input.Timezone)
-	nakshatra := calculateNakshatra(ctx.JulianDayUT, moonSid)
-	yoga := calculateYoga(ctx.JulianDayUT, sunSid, moonSid)
-	karana := calculateKarana(ctx.JulianDayUT, sunTrop, moonTrop)
+	nakshatra := calculateNakshatra(ctx.JulianDayUT)
+	yoga := calculateYoga(ctx.JulianDayUT)
+	karana := calculateKarana(ctx.JulianDayUT)
 
 	rahu, yama, durmuhurtams := calculateDailyPeriods(sunriseJD, sunsetJD, vara.Number)
 
@@ -80,8 +72,13 @@ func CalculatePanchang(ctx *domain.CalculationContext) (domain.PanchangResult, e
 		Nakshatra: formatNakshatra(nakshatra, formatTime),
 		Yoga:      formatYoga(yoga, formatTime),
 		Karana:    formatKarana(karana, formatTime),
-		RahuKalam: domain.DailyPeriod{Start: formatTime(rahu[0]), End: formatTime(rahu[1])},
-		Yamaganda: domain.DailyPeriod{Start: formatTime(yama[0]), End: formatTime(yama[1])},
+	}
+
+	for _, r := range rahu {
+		res.RahuKalam = append(res.RahuKalam, domain.DailyPeriod{Start: formatTime(r[0]), End: formatTime(r[1])})
+	}
+	for _, y := range yama {
+		res.Yamaganda = append(res.Yamaganda, domain.DailyPeriod{Start: formatTime(y[0]), End: formatTime(y[1])})
 	}
 
 	for _, d := range durmuhurtams {
@@ -94,25 +91,129 @@ func CalculatePanchang(ctx *domain.CalculationContext) (domain.PanchangResult, e
 	// Standard Amrita Kalam starting ghatis for 27 Nakshatras
 	amruthaGhatis := []float64{54, 52, 38, 35, 54, 44, 56, 54, 44, 40, 45, 44, 38, 38, 34, 38, 44, 48, 44, 54, 34, 32, 40, 48, 54, 42, 48}
 
-	nNum := nakshatra.Number - 1 // 0-indexed Nakshatra
-	if nNum >= 0 && nNum < 27 && nakshatra.StartJD > 0 && nakshatra.EndJD > 0 {
-		nakDur := nakshatra.EndJD - nakshatra.StartJD
+	dayNakshatras := getTimeline(startOfDayJD, startOfDayJD+1.0, calculateNakshatra)
 
-		// Calculate Varjyam (duration is 4 ghatis)
-		vStartGhati := varjyamGhatis[nNum]
-		vStartFrac := vStartGhati / 60.0
-		vEndFrac := (vStartGhati + 4.0) / 60.0
-		vStartJD := nakshatra.StartJD + vStartFrac*nakDur
-		vEndJD := nakshatra.StartJD + vEndFrac*nakDur
-		res.Varjyam = append(res.Varjyam, domain.DailyPeriod{Start: formatTime(vStartJD), End: formatTime(vEndJD)})
+	for _, nak := range dayNakshatras {
+		nNum := nak.Number - 1 // 0-indexed Nakshatra
+		if nNum >= 0 && nNum < 27 && nak.StartJD > 0 && nak.EndJD > 0 {
+			nakDur := nak.EndJD - nak.StartJD
 
-		// Calculate Amrutha Ghadiyalu (duration is 4 ghatis)
-		aStartGhati := amruthaGhatis[nNum]
-		aStartFrac := aStartGhati / 60.0
-		aEndFrac := (aStartGhati + 4.0) / 60.0
-		aStartJD := nakshatra.StartJD + aStartFrac*nakDur
-		aEndJD := nakshatra.StartJD + aEndFrac*nakDur
-		res.AmruthaGhadiyalu = append(res.AmruthaGhadiyalu, domain.DailyPeriod{Start: formatTime(aStartJD), End: formatTime(aEndJD)})
+			// Calculate Varjyam (duration is 4 ghatis)
+			vStartGhati := varjyamGhatis[nNum]
+			vStartFrac := vStartGhati / 60.0
+			vEndFrac := (vStartGhati + 4.0) / 60.0
+			vStartJD := nak.StartJD + vStartFrac*nakDur
+			vEndJD := nak.StartJD + vEndFrac*nakDur
+
+			// Only append if it overlaps with our calendar day or just append all?
+			// Usually we append all that correspond to the day's Nakshatras.
+			res.Varjyam = append(res.Varjyam, domain.DailyPeriod{Start: formatTime(vStartJD), End: formatTime(vEndJD)})
+
+			// Calculate Amrutha Ghadiyalu (duration is 4 ghatis)
+			aStartGhati := amruthaGhatis[nNum]
+			aStartFrac := aStartGhati / 60.0
+			aEndFrac := (aStartGhati + 4.0) / 60.0
+			aStartJD := nak.StartJD + aStartFrac*nakDur
+			aEndJD := nak.StartJD + aEndFrac*nakDur
+			res.AmruthaGhadiyalu = append(res.AmruthaGhadiyalu, domain.DailyPeriod{Start: formatTime(aStartJD), End: formatTime(aEndJD)})
+		}
+	}
+
+	return res, nil
+}
+
+func CalculateDailyPanchang(ctx *domain.CalculationContext) (domain.DailyPanchangResult, error) {
+	ephemeris.Mu.Lock()
+	defer ephemeris.Mu.Unlock()
+	swisseph.SetEphePath(ephemeris.EphePath)
+	swisseph.SetSidMode(int32(ctx.Config.AyanamsaMode), 0, 0)
+
+	tzOff := time.Duration(ctx.Input.Timezone * float64(time.Hour))
+	loc := time.FixedZone("Local", int(tzOff.Seconds()))
+
+	t, _ := time.Parse("2006-01-02", ctx.Input.DateOfBirth)
+	localStart := time.Date(t.Year(), t.Month(), t.Day(), 0, 0, 0, 0, loc)
+	utcStart := localStart.UTC()
+
+	startOfDayJD := swisseph.Julday(int32(utcStart.Year()), int32(utcStart.Month()), int32(utcStart.Day()), float64(utcStart.Hour())+float64(utcStart.Minute())/60.0+float64(utcStart.Second())/3600.0, swisseph.GregCal)
+	endOfDayJD := startOfDayJD + 1.0
+
+	sunriseJD, sunsetJD := calculateRiseSet(startOfDayJD, ctx.Input.Latitude, ctx.Input.Longitude, swisseph.Sun)
+	moonriseJD, moonsetJD := calculateRiseSet(startOfDayJD, ctx.Input.Latitude, ctx.Input.Longitude, swisseph.Moon)
+	noonJD := (sunriseJD + sunsetJD) / 2.0
+
+	vara := calculateVara(ctx.Input.DateOfBirth, ctx.Input.Timezone)
+	rahu, yama, durmuhurtams := calculateDailyPeriods(sunriseJD, sunsetJD, vara.Number)
+
+	formatTime := func(jd float64) string {
+		utc := jdToUTC(jd)
+		return utc.In(loc).Format("2006-01-02T15:04:05-07:00")
+	}
+
+	res := domain.DailyPanchangResult{
+		Date:      ctx.Input.DateOfBirth,
+		Timezone:  ctx.Input.Timezone,
+		Sunrise:   formatTime(sunriseJD),
+		Sunset:    formatTime(sunsetJD),
+		SolarNoon: formatTime(noonJD),
+		Moonrise:  formatTime(moonriseJD),
+		Moonset:   formatTime(moonsetJD),
+		Vara:      vara,
+	}
+
+	dayTithis := getTimeline(startOfDayJD, endOfDayJD, calculateTithi)
+	for _, dt := range dayTithis {
+		res.Tithis = append(res.Tithis, formatTithi(dt, formatTime))
+	}
+
+	dayNakshatras := getTimeline(startOfDayJD, endOfDayJD, calculateNakshatra)
+	for _, dn := range dayNakshatras {
+		res.Nakshatras = append(res.Nakshatras, formatNakshatra(dn, formatTime))
+	}
+
+	dayYogas := getTimeline(startOfDayJD, endOfDayJD, calculateYoga)
+	for _, dy := range dayYogas {
+		res.Yogas = append(res.Yogas, formatYoga(dy, formatTime))
+	}
+
+	dayKaranas := getTimeline(startOfDayJD, endOfDayJD, calculateKarana)
+	for _, dk := range dayKaranas {
+		res.Karanas = append(res.Karanas, formatKarana(dk, formatTime))
+	}
+
+	for _, r := range rahu {
+		res.RahuKalam = append(res.RahuKalam, domain.DailyPeriod{Start: formatTime(r[0]), End: formatTime(r[1])})
+	}
+	for _, y := range yama {
+		res.Yamaganda = append(res.Yamaganda, domain.DailyPeriod{Start: formatTime(y[0]), End: formatTime(y[1])})
+	}
+
+	for _, d := range durmuhurtams {
+		res.Durmuhurtam = append(res.Durmuhurtam, domain.DailyPeriod{Start: formatTime(d[0]), End: formatTime(d[1])})
+	}
+
+	varjyamGhatis := []float64{50, 24, 30, 40, 14, 21, 30, 20, 32, 30, 20, 18, 21, 20, 14, 14, 10, 14, 56, 24, 20, 10, 10, 18, 16, 24, 30}
+	amruthaGhatis := []float64{54, 52, 38, 35, 54, 44, 56, 54, 44, 40, 45, 44, 38, 38, 34, 38, 44, 48, 44, 54, 34, 32, 40, 48, 54, 42, 48}
+
+	for _, nak := range dayNakshatras {
+		nNum := nak.Number - 1
+		if nNum >= 0 && nNum < 27 && nak.StartJD > 0 && nak.EndJD > 0 {
+			nakDur := nak.EndJD - nak.StartJD
+
+			vStartGhati := varjyamGhatis[nNum]
+			vStartFrac := vStartGhati / 60.0
+			vEndFrac := (vStartGhati + 4.0) / 60.0
+			vStartJD := nak.StartJD + vStartFrac*nakDur
+			vEndJD := nak.StartJD + vEndFrac*nakDur
+			res.Varjyam = append(res.Varjyam, domain.DailyPeriod{Start: formatTime(vStartJD), End: formatTime(vEndJD)})
+
+			aStartGhati := amruthaGhatis[nNum]
+			aStartFrac := aStartGhati / 60.0
+			aEndFrac := (aStartGhati + 4.0) / 60.0
+			aStartJD := nak.StartJD + aStartFrac*nakDur
+			aEndJD := nak.StartJD + aEndFrac*nakDur
+			res.AmruthaGhadiyalu = append(res.AmruthaGhadiyalu, domain.DailyPeriod{Start: formatTime(aStartJD), End: formatTime(aEndJD)})
+		}
 	}
 
 	return res, nil

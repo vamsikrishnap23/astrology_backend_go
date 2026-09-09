@@ -21,8 +21,8 @@ func calcYogaAngle(jd float64) float64 {
 	return math.Mod(sun+moon+360.0, 360.0)
 }
 
-func calculateYoga(jd, sunSid, moonSid float64) elementData {
-	angle := math.Mod(sunSid+moonSid+360.0, 360.0)
+func calculateYoga(jd float64) elementData {
+	angle := calcYogaAngle(jd)
 	interval := 13.0 + 1.0/3.0
 	idx := int(math.Floor(angle / interval))
 	if idx >= 27 {
