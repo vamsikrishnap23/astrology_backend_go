@@ -239,13 +239,13 @@ func jdToUTC(jd float64) time.Time {
 func calculateRiseSet(jd, lat, lon float64, body int32) (float64, float64) {
 	geopos := [3]float64{lon, lat, 0}
 
-	// We start the search from exactly the given jd.
-	// If jd is 00:00 Local Time, the next rise/set will accurately be today's events.
+	// Use Hindu Sunrise definitions: Center of Sun's disk, without atmospheric refraction.
+	// This is the standard rule for South Indian Panchangams (Nithra, Butte, etc.)
 	searchJD := jd
+	rsflag := int32(swisseph.FlagSwieph | swisseph.BitDiscCenter | swisseph.BitNoRefraction)
 
-	// Removed BitDiscCenter and BitNoRefraction to calculate apparent visual upper limb sunrise/sunset
-	resRise := swisseph.RiseTrans(searchJD, body, "", int32(swisseph.FlagSwieph), int32(swisseph.CalcRise), geopos, 0, 0)
-	resSet := swisseph.RiseTrans(searchJD, body, "", int32(swisseph.FlagSwieph), int32(swisseph.CalcSet), geopos, 0, 0)
+	resRise := swisseph.RiseTrans(searchJD, body, "", rsflag, int32(swisseph.CalcRise), geopos, 0, 0)
+	resSet := swisseph.RiseTrans(searchJD, body, "", rsflag, int32(swisseph.CalcSet), geopos, 0, 0)
 
 	return resRise.Time, resSet.Time
 }
