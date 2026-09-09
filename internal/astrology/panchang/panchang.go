@@ -88,8 +88,8 @@ func CalculatePanchang(ctx *domain.CalculationContext) (domain.PanchangResult, e
 	// Standard Varjyam (Visha Ghatis) starting ghatis for 27 Nakshatras
 	varjyamGhatis := []float64{50, 24, 30, 40, 14, 21, 30, 20, 32, 30, 20, 18, 21, 20, 14, 14, 10, 14, 56, 24, 20, 10, 10, 18, 16, 24, 30}
 
-	// Standard Amrita Kalam starting ghatis for 27 Nakshatras
-	amruthaGhatis := []float64{54, 52, 38, 35, 54, 44, 56, 54, 44, 40, 45, 44, 38, 38, 34, 38, 44, 48, 44, 54, 34, 32, 40, 48, 54, 42, 48}
+	// Standard Amrita Kalam starting ghatis for 27 Nakshatras (Varjyam + 24 ghatis rule, wrapped at 60)
+	amruthaGhatis := []float64{14, 48, 54, 4, 38, 45, 54, 44, 56, 54, 44, 42, 45, 44, 38, 38, 34, 38, 20, 48, 44, 34, 34, 42, 40, 48, 54}
 
 	dayNakshatras := getTimeline(startOfDayJD, startOfDayJD+1.0, calculateNakshatra)
 
@@ -193,7 +193,7 @@ func CalculateDailyPanchang(ctx *domain.CalculationContext) (domain.DailyPanchan
 	}
 
 	varjyamGhatis := []float64{50, 24, 30, 40, 14, 21, 30, 20, 32, 30, 20, 18, 21, 20, 14, 14, 10, 14, 56, 24, 20, 10, 10, 18, 16, 24, 30}
-	amruthaGhatis := []float64{54, 52, 38, 35, 54, 44, 56, 54, 44, 40, 45, 44, 38, 38, 34, 38, 44, 48, 44, 54, 34, 32, 40, 48, 54, 42, 48}
+	amruthaGhatis := []float64{14, 48, 54, 4, 38, 45, 54, 44, 56, 54, 44, 42, 45, 44, 38, 38, 34, 38, 20, 48, 44, 34, 34, 42, 40, 48, 54}
 
 	for _, nak := range dayNakshatras {
 		nNum := nak.Number - 1
