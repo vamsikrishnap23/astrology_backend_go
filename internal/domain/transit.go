@@ -10,9 +10,17 @@ type TransitInput struct {
 // We reuse the verified TablesResult because it contains everything requested:
 // planets, signs, houses, Ascendant, retrograde, nakshatra, pada, tooltip metadata (which are all in the tables).
 type TransitResult struct {
-	TransitDateUTC string       `json:"transit_date_utc"`
-	JulianDay      float64      `json:"julian_day"`
-	Ayanamsa       float64      `json:"ayanamsa"`
-	Ascendant      float64      `json:"ascendant"`
-	TransitData    TablesResult `json:"transit_data"`
+	TransitDateUTC string         `json:"transit_date_utc"`
+	JulianDay      float64        `json:"julian_day"`
+	Ayanamsa       float64        `json:"ayanamsa"`
+	Ascendant      float64        `json:"ascendant"`
+	TransitData    TablesResult   `json:"transit_data"`
+	Gochar         []GocharStatus `json:"gochar"`
+}
+
+type GocharStatus struct {
+	Planet        string `json:"planet"`
+	HouseFromMoon int    `json:"house_from_moon"`
+	Status        string `json:"status"` // "Good", "Bad", "Obstructed (Vedha)", "Obstructed (Vama Vedha)"
+	Reason        string `json:"reason"`
 }

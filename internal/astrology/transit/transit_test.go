@@ -36,7 +36,7 @@ func TestCalculateTransitChart(t *testing.T) {
 		JulianDayUT: jd,
 	}
 
-	res, err := CalculateTransitChart(&transitCtx)
+	res, err := CalculateTransitChart(&transitCtx, 0.0)
 	if err != nil {
 		t.Fatalf("Transit failed: %v", err)
 	}

@@ -6,6 +6,7 @@ import (
 
 	"github.com/vamsikrishnap23/astrology_backend_go/internal/astrology/transit"
 	"github.com/vamsikrishnap23/astrology_backend_go/internal/astronomy/ephemeris"
+	"github.com/vamsikrishnap23/astrology_backend_go/internal/astronomy/planets"
 	astronomyTime "github.com/vamsikrishnap23/astrology_backend_go/internal/astronomy/time"
 	"github.com/vamsikrishnap23/astrology_backend_go/internal/domain"
 )
@@ -27,29 +28,58 @@ func TransitHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Calculate Transit time in UTC based on natal timezone (assuming transit is happening locally there)
-	utcTime, err := astronomyTime.ParseLocalToUTC(input.TransitDate, input.TransitTime, input.Timezone)
+	// Calculate Natal Context
+	natalUTC, err := astronomyTime.ParseLocalToUTC(input.DateOfBirth, input.TimeOfBirth, input.Timezone)
 	if err != nil {
-		http.Error(w, "Invalid transit date/time format", http.StatusBadRequest)
+		http.Error(w, "Invalid natal date/time format", http.StatusBadRequest)
 		return
 	}
-
-	jd := astronomyTime.UTCToJulianDay(utcTime)
+	natalJD := astronomyTime.UTCToJulianDay(natalUTC)
 
 	config := domain.CalculationConfig{
 		AyanamsaMode: ephemeris.GetAyanamsaMode(input.Ayanamsa),
 		HouseCode:    ephemeris.GetHouseSystemCode(input.HouseSystem),
 	}
 
+	natalCtx := domain.CalculationContext{
+		Input:       input.BirthInput,
+		Config:      config,
+		UTCTime:     natalUTC,
+		JulianDayUT: natalJD,
+	}
+
+	natalPlanets, err := planets.CalculatePlanets(&natalCtx)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	var natalMoonLon float64
+	for _, p := range natalPlanets {
+		if p.Planet == "Moon" {
+			natalMoonLon = p.SiderealLongitude
+			break
+		}
+	}
+
+	// Calculate Transit time in UTC
+	transitUTC, err := astronomyTime.ParseLocalToUTC(input.TransitDate, input.TransitTime, input.Timezone)
+	if err != nil {
+		http.Error(w, "Invalid transit date/time format", http.StatusBadRequest)
+		return
+	}
+
+	transitJD := astronomyTime.UTCToJulianDay(transitUTC)
+
 	transitCtx := domain.CalculationContext{
 		Input:       input.BirthInput,
 		Config:      config,
-		UTCTime:     utcTime,
-		JulianDayUT: jd,
+		UTCTime:     transitUTC,
+		JulianDayUT: transitJD,
 	}
 
 	// Run Transit
-	res, err := transit.CalculateTransitChart(&transitCtx)
+	res, err := transit.CalculateTransitChart(&transitCtx, natalMoonLon)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
