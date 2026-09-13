@@ -24,3 +24,13 @@ type GocharStatus struct {
 	Status        string `json:"status"` // "Good", "Bad", "Obstructed (Vedha)", "Obstructed (Vama Vedha)"
 	Reason        string `json:"reason"`
 }
+
+type RasiTransitInput struct {
+	Rasi        string  `json:"rasi"` // Aries, Taurus, etc.
+	TransitDate string  `json:"transit_date"`
+	TransitTime string  `json:"transit_time"`
+	Latitude    float64 `json:"latitude"`
+	Longitude   float64 `json:"longitude"`
+	Timezone    float64 `json:"timezone"`
+	Ayanamsa    string  `json:"ayanamsa"`
+}

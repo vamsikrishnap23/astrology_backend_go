@@ -57,6 +57,7 @@ func main() {
 	http.HandleFunc("/api/vargas", handlers.VargasHandler)
 	http.HandleFunc("/api/progression", handlers.ProgressionHandler)
 	http.HandleFunc("/api/transits/chart", handlers.TransitHandler)
+	http.HandleFunc("/api/transits/rasi", handlers.RasiTransitHandler)
 	http.HandleFunc("/api/transits/upcoming", handlers.UpcomingTransitsHandler)
 	http.HandleFunc("/api/bhava-chalit", handlers.BhavaChalitHandler)
 	http.HandleFunc("/api/ashtakavarga", handlers.AshtakavargaHandler)
