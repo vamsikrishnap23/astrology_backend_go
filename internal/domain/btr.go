@@ -30,11 +30,20 @@ type BTRTableRow struct {
 }
 
 type BTRCandidate struct {
-	Rank              int    `json:"rank"`
+	Rank        int    `json:"rank"`
+	T1          string `json:"t1"`
+	T2          string `json:"t2"`
+	Score       int    `json:"score"`
+	NadiRow     int    `json:"row"`
+	Tatwa       string `json:"tatwa"`
+	Antar       string `json:"antar"`
+	Gender      string `json:"gen"`
+	Planet90    string `json:"90_min"`
+	PlanetVinod string `json:"vinod"`
+
+	// Legacy fields for backward compatibility
 	SuggestedTime     string `json:"suggested_time"`
 	DifferenceMinutes int    `json:"difference_minutes"`
-	Tatwa             string `json:"tatwa"`
-	NadiRow           int    `json:"nadi_row"`
 }
 
 type BTRAnalysis struct {

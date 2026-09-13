@@ -139,6 +139,84 @@ func evaluateRow(row int, weekday int, ascType string, userGender string, actual
 	return match, calcTatwa, calcGender, calcPlanet
 }
 
+func getAntarTatwa(row int, weekday int) string {
+	tatwas := []string{"Prithvi", "Jala", "Tejo", "Vayu", "Akash"}
+	durations := []float64{6.0, 12.0, 18.0, 24.0, 30.0}
+
+	// Sync with getTatwaInfo's global row shift
+	cycleRow := (row-121+480)%480 + 1
+	halfCycleIdx := (cycleRow - 1) / 30
+	isReverse := (halfCycleIdx%2 != 0) // Odd index is Avaroha (Reverse)
+	rowInHalfCycle := (cycleRow-1)%30 + 1
+
+	startIdx := 0
+	switch weekday {
+	case 3:
+		startIdx = 0
+	case 1, 5:
+		startIdx = 1
+	case 0, 2:
+		startIdx = 2
+	case 6:
+		startIdx = 3
+	case 4:
+		startIdx = 4
+	}
+
+	// Build the sequence of Maha Tatwas for this cycle
+	var seq []int
+	idx := startIdx
+	for i := 0; i < 5; i++ {
+		seq = append(seq, idx)
+		idx = (idx + 1) % 5
+	}
+
+	if isReverse {
+		for i, j := 0, len(seq)-1; i < j; i, j = i+1, j-1 {
+			seq[i], seq[j] = seq[j], seq[i]
+		}
+	}
+
+	mahaStartRow := 1
+	var mahaDuration float64
+	var mahaTatwaIdx int
+
+	currentTotal := 0
+	for _, tIdx := range seq {
+		d := durations[tIdx]
+		rowsForTatwa := int(d / 3.0)
+		if rowInHalfCycle <= currentTotal+rowsForTatwa {
+			mahaDuration = d
+			mahaTatwaIdx = tIdx
+			mahaStartRow = currentTotal + 1
+			break
+		}
+		currentTotal += rowsForTatwa
+	}
+
+	minutesElapsed := float64(rowInHalfCycle-mahaStartRow)*3.0 + 1.5
+
+	currentAntarIdx := mahaTatwaIdx
+	accumulatedAntarMins := 0.0
+
+	for i := 0; i < 5; i++ {
+		antarDuration := (mahaDuration * durations[currentAntarIdx]) / 90.0
+		accumulatedAntarMins += antarDuration
+
+		if minutesElapsed <= accumulatedAntarMins {
+			return tatwas[currentAntarIdx]
+		}
+
+		if !isReverse {
+			currentAntarIdx = (currentAntarIdx + 1) % 5
+		} else {
+			currentAntarIdx = (currentAntarIdx - 1 + 5) % 5
+		}
+	}
+
+	return tatwas[mahaTatwaIdx]
+}
+
 func CalculateBTR(input domain.BTRInput, ctx *domain.CalculationContext) (domain.BTRResult, error) {
 	// Parse Local Time
 	t, err := time.Parse("15:04:05", input.TimeOfBirth)
@@ -151,7 +229,9 @@ func CalculateBTR(input domain.BTRInput, ctx *domain.CalculationContext) (domain
 	rawSeconds := t.Hour()*3600 + t.Minute()*60 + t.Second()
 
 	stdMeridian := input.Timezone * 15.0
-	lmtCorrectionSeconds := (stdMeridian - input.Longitude) * 240.0
+	// Correct astronomical LMT: (Longitude - StandardMeridian) * 4 minutes (240s)
+	// Example: Guntur (80.15) is West of IST (82.5). 80.15 - 82.5 = -2.35 * 240 = -564 seconds.
+	lmtCorrectionSeconds := (input.Longitude - stdMeridian) * 240.0
 	lmtSeconds := float64(rawSeconds) + lmtCorrectionSeconds
 
 	// Determine the Julian Day for 00:00:00 of the input date
@@ -277,75 +357,122 @@ func CalculateBTR(input domain.BTRInput, ctx *domain.CalculationContext) (domain
 		SuggestedRectifications: []domain.BTRCandidate{},
 	}
 
-	if !baseMatch {
-		// Scan nearby rows for candidates
-		var candidates []domain.BTRCandidate
-		scanRange := 40 // Check +/- 40 rows (2 hours each way)
+	// Generate candidates strictly within the requested scan window
+	scanMinus := input.ScanMinusMinutes
+	if scanMinus <= 0 {
+		scanMinus = 10
+	}
+	scanPlus := input.ScanPlusMinutes
+	if scanPlus <= 0 {
+		scanPlus = 5
+	}
 
-		for offset := -scanRange; offset <= scanRange; offset++ {
-			if offset == 0 {
-				continue
+	type scoredCandidate struct {
+		cand  domain.BTRCandidate
+		score int
+	}
+	var scoredList []scoredCandidate
+
+	// Check a wide enough range of rows to cover the window
+	scanRangeRows := (scanMinus+scanPlus)/3 + 2
+
+	for offset := -scanRangeRows; offset <= scanRangeRows; offset++ {
+		checkRow := baseRow + offset
+		wrappedRow := checkRow
+		if wrappedRow < 1 {
+			wrappedRow += 480
+		} else if wrappedRow > 480 {
+			wrappedRow -= 480
+		}
+
+		// Calculate exact clock start time of this row
+		rowSecsSinceSunrise := float64((wrappedRow - 1) * 180)
+		rowLmtSecs := rowSecsSinceSunrise + sunriseDiffSecs
+		rowIstSecs := rowLmtSecs - lmtCorrectionSeconds
+
+		for rowIstSecs < 0 {
+			rowIstSecs += 86400
+		}
+		for rowIstSecs >= 86400 {
+			rowIstSecs -= 86400
+		}
+
+		diffSecs := rowIstSecs - float64(rawSeconds)
+		if diffSecs < -43200 {
+			diffSecs += 86400
+		}
+		if diffSecs > 43200 {
+			diffSecs -= 86400
+		}
+
+		if diffSecs >= -float64(scanMinus*60) && diffSecs <= float64(scanPlus*60) {
+			_, checkTatwa, checkGender, checkPlanet := evaluateRow(wrappedRow, weekday, ascType, input.Gender, actualStarLord)
+
+			score := 0
+			if checkGender == input.Gender {
+				score += 5
+			}
+			if checkPlanet == actualStarLord {
+				score += 5
 			}
 
-			checkRow := baseRow + offset
-			wrappedRow := checkRow
-			if wrappedRow < 1 {
-				wrappedRow += 480
-			} else if wrappedRow > 480 {
-				wrappedRow -= 480
+			sh := int(rowIstSecs) / 3600
+			sm := (int(rowIstSecs) % 3600) / 60
+			ss := int(rowIstSecs) % 60
+			suggStr := fmt.Sprintf("%02d:%02d:%02d", sh, sm, ss)
+
+			diffMins := int(math.Round(diffSecs / 60.0))
+
+			t1Mins := wrappedRow * 3
+			t1Str := fmt.Sprintf("%d%02d", t1Mins/60, t1Mins%60)
+			if t1Mins/60 == 0 {
+				t1Str = fmt.Sprintf("%d", t1Mins)
 			}
 
-			match, checkTatwa, _, _ := evaluateRow(wrappedRow, weekday, ascType, input.Gender, actualStarLord)
+			genStr := "Male"
+			if checkGender == "Female" {
+				genStr = "Female"
+			}
 
-			if match {
-				diffMinutes := offset * 3
+			_, _, _, vinodPlanet := evaluateRow(wrappedRow, weekday, ascType, input.Gender, actualStarLord)
+			vinodPlanet = getNadiPlanet(wrappedRow, ascType, 0) // Override with Vinod planet logic
 
-				// Calculate suggested time string based on offset
-				suggestedSecs := finalTimeSecs + float64(offset*3*60)
+			scoredList = append(scoredList, scoredCandidate{
+				cand: domain.BTRCandidate{
+					T1:          t1Str,
+					T2:          suggStr,
+					Score:       score,
+					NadiRow:     wrappedRow,
+					Tatwa:       checkTatwa,
+					Antar:       getAntarTatwa(wrappedRow, weekday),
+					Gender:      genStr,
+					Planet90:    checkPlanet,
+					PlanetVinod: vinodPlanet,
 
-				// Un-normalize back to clock time
-				suggestedLmtSecs := suggestedSecs + sunriseDiffSecs
-				suggestedClockSecs := suggestedLmtSecs - lmtCorrectionSeconds
+					SuggestedTime:     suggStr,
+					DifferenceMinutes: diffMins,
+				},
+				score: score,
+			})
+		}
+	}
 
-				for suggestedClockSecs < 0 {
-					suggestedClockSecs += 86400
+	// Sort candidates by Score (descending), then by proximity to target
+	for i := 0; i < len(scoredList)-1; i++ {
+		for j := 0; j < len(scoredList)-i-1; j++ {
+			if scoredList[j].score < scoredList[j+1].score {
+				scoredList[j], scoredList[j+1] = scoredList[j+1], scoredList[j]
+			} else if scoredList[j].score == scoredList[j+1].score {
+				if math.Abs(float64(scoredList[j].cand.DifferenceMinutes)) > math.Abs(float64(scoredList[j+1].cand.DifferenceMinutes)) {
+					scoredList[j], scoredList[j+1] = scoredList[j+1], scoredList[j]
 				}
-				for suggestedClockSecs >= 86400 {
-					suggestedClockSecs -= 86400
-				}
-
-				sh := int(suggestedClockSecs) / 3600
-				sm := (int(suggestedClockSecs) % 3600) / 60
-				ss := int(suggestedClockSecs) % 60
-
-				candidates = append(candidates, domain.BTRCandidate{
-					SuggestedTime:     time.Date(2000, 1, 1, sh, sm, ss, 0, time.UTC).Format("15:04:05"),
-					DifferenceMinutes: diffMinutes,
-					Tatwa:             checkTatwa,
-					NadiRow:           wrappedRow,
-				})
 			}
 		}
+	}
 
-		// Sort by absolute difference
-		for i := 0; i < len(candidates)-1; i++ {
-			for j := 0; j < len(candidates)-i-1; j++ {
-				if math.Abs(float64(candidates[j].DifferenceMinutes)) > math.Abs(float64(candidates[j+1].DifferenceMinutes)) {
-					candidates[j], candidates[j+1] = candidates[j+1], candidates[j]
-				}
-			}
-		}
-
-		// Take top 5 and assign ranks
-		limit := 5
-		if len(candidates) < limit {
-			limit = len(candidates)
-		}
-
-		for i := 0; i < limit; i++ {
-			candidates[i].Rank = i + 1
-			res.SuggestedRectifications = append(res.SuggestedRectifications, candidates[i])
-		}
+	for i := 0; i < len(scoredList); i++ {
+		scoredList[i].cand.Rank = i + 1
+		res.SuggestedRectifications = append(res.SuggestedRectifications, scoredList[i].cand)
 	}
 
 	if input.ReturnFullTable {

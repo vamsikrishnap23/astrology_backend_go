@@ -18,7 +18,7 @@ func main() {
 			DateOfBirth: "2005-11-23",
 			TimeOfBirth: "15:36:00",
 			Latitude:    16.066,
-			Longitude:   79.9833,
+			Longitude:   79.9833, // West of 82.5 E (IST)
 			Timezone:    5.5,
 			Ayanamsa:    "Lahiri",
 		},
