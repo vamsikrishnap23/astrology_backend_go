@@ -154,7 +154,12 @@ func CalculateBTR(input domain.BTRInput, ctx *domain.CalculationContext) (domain
 	lmtCorrectionSeconds := (stdMeridian - input.Longitude) * 240.0
 	lmtSeconds := float64(rawSeconds) + lmtCorrectionSeconds
 
-	sunriseUTC := getSunrise(ctx.JulianDayUT, input.Latitude, input.Longitude)
+	// Determine the Julian Day for 00:00:00 of the input date
+	localStart, _ := time.Parse("2006-01-02 15:04:05", input.DateOfBirth+" 00:00:00")
+	utcStart := localStart.UTC()
+	startOfDayJD := swisseph.Julday(int32(utcStart.Year()), int32(utcStart.Month()), int32(utcStart.Day()), float64(utcStart.Hour())+float64(utcStart.Minute())/60.0+float64(utcStart.Second())/3600.0, swisseph.GregCal)
+
+	sunriseUTC := getSunrise(startOfDayJD, input.Latitude, input.Longitude)
 	sunriseLocalSecs := (sunriseUTC + input.Timezone) * 3600.0
 	if sunriseLocalSecs > 86400 {
 		sunriseLocalSecs -= 86400
@@ -186,7 +191,7 @@ func CalculateBTR(input domain.BTRInput, ctx *domain.CalculationContext) (domain
 	weekday := getWeekday(ctx.JulianDayUT, input.Timezone)
 
 	planetsList, _ := planets.CalculatePlanets(ctx)
-	_, ascendantLon, _, _ := houses.CalculateHouses(ctx)
+	ascendantLon, _, _, _ := houses.CalculateHouses(ctx)
 
 	ascType := getAscendantType(ascendantLon)
 	if input.AscendantOverride != "" {
