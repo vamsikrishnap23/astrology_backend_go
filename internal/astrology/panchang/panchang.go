@@ -249,8 +249,9 @@ func calculateRiseSet(jd, lat, lon float64, body int32) (float64, float64) {
 	// This is the standard rule for South Indian Panchangams (Nithra, Butte, etc.)
 	searchJD := jd
 	epheflag := int32(swisseph.FlagSwieph)
-	rsmiRise := int32(swisseph.CalcRise | swisseph.BitHinduRising)
-	rsmiSet := int32(swisseph.CalcSet | swisseph.BitHinduRising)
+	// Drik Panchang default: Standard Astronomical (Upper limb + Atmospheric Refraction)
+	rsmiRise := int32(swisseph.CalcRise)
+	rsmiSet := int32(swisseph.CalcSet)
 
 	resRise := swisseph.RiseTrans(searchJD, body, "", epheflag, rsmiRise, geopos, 0, 0)
 	resSet := swisseph.RiseTrans(searchJD, body, "", epheflag, rsmiSet, geopos, 0, 0)

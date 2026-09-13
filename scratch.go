@@ -12,7 +12,7 @@ import (
 func getRiseSet(jd float64, lat float64, lon float64, rsmiFlags int32, body int) (float64, float64) {
 	geopos := [3]float64{lon, lat, 0}
 	epheflag := int32(swisseph.FlagSwieph)
-	
+
 	rsmiRise := int32(swisseph.CalcRise) | rsmiFlags
 	resRise := swisseph.RiseTrans(jd, int32(body), "", epheflag, rsmiRise, geopos, 0, 0)
 	fracRise := resRise.Time + 0.5 - math.Floor(resRise.Time+0.5)
@@ -34,17 +34,24 @@ func printTime(name string, tUTC float64) {
 
 func main() {
 	ephemeris.Init("ephe_data")
-	utcTime, _ := astronomyTime.ParseLocalToUTC("2026-09-13", "01:44:00", 5.5)
+	utcTime, _ := astronomyTime.ParseLocalToUTC("2026-09-13", "12:00:00", 5.5)
 	jd := astronomyTime.UTCToJulianDay(utcTime)
-	
+
 	lat, lon := 17.38405, 78.45636
 
-	fmt.Println("MOONRISE/MOONSET")
-	r1, s1 := getRiseSet(jd, lat, lon, 0, swisseph.Moon)
-	printTime("Standard Rise", r1)
-	printTime("Standard Set", s1)
-	
-	r2, s2 := getRiseSet(jd, lat, lon, int32(swisseph.BitHinduRising), swisseph.Moon)
-	printTime("Hindu Rise", r2)
-	printTime("Hindu Set", s2)
+	fmt.Println("HYDERABAD SUNRISE/SUNSET SEP 13 2026")
+	r1, s1 := getRiseSet(jd, lat, lon, 0, swisseph.Sun)                                                      // Standard
+	r2, s2 := getRiseSet(jd, lat, lon, int32(swisseph.BitDiscCenter|swisseph.BitNoRefraction), swisseph.Sun) // Hindu
+
+	printTime("Sun Standard Rise", r1)
+	printTime("Sun Standard Set", s1)
+	printTime("Sun Hindu Rise", r2)
+	printTime("Sun Hindu Set", s2)
+
+	r3, s3 := getRiseSet(jd, lat, lon, 0, swisseph.Moon)                                                      // Standard
+	r4, s4 := getRiseSet(jd, lat, lon, int32(swisseph.BitDiscCenter|swisseph.BitNoRefraction), swisseph.Moon) // Hindu
+	printTime("Moon Standard Rise", r3)
+	printTime("Moon Standard Set", s3)
+	printTime("Moon Hindu Rise", r4)
+	printTime("Moon Hindu Set", s4)
 }
