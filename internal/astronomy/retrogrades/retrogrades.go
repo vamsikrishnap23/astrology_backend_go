@@ -103,7 +103,7 @@ func CalculateRetrogrades(input domain.RetrogradesInput) (domain.RetrogradesResu
 		Retrogrades: make(map[string][]domain.RetrogradePhase),
 	}
 
-	planetOrder := []string{"Mercury", "Venus", "Mars", "Jupiter", "Saturn", "Uranus", "Neptune", "Pluto"}
+	planetOrder := []string{"Mercury", "Venus", "Mars", "Jupiter", "Saturn"}
 
 	for _, pName := range planetOrder {
 		seID := planetMap[pName]
