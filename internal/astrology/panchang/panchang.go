@@ -47,10 +47,14 @@ func CalculatePanchang(ctx *domain.CalculationContext) (domain.PanchangResult, e
 
 	formatTime := func(jd float64) string {
 		utc := jdToUTC(jd)
+		return utc.In(loc).Format("2006-01-02T15:04:05-07:00")
+	}
+
+	formatStrictEventTime := func(jd float64) string {
+		utc := jdToUTC(jd)
 		tLocal := utc.In(loc)
-		// Check if the event actually happens on the requested local calendar day
 		if tLocal.Year() != localStart.Year() || tLocal.Month() != localStart.Month() || tLocal.Day() != localStart.Day() {
-			return "" // No event on this calendar day
+			return ""
 		}
 		return tLocal.Format("2006-01-02T15:04:05-07:00")
 	}
@@ -71,8 +75,8 @@ func CalculatePanchang(ctx *domain.CalculationContext) (domain.PanchangResult, e
 		Sunrise:        formatTime(sunriseJD),
 		Sunset:         formatTime(sunsetJD),
 		SolarNoon:      formatTime(noonJD),
-		Moonrise:       formatTime(moonriseJD),
-		Moonset:        formatTime(moonsetJD),
+		Moonrise:       formatStrictEventTime(moonriseJD),
+		Moonset:        formatStrictEventTime(moonsetJD),
 		Rasi:           rasiName,
 		Vara:           vara,
 		Tithi:          formatTithi(tithi, formatTime),
@@ -155,10 +159,14 @@ func CalculateDailyPanchang(ctx *domain.CalculationContext) (domain.DailyPanchan
 
 	formatTime := func(jd float64) string {
 		utc := jdToUTC(jd)
+		return utc.In(loc).Format("2006-01-02T15:04:05-07:00")
+	}
+
+	formatStrictEventTime := func(jd float64) string {
+		utc := jdToUTC(jd)
 		tLocal := utc.In(loc)
-		// Check if the event actually happens on the requested local calendar day
 		if tLocal.Year() != localStart.Year() || tLocal.Month() != localStart.Month() || tLocal.Day() != localStart.Day() {
-			return "" // No event on this calendar day
+			return ""
 		}
 		return tLocal.Format("2006-01-02T15:04:05-07:00")
 	}
@@ -171,8 +179,8 @@ func CalculateDailyPanchang(ctx *domain.CalculationContext) (domain.DailyPanchan
 		Sunrise:        formatTime(sunriseJD),
 		Sunset:         formatTime(sunsetJD),
 		SolarNoon:      formatTime(noonJD),
-		Moonrise:       formatTime(moonriseJD),
-		Moonset:        formatTime(moonsetJD),
+		Moonrise:       formatStrictEventTime(moonriseJD),
+		Moonset:        formatStrictEventTime(moonsetJD),
 		Vara:           vara,
 		TeluguCalendar: teluguCal,
 	}
