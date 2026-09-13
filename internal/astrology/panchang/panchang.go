@@ -47,7 +47,12 @@ func CalculatePanchang(ctx *domain.CalculationContext) (domain.PanchangResult, e
 
 	formatTime := func(jd float64) string {
 		utc := jdToUTC(jd)
-		return utc.In(loc).Format("2006-01-02T15:04:05-07:00")
+		tLocal := utc.In(loc)
+		// Check if the event actually happens on the requested local calendar day
+		if tLocal.Year() != localStart.Year() || tLocal.Month() != localStart.Month() || tLocal.Day() != localStart.Day() {
+			return "" // No event on this calendar day
+		}
+		return tLocal.Format("2006-01-02T15:04:05-07:00")
 	}
 
 	zodiacSigns := []string{"Aries", "Taurus", "Gemini", "Cancer", "Leo", "Virgo", "Libra", "Scorpio", "Sagittarius", "Capricorn", "Aquarius", "Pisces"}
@@ -150,7 +155,12 @@ func CalculateDailyPanchang(ctx *domain.CalculationContext) (domain.DailyPanchan
 
 	formatTime := func(jd float64) string {
 		utc := jdToUTC(jd)
-		return utc.In(loc).Format("2006-01-02T15:04:05-07:00")
+		tLocal := utc.In(loc)
+		// Check if the event actually happens on the requested local calendar day
+		if tLocal.Year() != localStart.Year() || tLocal.Month() != localStart.Month() || tLocal.Day() != localStart.Day() {
+			return "" // No event on this calendar day
+		}
+		return tLocal.Format("2006-01-02T15:04:05-07:00")
 	}
 
 	teluguCal := CalculateTeluguCalendar(ctx.JulianDayUT)
@@ -244,14 +254,18 @@ func jdToUTC(jd float64) time.Time {
 
 func calculateRiseSet(jd, lat, lon float64, body int32) (float64, float64) {
 	geopos := [3]float64{lon, lat, 0}
-
-	// Use Hindu Sunrise definitions: Center of Sun's disk, without atmospheric refraction.
-	// This is the standard rule for South Indian Panchangams (Nithra, Butte, etc.)
-	searchJD := jd
 	epheflag := int32(swisseph.FlagSwieph)
-	// Drik Panchang default: Standard Astronomical (Upper limb + Atmospheric Refraction)
+	searchJD := jd
+
+	// Drik Panchang methodology:
+	// Sun: Astronomical Standard (Upper Limb + Atmospheric Refraction)
+	// Moon: Hindu Standard (Center of Disc + No Atmospheric Refraction)
 	rsmiRise := int32(swisseph.CalcRise)
 	rsmiSet := int32(swisseph.CalcSet)
+	if body == swisseph.Moon {
+		rsmiRise |= swisseph.BitHinduRising
+		rsmiSet |= swisseph.BitHinduRising
+	}
 
 	resRise := swisseph.RiseTrans(searchJD, body, "", epheflag, rsmiRise, geopos, 0, 0)
 	resSet := swisseph.RiseTrans(searchJD, body, "", epheflag, rsmiSet, geopos, 0, 0)
