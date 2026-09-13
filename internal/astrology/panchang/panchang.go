@@ -57,21 +57,24 @@ func CalculatePanchang(ctx *domain.CalculationContext) (domain.PanchangResult, e
 	}
 	rasiName := zodiacSigns[moonSignIdx]
 
+	teluguCal := CalculateTeluguCalendar(ctx.JulianDayUT)
+
 	res := domain.PanchangResult{
-		Date:      ctx.Input.DateOfBirth,
-		LocalTime: ctx.Input.TimeOfBirth,
-		Timezone:  ctx.Input.Timezone,
-		Sunrise:   formatTime(sunriseJD),
-		Sunset:    formatTime(sunsetJD),
-		SolarNoon: formatTime(noonJD),
-		Moonrise:  formatTime(moonriseJD),
-		Moonset:   formatTime(moonsetJD),
-		Rasi:      rasiName,
-		Vara:      vara,
-		Tithi:     formatTithi(tithi, formatTime),
-		Nakshatra: formatNakshatra(nakshatra, formatTime),
-		Yoga:      formatYoga(yoga, formatTime),
-		Karana:    formatKarana(karana, formatTime),
+		Date:           ctx.Input.DateOfBirth,
+		LocalTime:      ctx.Input.TimeOfBirth,
+		Timezone:       ctx.Input.Timezone,
+		Sunrise:        formatTime(sunriseJD),
+		Sunset:         formatTime(sunsetJD),
+		SolarNoon:      formatTime(noonJD),
+		Moonrise:       formatTime(moonriseJD),
+		Moonset:        formatTime(moonsetJD),
+		Rasi:           rasiName,
+		Vara:           vara,
+		Tithi:          formatTithi(tithi, formatTime),
+		Nakshatra:      formatNakshatra(nakshatra, formatTime),
+		Yoga:           formatYoga(yoga, formatTime),
+		Karana:         formatKarana(karana, formatTime),
+		TeluguCalendar: teluguCal,
 	}
 
 	for _, r := range rahu {
@@ -150,15 +153,18 @@ func CalculateDailyPanchang(ctx *domain.CalculationContext) (domain.DailyPanchan
 		return utc.In(loc).Format("2006-01-02T15:04:05-07:00")
 	}
 
+	teluguCal := CalculateTeluguCalendar(ctx.JulianDayUT)
+
 	res := domain.DailyPanchangResult{
-		Date:      ctx.Input.DateOfBirth,
-		Timezone:  ctx.Input.Timezone,
-		Sunrise:   formatTime(sunriseJD),
-		Sunset:    formatTime(sunsetJD),
-		SolarNoon: formatTime(noonJD),
-		Moonrise:  formatTime(moonriseJD),
-		Moonset:   formatTime(moonsetJD),
-		Vara:      vara,
+		Date:           ctx.Input.DateOfBirth,
+		Timezone:       ctx.Input.Timezone,
+		Sunrise:        formatTime(sunriseJD),
+		Sunset:         formatTime(sunsetJD),
+		SolarNoon:      formatTime(noonJD),
+		Moonrise:       formatTime(moonriseJD),
+		Moonset:        formatTime(moonsetJD),
+		Vara:           vara,
+		TeluguCalendar: teluguCal,
 	}
 
 	dayTithis := getTimeline(startOfDayJD, endOfDayJD, calculateTithi)
