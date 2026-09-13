@@ -248,10 +248,12 @@ func calculateRiseSet(jd, lat, lon float64, body int32) (float64, float64) {
 	// Use Hindu Sunrise definitions: Center of Sun's disk, without atmospheric refraction.
 	// This is the standard rule for South Indian Panchangams (Nithra, Butte, etc.)
 	searchJD := jd
-	rsflag := int32(swisseph.FlagSwieph | swisseph.BitDiscCenter | swisseph.BitNoRefraction)
+	epheflag := int32(swisseph.FlagSwieph)
+	rsmiRise := int32(swisseph.CalcRise | swisseph.BitHinduRising)
+	rsmiSet := int32(swisseph.CalcSet | swisseph.BitHinduRising)
 
-	resRise := swisseph.RiseTrans(searchJD, body, "", rsflag, int32(swisseph.CalcRise), geopos, 0, 0)
-	resSet := swisseph.RiseTrans(searchJD, body, "", rsflag, int32(swisseph.CalcSet), geopos, 0, 0)
+	resRise := swisseph.RiseTrans(searchJD, body, "", epheflag, rsmiRise, geopos, 0, 0)
+	resSet := swisseph.RiseTrans(searchJD, body, "", epheflag, rsmiSet, geopos, 0, 0)
 
 	return resRise.Time, resSet.Time
 }

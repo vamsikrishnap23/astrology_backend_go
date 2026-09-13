@@ -1,42 +1,50 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
+	"math"
 
-	"github.com/vamsikrishnap23/astrology_backend_go/internal/astrology/btr"
+	"github.com/tejzpr/go-swisseph"
 	"github.com/vamsikrishnap23/astrology_backend_go/internal/astronomy/ephemeris"
 	astronomyTime "github.com/vamsikrishnap23/astrology_backend_go/internal/astronomy/time"
-	"github.com/vamsikrishnap23/astrology_backend_go/internal/domain"
 )
+
+func getRiseSet(jd float64, lat float64, lon float64, rsmiFlags int32, body int) (float64, float64) {
+	geopos := [3]float64{lon, lat, 0}
+	epheflag := int32(swisseph.FlagSwieph)
+	
+	rsmiRise := int32(swisseph.CalcRise) | rsmiFlags
+	resRise := swisseph.RiseTrans(jd, int32(body), "", epheflag, rsmiRise, geopos, 0, 0)
+	fracRise := resRise.Time + 0.5 - math.Floor(resRise.Time+0.5)
+
+	rsmiSet := int32(swisseph.CalcSet) | rsmiFlags
+	resSet := swisseph.RiseTrans(jd, int32(body), "", epheflag, rsmiSet, geopos, 0, 0)
+	fracSet := resSet.Time + 0.5 - math.Floor(resSet.Time+0.5)
+
+	return fracRise * 24.0, fracSet * 24.0
+}
+
+func printTime(name string, tUTC float64) {
+	tLocal := tUTC + 5.5
+	sh := int(tLocal)
+	sm := int((tLocal - float64(sh)) * 60)
+	ss := int((tLocal - float64(sh) - float64(sm)/60.0) * 3600)
+	fmt.Printf("%s: %02d:%02d:%02d\n", name, sh, sm, ss)
+}
 
 func main() {
 	ephemeris.Init("ephe_data")
-	defer ephemeris.Close()
-
-	input := domain.BTRInput{
-		BirthInput: domain.BirthInput{
-			DateOfBirth: "2026-09-13",
-			TimeOfBirth: "01:44:00",
-			Latitude:    17.38405,
-			Longitude:   78.45636,
-			Timezone:    5.5,
-			Ayanamsa:    "Lahiri",
-		},
-		Gender: "Male",
-	}
-
-	utcTime, _ := astronomyTime.ParseLocalToUTC(input.DateOfBirth, input.TimeOfBirth, input.Timezone)
+	utcTime, _ := astronomyTime.ParseLocalToUTC("2026-09-13", "01:44:00", 5.5)
 	jd := astronomyTime.UTCToJulianDay(utcTime)
+	
+	lat, lon := 17.38405, 78.45636
 
-	ctx := &domain.CalculationContext{
-		Input:       input.BirthInput,
-		Config:      domain.CalculationConfig{AyanamsaMode: 1, HouseCode: byte('P')},
-		UTCTime:     utcTime,
-		JulianDayUT: jd,
-	}
-
-	res, _ := btr.CalculateBTR(input, ctx)
-	b, _ := json.MarshalIndent(res.InputAnalysis, "", "  ")
-	fmt.Println(string(b))
+	fmt.Println("MOONRISE/MOONSET")
+	r1, s1 := getRiseSet(jd, lat, lon, 0, swisseph.Moon)
+	printTime("Standard Rise", r1)
+	printTime("Standard Set", s1)
+	
+	r2, s2 := getRiseSet(jd, lat, lon, int32(swisseph.BitHinduRising), swisseph.Moon)
+	printTime("Hindu Rise", r2)
+	printTime("Hindu Set", s2)
 }

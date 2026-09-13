@@ -18,8 +18,9 @@ func getSunrise(jd float64, lat float64, lon float64) float64 {
 	swisseph.SetEphePath(ephemeris.EphePath)
 
 	geopos := [3]float64{lon, lat, 0}
-	rsflag := int32(swisseph.FlagSwieph | swisseph.BitDiscCenter | swisseph.BitNoRefraction)
-	resRise := swisseph.RiseTrans(jd, swisseph.Sun, "", rsflag, int32(swisseph.CalcRise), geopos, 0, 0)
+	epheflag := int32(swisseph.FlagSwieph)
+	rsmiRise := int32(swisseph.CalcRise | swisseph.BitHinduRising)
+	resRise := swisseph.RiseTrans(jd, swisseph.Sun, "", epheflag, rsmiRise, geopos, 0, 0)
 	frac := resRise.Time + 0.5 - math.Floor(resRise.Time+0.5)
 	return frac * 24.0
 }
