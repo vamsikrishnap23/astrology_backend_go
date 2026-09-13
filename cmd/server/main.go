@@ -64,6 +64,7 @@ func main() {
 	http.HandleFunc("/api/jaimini-karakas", handlers.JaiminiKarakasHandler)
 	http.HandleFunc("/api/ashtakoota", handlers.AshtakootaHandler)
 	http.HandleFunc("/api/btr", handlers.BTRHandler)
+	http.HandleFunc("/api/retrogrades", handlers.RetrogradesHandler)
 
 	// Serve static UI on root
 	http.Handle("/", http.FileServer(http.Dir("static")))
