@@ -73,12 +73,20 @@ If the inputted time fails validation, a time-scanning engine iterates through a
 ### `input_analysis` Object Fields
 | Field | Type | Description |
 |---|---|---|
-| `gender_match` | boolean | `true` if the calculated Tatwa gender matches the inputted gender. |
-| `star_match` | boolean | `true` if the calculated Nadi planet matches the actual Nakshatra Lord. |
+| `weekday` | string | Day of the week (e.g. "Wednesday"). |
+| `sunrise` | string | Exact calculated local sunrise (HH:MM:SS). |
+| `lmt` | string | Local Mean Time (HH:MM:SS). |
+| `lmt_sunrise` | string | LMT normalized by Sunrise offset (HH:MM:SS). |
+| `nadi_row` | integer | Exact Nadi row for the specific input time. |
 | `calculated_tatwa` | string | The active element for that minute (Prithvi, Jala, Tejo, Vayu, Akash). |
 | `calculated_gender` | string | The gender governing that Tatwa (Male/Female). |
-| `calculated_planet` | string | The ruling planet for that 3-minute Nadi row. |
+| `gender_match` | boolean | `true` if the calculated Tatwa gender matches the inputted gender. |
+| `calculated_planet` | string | The 90-Min ruling planet for that 3-minute Nadi row. |
+| `calculated_planet_vinod` | string | The Vinod ruling planet for that 3-minute Nadi row. |
 | `actual_star_lord` | string | The actual ruling planet of the native's natal Moon Nakshatra. |
+| `star_match` | boolean | `true` if the calculated Nadi planet matches the actual Nakshatra Lord. |
+| `ascendant_sign` | string | Name of the calculated Ascendant (e.g. "Mesha"). |
+| `ascendant_degree` | float64 | Exact degree within the Ascendant sign. |
 
 ### `suggested_rectifications` Array Fields
 | Field | Type | Description |
@@ -113,12 +121,20 @@ If the inputted time fails validation, a time-scanning engine iterates through a
 {
   "input_time_status": "Failed",
   "input_analysis": {
-    "gender_match": true,
-    "star_match": false,
+    "weekday": "Sunday",
+    "sunrise": "06:03:45",
+    "lmt": "02:00:10",
+    "lmt_sunrise": "01:56:25",
+    "nadi_row": 39,
     "calculated_tatwa": "Akash",
     "calculated_gender": "Male",
+    "gender_match": true,
     "calculated_planet": "Mercury",
-    "actual_star_lord": "Moon"
+    "calculated_planet_vinod": "Mercury",
+    "actual_star_lord": "Moon",
+    "star_match": false,
+    "ascendant_sign": "Meena",
+    "ascendant_degree": 20.8
   },
   "suggested_rectifications": [
     {

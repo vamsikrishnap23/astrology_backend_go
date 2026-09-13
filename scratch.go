@@ -23,8 +23,7 @@ func main() {
 			Timezone:    5.5,
 			Ayanamsa:    "Lahiri",
 		},
-		Gender:          "Male",
-		ReturnFullTable: true,
+		Gender: "Male",
 	}
 
 	utcTime, _ := astronomyTime.ParseLocalToUTC(input.DateOfBirth, input.TimeOfBirth, input.Timezone)
@@ -32,16 +31,12 @@ func main() {
 
 	ctx := &domain.CalculationContext{
 		Input:       input.BirthInput,
-		Config:      domain.CalculationConfig{AyanamsaMode: 1},
+		Config:      domain.CalculationConfig{AyanamsaMode: 1, HouseCode: byte('P')},
 		UTCTime:     utcTime,
 		JulianDayUT: jd,
 	}
 
 	res, _ := btr.CalculateBTR(input, ctx)
-
-	// Just print Row 1 and Row 38
-	b1, _ := json.MarshalIndent(res.FullTable[0], "", "  ")
-	fmt.Println(string(b1))
-	b38, _ := json.MarshalIndent(res.FullTable[37], "", "  ")
-	fmt.Println(string(b38))
+	b, _ := json.MarshalIndent(res.InputAnalysis, "", "  ")
+	fmt.Println(string(b))
 }

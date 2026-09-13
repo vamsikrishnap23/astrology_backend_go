@@ -225,15 +225,48 @@ func CalculateBTR(input domain.BTRInput, ctx *domain.CalculationContext) (domain
 		status = "Verified"
 	}
 
+	// Helper to format seconds to HH:MM:SS
+	formatSecs := func(secs float64) string {
+		s := int(secs)
+		for s < 0 {
+			s += 86400
+		}
+		for s >= 86400 {
+			s -= 86400
+		}
+		return fmt.Sprintf("%02d:%02d:%02d", s/3600, (s%3600)/60, s%60)
+	}
+
+	weekdays := []string{"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"}
+
+	// Calculate base Vinod Planet
+	baseVinodPlanet := getNadiPlanet(baseRow, ascType, 0)
+
+	// Calculate Ascendant Name for output
+	ascSignIdx := int(math.Floor(ascendantLon / 30.0))
+	signNames := []string{"Mesha", "Vrishabha", "Mithuna", "Kataka", "Simha", "Kanya", "Thula", "Vrischika", "Dhanus", "Makara", "Kumbha", "Meena"}
+	ascSignName := signNames[ascSignIdx]
+	if input.AscendantOverride != "" {
+		ascSignName = input.AscendantOverride
+	}
+
 	res := domain.BTRResult{
 		InputTimeStatus: status,
 		InputAnalysis: domain.BTRAnalysis{
-			GenderMatch:      baseGender == input.Gender,
-			StarMatch:        basePlanet == actualStarLord,
-			CalculatedTatwa:  baseTatwa,
-			CalculatedGender: baseGender,
-			CalculatedPlanet: basePlanet,
-			ActualStarLord:   actualStarLord,
+			Weekday:               weekdays[weekday],
+			Sunrise:               formatSecs(sunriseLocalSecs),
+			Lmt:                   formatSecs(lmtSeconds),
+			LmtSunrise:            formatSecs(finalTimeSecs),
+			StarMatch:             basePlanet == actualStarLord,
+			ActualStarLord:        actualStarLord,
+			NadiRow:               baseRow,
+			CalculatedTatwa:       baseTatwa,
+			CalculatedGender:      baseGender,
+			GenderMatch:           baseGender == input.Gender,
+			CalculatedPlanet:      basePlanet,
+			CalculatedPlanetVinod: baseVinodPlanet,
+			AscendantSign:         ascSignName,
+			AscendantDegree:       math.Round((ascendantLon-float64(ascSignIdx*30))*10) / 10,
 		},
 		SuggestedRectifications: []domain.BTRCandidate{},
 	}

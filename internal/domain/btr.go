@@ -38,12 +38,20 @@ type BTRCandidate struct {
 }
 
 type BTRAnalysis struct {
-	GenderMatch      bool   `json:"gender_match"`
-	StarMatch        bool   `json:"star_match"`
-	CalculatedTatwa  string `json:"calculated_tatwa"`
-	CalculatedGender string `json:"calculated_gender"`
-	CalculatedPlanet string `json:"calculated_planet"`
-	ActualStarLord   string `json:"actual_star_lord"`
+	Weekday               string  `json:"weekday"`
+	Sunrise               string  `json:"sunrise"`
+	Lmt                   string  `json:"lmt"`
+	LmtSunrise            string  `json:"lmt_sunrise"`
+	StarMatch             bool    `json:"star_match"`
+	ActualStarLord        string  `json:"actual_star_lord"`
+	NadiRow               int     `json:"nadi_row"`
+	CalculatedTatwa       string  `json:"calculated_tatwa"`
+	CalculatedGender      string  `json:"calculated_gender"`
+	GenderMatch           bool    `json:"gender_match"`
+	CalculatedPlanet      string  `json:"calculated_planet"`
+	CalculatedPlanetVinod string  `json:"calculated_planet_vinod"`
+	AscendantSign         string  `json:"ascendant_sign"`
+	AscendantDegree       float64 `json:"ascendant_degree"`
 }
 
 type BTRResult struct {
