@@ -13,6 +13,7 @@ type BhavaChalitPlanet struct {
 	NakshatraLord   string  `json:"nakshatra_lord"`
 	SignLord        string  `json:"sign_lord,omitempty"`
 	Retrograde      bool    `json:"retrograde"`
+	Combust         bool    `json:"combust"`
 	HouseNumber     int     `json:"house_number"` // Keep this as extra info for Bhava Chalit
 }
 

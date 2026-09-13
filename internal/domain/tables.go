@@ -8,6 +8,7 @@ type TablePlanet struct {
 	Second         float64 `json:"second"`
 	ExactLongitude float64 `json:"exact_longitude"`
 	Retrograde     bool    `json:"retrograde"`
+	Combust        bool    `json:"combust"`
 	Speed          float64 `json:"speed"`
 	HouseNumber    int     `json:"house_number"`
 	Nakshatra      string  `json:"nakshatra"`

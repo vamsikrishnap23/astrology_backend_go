@@ -14,6 +14,7 @@ type CharaKaraka struct {
 	NakshatraLord   string  `json:"nakshatra_lord"`
 	DegreeInSign    float64 `json:"degree_in_sign"`
 	Retrograde      bool    `json:"retrograde"`
+	Combust         bool    `json:"combust"`
 }
 
 // JaiminiKarakasResult contains the fully calculated Chara Karakas.

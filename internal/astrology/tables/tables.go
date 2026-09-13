@@ -91,6 +91,7 @@ func GenerateTables(planets []domain.PlanetPosition, houses []domain.HouseCusp) 
 			Second:         p.Second,
 			ExactLongitude: p.SiderealLongitude,
 			Retrograde:     p.Retrograde,
+			Combust:        p.Combust,
 			Speed:          p.Speed,
 			HouseNumber:    hNum,
 			Nakshatra:      nakName,

@@ -42,6 +42,7 @@ func CalculateBhavaChalit(ctx *domain.CalculationContext) (domain.BhavaChalitRes
 			NakshatraLord:   tp.NakshatraLord,
 			SignLord:        tp.SignLord,
 			Retrograde:      tp.Retrograde,
+			Combust:         tp.Combust,
 			HouseNumber:     tp.HouseNumber,
 		}
 		res.Planets = append(res.Planets, bp)

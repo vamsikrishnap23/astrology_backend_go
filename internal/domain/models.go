@@ -44,6 +44,7 @@ type PlanetPosition struct {
 	Distance          float64 `json:"distance,omitempty"`
 	Speed             float64 `json:"speed"`
 	Retrograde        bool    `json:"retrograde"`
+	Combust           bool    `json:"combust"`
 	Sign              string  `json:"sign"`
 	DegreeInSign      float64 `json:"degree_in_sign"`
 	Degree            int     `json:"degree"`

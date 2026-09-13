@@ -43,6 +43,7 @@ func CalculateCharaKarakas(ctx *domain.CalculationContext) (domain.JaiminiKaraka
 			NakshatraLord:   p.NakshatraLord,
 			DegreeInSign:    p.DegreeInSign,
 			Retrograde:      p.Retrograde,
+			Combust:         p.Combust,
 		})
 	}
 

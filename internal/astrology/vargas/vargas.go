@@ -67,6 +67,7 @@ func CalculateVargas(tables domain.TablesResult, cusps []domain.HouseCusp) domai
 				NakshatraLord:   nakLord,
 				SignLord:        signLords[pos.SignIndex],
 				Retrograde:      false,
+				Combust:         false,
 			}
 		}
 
@@ -88,6 +89,7 @@ func CalculateVargas(tables domain.TablesResult, cusps []domain.HouseCusp) domai
 				NakshatraLord:   nakLord,
 				SignLord:        signLords[pos.SignIndex],
 				Retrograde:      p.Retrograde,
+				Combust:         p.Combust,
 			})
 		}
 

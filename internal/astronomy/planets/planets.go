@@ -71,6 +71,47 @@ func CalculatePlanets(ctx *domain.CalculationContext) ([]domain.PlanetPosition, 
 
 	positions = append(positions, rahuPos, ketuPos)
 
+	// Post-process to determine Combustion (Astangata)
+	var sunLon float64
+	for _, p := range positions {
+		if p.Planet == "Sun" {
+			sunLon = p.SiderealLongitude
+			break
+		}
+	}
+
+	for i, p := range positions {
+		dist := math.Abs(p.SiderealLongitude - sunLon)
+		if dist > 180.0 {
+			dist = 360.0 - dist
+		}
+
+		combust := false
+		switch p.Planet {
+		case "Moon":
+			combust = dist <= 12.0
+		case "Mars":
+			combust = dist <= 17.0
+		case "Mercury":
+			if p.Retrograde {
+				combust = dist <= 12.0
+			} else {
+				combust = dist <= 14.0
+			}
+		case "Jupiter":
+			combust = dist <= 11.0
+		case "Venus":
+			if p.Retrograde {
+				combust = dist <= 8.0
+			} else {
+				combust = dist <= 10.0
+			}
+		case "Saturn":
+			combust = dist <= 15.0
+		}
+		positions[i].Combust = combust
+	}
+
 	return positions, nil
 }
 
