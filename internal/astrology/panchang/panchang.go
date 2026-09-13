@@ -263,8 +263,8 @@ func calculateRiseSet(jd, lat, lon float64, body int32) (float64, float64) {
 	rsmiRise := int32(swisseph.CalcRise)
 	rsmiSet := int32(swisseph.CalcSet)
 	if body == swisseph.Moon {
-		rsmiRise |= swisseph.BitHinduRising
-		rsmiSet |= swisseph.BitHinduRising
+		rsmiRise |= int32(swisseph.BitDiscCenter | swisseph.BitNoRefraction)
+		rsmiSet |= int32(swisseph.BitDiscCenter | swisseph.BitNoRefraction)
 	}
 
 	resRise := swisseph.RiseTrans(searchJD, body, "", epheflag, rsmiRise, geopos, 0, 0)

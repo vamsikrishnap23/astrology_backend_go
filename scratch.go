@@ -9,9 +9,13 @@ import (
 	astronomyTime "github.com/vamsikrishnap23/astrology_backend_go/internal/astronomy/time"
 )
 
-func getRiseSet(jd float64, lat float64, lon float64, rsmiFlags int32, body int) (float64, float64) {
+func getRiseSet(jd float64, lat float64, lon float64, body int, rsmiFlags int32, topo bool) (float64, float64) {
 	geopos := [3]float64{lon, lat, 0}
 	epheflag := int32(swisseph.FlagSwieph)
+	if topo {
+		epheflag |= swisseph.FlagTopoctr
+		swisseph.SetTopo(lon, lat, 0)
+	}
 
 	rsmiRise := int32(swisseph.CalcRise) | rsmiFlags
 	resRise := swisseph.RiseTrans(jd, int32(body), "", epheflag, rsmiRise, geopos, 0, 0)
@@ -29,29 +33,41 @@ func printTime(name string, tUTC float64) {
 	sh := int(tLocal)
 	sm := int((tLocal - float64(sh)) * 60)
 	ss := int((tLocal - float64(sh) - float64(sm)/60.0) * 3600)
-	fmt.Printf("%s: %02d:%02d:%02d\n", name, sh, sm, ss)
+
+	ampm := "AM"
+	if sh >= 12 {
+		ampm = "PM"
+		if sh > 12 {
+			sh -= 12
+		}
+	}
+	if sh == 0 {
+		sh = 12
+	}
+
+	fmt.Printf("%s: %02d:%02d:%02d %s\n", name, sh, sm, ss, ampm)
 }
 
 func main() {
 	ephemeris.Init("ephe_data")
-	utcTime, _ := astronomyTime.ParseLocalToUTC("2026-09-13", "12:00:00", 5.5)
+	utcTime, _ := astronomyTime.ParseLocalToUTC("2005-11-23", "00:00:00", 5.5)
 	jd := astronomyTime.UTCToJulianDay(utcTime)
+	lat, lon := 16.3900, 80.1500
 
-	lat, lon := 17.38405, 78.45636
+	fmt.Println("MOON")
+	mr1, ms1 := getRiseSet(jd, lat, lon, swisseph.Moon, 0, false)
+	printTime("Standard Moon (0 flags)", mr1)
+	printTime("Standard Set", ms1)
 
-	fmt.Println("HYDERABAD SUNRISE/SUNSET SEP 13 2026")
-	r1, s1 := getRiseSet(jd, lat, lon, 0, swisseph.Sun)                                                      // Standard
-	r2, s2 := getRiseSet(jd, lat, lon, int32(swisseph.BitDiscCenter|swisseph.BitNoRefraction), swisseph.Sun) // Hindu
+	mr2, ms2 := getRiseSet(jd, lat, lon, swisseph.Moon, int32(swisseph.BitDiscCenter|swisseph.BitNoRefraction), false)
+	printTime("Center+NoRefrac (Geocentric/Default)", mr2)
+	printTime("Center+NoRefrac Set", ms2)
 
-	printTime("Sun Standard Rise", r1)
-	printTime("Sun Standard Set", s1)
-	printTime("Sun Hindu Rise", r2)
-	printTime("Sun Hindu Set", s2)
+	mr3, ms3 := getRiseSet(jd, lat, lon, swisseph.Moon, int32(swisseph.BitDiscCenter|swisseph.BitNoRefraction), true)
+	printTime("Center+NoRefrac (Topocentric)", mr3)
+	printTime("Center+NoRefrac Set", ms3)
 
-	r3, s3 := getRiseSet(jd, lat, lon, 0, swisseph.Moon)                                                      // Standard
-	r4, s4 := getRiseSet(jd, lat, lon, int32(swisseph.BitDiscCenter|swisseph.BitNoRefraction), swisseph.Moon) // Hindu
-	printTime("Moon Standard Rise", r3)
-	printTime("Moon Standard Set", s3)
-	printTime("Moon Hindu Rise", r4)
-	printTime("Moon Hindu Set", s4)
+	mr4, ms4 := getRiseSet(jd, lat, lon, swisseph.Moon, int32(swisseph.BitHinduRising), false)
+	printTime("Hindu Rising Flag", mr4)
+	printTime("Hindu Rising Set", ms4)
 }
