@@ -1,6 +1,7 @@
 package btr
 
 import (
+	"fmt"
 	"math"
 	"time"
 
@@ -33,12 +34,12 @@ func getWeekday(jd float64, timezone float64) int {
 
 var planetNames = []string{"Sun", "Moon", "Mars", "Rahu", "Jupiter", "Saturn", "Mercury", "Ketu", "Venus"}
 
-func getNadiPlanet(row int, ascType string) string {
-	offset := 0
+func getNadiPlanet(row int, ascType string, baseOffset int) string {
+	offset := baseOffset
 	if ascType == "Fixed" {
-		offset = 2
+		offset += 2
 	} else if ascType == "Dual" {
-		offset = 4
+		offset += 4
 	}
 	idx := ((row - 1) + offset) % 9
 	return planetNames[idx]
@@ -121,9 +122,18 @@ func formatTatwa(gender, tatwa string) string {
 	return prefix + tatwa
 }
 
+func getWeekdayLordOffset(weekday int) int {
+	// Sun=0, Mon=1, Tue=2, Wed=6(Merc), Thu=4(Jup), Fri=8(Ven), Sat=5(Sat)
+	offsets := []int{0, 1, 2, 6, 4, 8, 5}
+	if weekday >= 0 && weekday < 7 {
+		return offsets[weekday]
+	}
+	return 0
+}
+
 func evaluateRow(row int, weekday int, ascType string, userGender string, actualStarLord string) (bool, string, string, string) {
 	calcTatwa, calcGender := getTatwaInfo(row, weekday)
-	calcPlanet := getNadiPlanet(row, ascType)
+	calcPlanet := getNadiPlanet(row, ascType, getWeekdayLordOffset(weekday))
 	match := (calcGender == userGender) && (calcPlanet == actualStarLord)
 	return match, calcTatwa, calcGender, calcPlanet
 }
@@ -301,9 +311,13 @@ func CalculateBTR(input domain.BTRInput, ctx *domain.CalculationContext) (domain
 
 	if input.ReturnFullTable {
 		for i := 1; i <= 480; i++ {
-			t1 := i * 3
+			t1Mins := i * 3
+			t1Str := fmt.Sprintf("%d%02d", t1Mins/60, t1Mins%60)
+			if t1Mins/60 == 0 {
+				t1Str = fmt.Sprintf("%d", t1Mins)
+			}
 
-			normalizedSecs := float64(t1 * 60)
+			normalizedSecs := float64(t1Mins * 60)
 			lmtSecs := normalizedSecs + sunriseDiffSecs
 			istSecs := lmtSecs - lmtCorrectionSeconds
 
@@ -324,13 +338,17 @@ func CalculateBTR(input domain.BTRInput, ctx *domain.CalculationContext) (domain
 			tSat, gSat := getTatwaInfo(i, 6)
 			tThur, gThur := getTatwaInfo(i, 4)
 
-			pMovable := getNadiPlanet(i, "Movable")
-			pFixed := getNadiPlanet(i, "Fixed")
-			pDual := getNadiPlanet(i, "Dual")
+			pMovable := getNadiPlanet(i, "Movable", getWeekdayLordOffset(weekday))
+			pFixed := getNadiPlanet(i, "Fixed", getWeekdayLordOffset(weekday))
+			pDual := getNadiPlanet(i, "Dual", getWeekdayLordOffset(weekday))
+
+			vMovable := getNadiPlanet(i, "Movable", 0)
+			vFixed := getNadiPlanet(i, "Fixed", 0)
+			vDual := getNadiPlanet(i, "Dual", 0)
 
 			res.FullTable = append(res.FullTable, domain.BTRTableRow{
 				No:           i,
-				T1:           t1,
+				T1:           t1Str,
 				T2:           t2,
 				Wed:          formatTatwa(gWed, tWed),
 				MonFri:       formatTatwa(gMonFri, tMonFri),
@@ -340,9 +358,9 @@ func CalculateBTR(input domain.BTRInput, ctx *domain.CalculationContext) (domain
 				Movable:      pMovable,
 				Fixed:        pFixed,
 				Dual:         pDual,
-				VinodMovable: pMovable,
-				VinodFixed:   pFixed,
-				VinodDual:    pDual,
+				VinodMovable: vMovable,
+				VinodFixed:   vFixed,
+				VinodDual:    vDual,
 			})
 		}
 	}

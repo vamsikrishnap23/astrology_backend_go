@@ -14,7 +14,7 @@ type BTRInput struct {
 
 type BTRTableRow struct {
 	No           int    `json:"no"`
-	T1           int    `json:"t1"`
+	T1           string `json:"t1"`
 	T2           string `json:"t2"`
 	Wed          string `json:"wed"`
 	MonFri       string `json:"mon_fri"`
