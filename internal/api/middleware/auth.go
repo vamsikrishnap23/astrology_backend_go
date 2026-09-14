@@ -63,7 +63,7 @@ func InitAuth() error {
 	projectRef = strings.TrimSuffix(projectRef, ".supabase.co")
 	projectRef = strings.TrimSuffix(projectRef, "/")
 
-	jwksURL := "https://" + projectRef + ".supabase.co/auth/v1/jwks"
+	jwksURL := "https://" + projectRef + ".supabase.co/auth/v1/.well-known/jwks.json"
 
 	anonKey := os.Getenv("SUPABASE_ANON_KEY")
 	if anonKey == "" {
