@@ -22,7 +22,26 @@ func InitAuth() error {
 	if pubKeyPEM != "" {
 		// Clean up escaped newlines if passed via certain environments
 		pubKeyPEM = strings.ReplaceAll(pubKeyPEM, "\\n", "\n")
-		
+
+		// If the environment variable collapsed the newlines into spaces (common in Render/Docker),
+		// we need to rebuild the valid PEM format.
+		if !strings.Contains(pubKeyPEM, "\n") {
+			pubKeyPEM = strings.ReplaceAll(pubKeyPEM, "-----BEGIN PUBLIC KEY-----", "-----BEGIN PUBLIC KEY-----\n")
+			pubKeyPEM = strings.ReplaceAll(pubKeyPEM, "-----END PUBLIC KEY-----", "\n-----END PUBLIC KEY-----")
+
+			// Replace any spaces inside the base64 payload with newlines
+			// First, extract the middle part
+			parts := strings.Split(pubKeyPEM, "\n")
+			if len(parts) >= 3 {
+				header := parts[0]
+				payload := parts[1]
+				footer := parts[2]
+
+				payload = strings.ReplaceAll(payload, " ", "\n")
+				pubKeyPEM = header + "\n" + payload + "\n" + footer
+			}
+		}
+
 		key, err := jwt.ParseECPublicKeyFromPEM([]byte(pubKeyPEM))
 		if err != nil {
 			log.Fatalf("Failed to parse SUPABASE_PUBLIC_KEY: %v", err)
@@ -75,7 +94,7 @@ func InitAuth() error {
 		log.Printf("Failed to fetch JWKS from %s. (Did Supabase disable this endpoint?)\nError: %s", jwksURL, err.Error())
 		return err
 	}
-	
+
 	log.Printf("Successfully initialized Supabase JWKS from %s", jwksURL)
 	return nil
 }
