@@ -119,8 +119,8 @@ func CalculateManglikDosha(planets []domain.PlanetPosition, ascLon float64) doma
 		"Purva Ashadha": true, "Uttara Ashadha": true, "Shravana": true,
 		"Uttara Bhadrapada": true, "Revati": true,
 	}
-	if exemptNakshatras[mars.Nakshatra] {
-		res.Cancellations = append(res.Cancellations, domain.ManglikCancellation{Rule: "Mars is in an exempt Nakshatra (" + mars.Nakshatra + "), completely nullifying the dosha."})
+	if exemptNakshatras[moon.Nakshatra] {
+		res.Cancellations = append(res.Cancellations, domain.ManglikCancellation{Rule: "The Moon is in an exempt Nakshatra (" + moon.Nakshatra + "), completely nullifying the dosha."})
 		isCancelled = true
 	}
 
