@@ -21,6 +21,12 @@ func InitAuth() error {
 		return nil
 	}
 
+	// Clean up the projectRef in case the user pasted the full URL
+	projectRef = strings.TrimPrefix(projectRef, "https://")
+	projectRef = strings.TrimPrefix(projectRef, "http://")
+	projectRef = strings.TrimSuffix(projectRef, ".supabase.co")
+	projectRef = strings.TrimSuffix(projectRef, "/")
+
 	jwksURL := "https://" + projectRef + ".supabase.co/auth/v1/jwks"
 
 	// The Supabase API gateway (Kong) requires the anon key to be passed in the apikey header
