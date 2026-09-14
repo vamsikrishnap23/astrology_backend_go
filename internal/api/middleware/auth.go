@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -12,16 +13,32 @@ import (
 )
 
 var jwks *keyfunc.JWKS
+var staticPubKey interface{}
 
-// InitAuth initializes the JWKS fetcher. It should be called during server startup.
+// InitAuth initializes the JWKS fetcher or the static public key.
 func InitAuth() error {
-	projectRef := os.Getenv("SUPABASE_PROJECT_REF")
-	if projectRef == "" {
-		log.Println("WARNING: SUPABASE_PROJECT_REF not set. Auth middleware will fail if accessed.")
+	// 1. Check if a static PEM public key was provided (Best for custom environments)
+	pubKeyPEM := os.Getenv("SUPABASE_PUBLIC_KEY")
+	if pubKeyPEM != "" {
+		// Clean up escaped newlines if passed via certain environments
+		pubKeyPEM = strings.ReplaceAll(pubKeyPEM, "\\n", "\n")
+		
+		key, err := jwt.ParseECPublicKeyFromPEM([]byte(pubKeyPEM))
+		if err != nil {
+			log.Fatalf("Failed to parse SUPABASE_PUBLIC_KEY: %v", err)
+		}
+		staticPubKey = key
+		log.Println("Successfully loaded static Supabase ES256 Public Key from environment.")
 		return nil
 	}
 
-	// Clean up the projectRef in case the user pasted the full URL
+	// 2. Fallback to fetching JWKS dynamically
+	projectRef := os.Getenv("SUPABASE_PROJECT_REF")
+	if projectRef == "" {
+		log.Println("WARNING: Neither SUPABASE_PUBLIC_KEY nor SUPABASE_PROJECT_REF is set.")
+		return nil
+	}
+
 	projectRef = strings.TrimPrefix(projectRef, "https://")
 	projectRef = strings.TrimPrefix(projectRef, "http://")
 	projectRef = strings.TrimSuffix(projectRef, ".supabase.co")
@@ -29,14 +46,11 @@ func InitAuth() error {
 
 	jwksURL := "https://" + projectRef + ".supabase.co/auth/v1/jwks"
 
-	// The Supabase API gateway (Kong) requires the anon key to be passed in the apikey header
-	// even for public endpoints like JWKS.
 	anonKey := os.Getenv("SUPABASE_ANON_KEY")
 	if anonKey == "" {
-		log.Println("WARNING: SUPABASE_ANON_KEY not set. JWKS fetch might fail with 401 Unauthorized.")
+		log.Println("WARNING: SUPABASE_ANON_KEY not set for JWKS fetch.")
 	}
 
-	// Create a custom HTTP client that injects the apikey header
 	client := &http.Client{
 		Transport: &headerTransport{
 			Transport: http.DefaultTransport,
@@ -46,28 +60,39 @@ func InitAuth() error {
 		},
 	}
 
-	// Create the JWKS from the resource at the given URL.
 	options := keyfunc.Options{
 		Client:          client,
 		RefreshInterval: time.Hour,
 		RefreshTimeout:  time.Second * 10,
 		RefreshErrorHandler: func(err error) {
-			log.Printf("There was an error with the jwt.Keyfunc\nError: %s", err.Error())
+			log.Printf("JWKS Refresh Error: %s", err.Error())
 		},
 	}
 
 	var err error
 	jwks, err = keyfunc.Get(jwksURL, options)
 	if err != nil {
-		log.Printf("Failed to create JWKS from resource at the given URL.\nError: %s", err.Error())
+		log.Printf("Failed to fetch JWKS from %s. (Did Supabase disable this endpoint?)\nError: %s", jwksURL, err.Error())
 		return err
 	}
-
+	
 	log.Printf("Successfully initialized Supabase JWKS from %s", jwksURL)
 	return nil
 }
 
-// SupabaseAuthMiddleware ensures the request has a valid Supabase JWT signed via ES256 (or RS256).
+type headerTransport struct {
+	Transport http.RoundTripper
+	Headers   map[string]string
+}
+
+func (h *headerTransport) RoundTrip(req *http.Request) (*http.Response, error) {
+	for k, v := range h.Headers {
+		req.Header.Set(k, v)
+	}
+	return h.Transport.RoundTrip(req)
+}
+
+// SupabaseAuthMiddleware ensures the request has a valid Supabase JWT signed via ES256.
 func SupabaseAuthMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// Allow CORS preflight requests
@@ -82,15 +107,25 @@ func SupabaseAuthMiddleware(next http.Handler) http.Handler {
 			return
 		}
 
-		if jwks == nil {
-			http.Error(w, "Server Configuration Error: JWKS not initialized", http.StatusInternalServerError)
+		tokenString := strings.TrimPrefix(authHeader, "Bearer ")
+
+		var keyFunc jwt.Keyfunc
+		if staticPubKey != nil {
+			keyFunc = func(token *jwt.Token) (interface{}, error) {
+				if _, ok := token.Method.(*jwt.SigningMethodECDSA); !ok {
+					return nil, fmt.Errorf("unexpected signing method")
+				}
+				return staticPubKey, nil
+			}
+		} else if jwks != nil {
+			keyFunc = jwks.Keyfunc
+		} else {
+			http.Error(w, "Server Configuration Error: Auth keys not initialized", http.StatusInternalServerError)
 			return
 		}
 
-		tokenString := strings.TrimPrefix(authHeader, "Bearer ")
-
-		// Parse and verify the token using the dynamically fetched JWKS
-		token, err := jwt.Parse(tokenString, jwks.Keyfunc)
+		// Parse and verify the token
+		token, err := jwt.Parse(tokenString, keyFunc)
 		if err != nil || !token.Valid {
 			http.Error(w, "Unauthorized: Invalid Token", http.StatusUnauthorized)
 			return
@@ -99,16 +134,4 @@ func SupabaseAuthMiddleware(next http.Handler) http.Handler {
 		// Token is valid! Proceed to the astrology calculations
 		next.ServeHTTP(w, r)
 	})
-}
-
-type headerTransport struct {
-	Transport http.RoundTripper
-	Headers   map[string]string
-}
-
-func (h *headerTransport) RoundTrip(req *http.Request) (*http.Response, error) {
-	for k, v := range h.Headers {
-		req.Header.Set(k, v)
-	}
-	return h.Transport.RoundTrip(req)
 }
