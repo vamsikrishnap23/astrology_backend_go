@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/vamsikrishnap23/astrology_backend_go/internal/api/handlers"
+	"github.com/vamsikrishnap23/astrology_backend_go/internal/api/middleware"
 	"github.com/vamsikrishnap23/astrology_backend_go/internal/astronomy/ephemeris"
 )
 
@@ -45,28 +46,32 @@ func main() {
 		w.Write([]byte(`{"status":"ok"}`))
 	})
 
-	// Setup routing
-	http.HandleFunc("/api/chart", handlers.ChartHandler)
-	http.HandleFunc("/api/panchang", handlers.PanchangHandler)
-	http.HandleFunc("/api/panchang/daily", handlers.DailyPanchangHandler)
-	http.HandleFunc("/api/tables", handlers.TablesHandler)
-	http.HandleFunc("/api/significators", handlers.SignificatorsHandler)
-	http.HandleFunc("/api/ruling-planets", handlers.RulingPlanetsHandler)
-	http.HandleFunc("/api/dasha", handlers.DashaHandler)
-	http.HandleFunc("/api/four-step", handlers.FourStepSignificatorsHandler)
-	http.HandleFunc("/api/vargas", handlers.VargasHandler)
-	http.HandleFunc("/api/progression", handlers.ProgressionHandler)
-	http.HandleFunc("/api/transits/chart", handlers.TransitHandler)
-	http.HandleFunc("/api/transits/rasi", handlers.RasiTransitHandler)
-	http.HandleFunc("/api/transits/upcoming", handlers.UpcomingTransitsHandler)
-	http.HandleFunc("/api/bhava-chalit", handlers.BhavaChalitHandler)
-	http.HandleFunc("/api/ashtakavarga", handlers.AshtakavargaHandler)
-	http.HandleFunc("/api/shadbala", handlers.ShadbalaHandler)
-	http.HandleFunc("/api/jaimini-karakas", handlers.JaiminiKarakasHandler)
-	http.HandleFunc("/api/ashtakoota", handlers.AshtakootaHandler)
-	http.HandleFunc("/api/btr", handlers.BTRHandler)
-	http.HandleFunc("/api/retrogrades", handlers.RetrogradesHandler)
-	http.HandleFunc("/api/manglik-dosha", handlers.ManglikHandler)
+	// Setup routing for API with Auth Middleware
+	apiMux := http.NewServeMux()
+	apiMux.HandleFunc("/api/chart", handlers.ChartHandler)
+	apiMux.HandleFunc("/api/panchang", handlers.PanchangHandler)
+	apiMux.HandleFunc("/api/panchang/daily", handlers.DailyPanchangHandler)
+	apiMux.HandleFunc("/api/tables", handlers.TablesHandler)
+	apiMux.HandleFunc("/api/significators", handlers.SignificatorsHandler)
+	apiMux.HandleFunc("/api/ruling-planets", handlers.RulingPlanetsHandler)
+	apiMux.HandleFunc("/api/dasha", handlers.DashaHandler)
+	apiMux.HandleFunc("/api/four-step", handlers.FourStepSignificatorsHandler)
+	apiMux.HandleFunc("/api/vargas", handlers.VargasHandler)
+	apiMux.HandleFunc("/api/progression", handlers.ProgressionHandler)
+	apiMux.HandleFunc("/api/transits/chart", handlers.TransitHandler)
+	apiMux.HandleFunc("/api/transits/rasi", handlers.RasiTransitHandler)
+	apiMux.HandleFunc("/api/transits/upcoming", handlers.UpcomingTransitsHandler)
+	apiMux.HandleFunc("/api/bhava-chalit", handlers.BhavaChalitHandler)
+	apiMux.HandleFunc("/api/ashtakavarga", handlers.AshtakavargaHandler)
+	apiMux.HandleFunc("/api/shadbala", handlers.ShadbalaHandler)
+	apiMux.HandleFunc("/api/jaimini-karakas", handlers.JaiminiKarakasHandler)
+	apiMux.HandleFunc("/api/ashtakoota", handlers.AshtakootaHandler)
+	apiMux.HandleFunc("/api/btr", handlers.BTRHandler)
+	apiMux.HandleFunc("/api/retrogrades", handlers.RetrogradesHandler)
+	apiMux.HandleFunc("/api/manglik-dosha", handlers.ManglikHandler)
+
+	// Wrap apiMux with SupabaseAuthMiddleware
+	http.Handle("/api/", middleware.SupabaseAuthMiddleware(apiMux))
 
 	// Serve static UI on root
 	http.Handle("/", http.FileServer(http.Dir("static")))
