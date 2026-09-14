@@ -70,44 +70,80 @@ func CalculateManglikDosha(planets []domain.PlanetPosition, ascLon float64) doma
 		isCancelled = true
 	}
 
+	// Exception 1b: Aries or Aquarius Ascendant with Mars in 1st house
+	if ascHouse == 1 && (ascSignIdx == 0 || ascSignIdx == 10) { // Aries or Aquarius
+		res.Cancellations = append(res.Cancellations, domain.ManglikCancellation{Rule: "Mars is in the 1st house for an Aries or Aquarius Ascendant, neutralizing its malefic effects on marriage."})
+		isCancelled = true
+	}
+
 	// Exception 2: Own Sign, Exalted, Debilitated
 	if marsSign == "Aries" || marsSign == "Scorpio" {
-		res.Cancellations = append(res.Cancellations, domain.ManglikCancellation{Rule: "Mars is placed in its own sign (" + marsSign + ")."})
+		res.Cancellations = append(res.Cancellations, domain.ManglikCancellation{Rule: "Mars is placed in its own sign (" + marsSign + "), making its energy protective rather than destructive."})
 		isCancelled = true
 	} else if marsSign == "Capricorn" {
-		res.Cancellations = append(res.Cancellations, domain.ManglikCancellation{Rule: "Mars is Exalted in Capricorn."})
+		res.Cancellations = append(res.Cancellations, domain.ManglikCancellation{Rule: "Mars is Exalted in Capricorn, making its energy disciplined and highly structured rather than aggressive."})
 		isCancelled = true
 	} else if marsSign == "Cancer" {
-		res.Cancellations = append(res.Cancellations, domain.ManglikCancellation{Rule: "Mars is Debilitated in Cancer."})
+		res.Cancellations = append(res.Cancellations, domain.ManglikCancellation{Rule: "Mars is Debilitated in Cancer, rendering it too weak to cause significant harm to the spouse."})
 		isCancelled = true
 	}
 
 	// Exception 3: Conjunction with Jupiter or Moon
 	if getHouseFromRef(mars.SiderealLongitude, jupiter.SiderealLongitude) == 1 {
-		res.Cancellations = append(res.Cancellations, domain.ManglikCancellation{Rule: "Mars is conjunct with Jupiter."})
+		res.Cancellations = append(res.Cancellations, domain.ManglikCancellation{Rule: "Mars is conjunct with Jupiter. Jupiter's supreme benefic wisdom cools Mars's aggression."})
 		isCancelled = true
 	}
 	if getHouseFromRef(mars.SiderealLongitude, moon.SiderealLongitude) == 1 {
-		res.Cancellations = append(res.Cancellations, domain.ManglikCancellation{Rule: "Mars is conjunct with the Moon (Chandra-Mangala Yoga)."})
+		res.Cancellations = append(res.Cancellations, domain.ManglikCancellation{Rule: "Mars is conjunct with the Moon (Chandra-Mangala Yoga). The Moon's watery nature calms Mars's fiery energy."})
+		isCancelled = true
+	}
+
+	// Exception 3b: Aspects from Benefics
+	marsFromJupiter := getHouseFromRef(mars.SiderealLongitude, jupiter.SiderealLongitude)
+	if marsFromJupiter == 5 || marsFromJupiter == 7 || marsFromJupiter == 9 {
+		res.Cancellations = append(res.Cancellations, domain.ManglikCancellation{Rule: "Jupiter aspects Mars. Jupiter's divine grace and wisdom neutralize Mars's aggressive energy."})
+		isCancelled = true
+	}
+
+	marsFromMoon := getHouseFromRef(mars.SiderealLongitude, moon.SiderealLongitude)
+	if marsFromMoon == 7 {
+		res.Cancellations = append(res.Cancellations, domain.ManglikCancellation{Rule: "The Moon aspects Mars. The Moon's cooling nature significantly mitigates the fiery dosha."})
+		isCancelled = true
+	}
+
+	marsFromVenus := getHouseFromRef(mars.SiderealLongitude, venus.SiderealLongitude)
+	if marsFromVenus == 7 {
+		res.Cancellations = append(res.Cancellations, domain.ManglikCancellation{Rule: "Venus aspects Mars. Venusian diplomacy and love soften Mars's raw aggression."})
+		isCancelled = true
+	}
+
+	// Exception 3c: Strong Benefic in 1st House
+	jupiterFromAsc := getHouseFromRef(jupiter.SiderealLongitude, ascLon)
+	venusFromAsc := getHouseFromRef(venus.SiderealLongitude, ascLon)
+	if jupiterFromAsc == 1 {
+		res.Cancellations = append(res.Cancellations, domain.ManglikCancellation{Rule: "Jupiter is placed in the Ascendant, creating a protective shield that cancels the dosha."})
+		isCancelled = true
+	} else if venusFromAsc == 1 {
+		res.Cancellations = append(res.Cancellations, domain.ManglikCancellation{Rule: "Venus is placed in the Ascendant, creating a protective shield that cancels the dosha."})
 		isCancelled = true
 	}
 
 	// Exception 4: Specific House/Sign rules (From Ascendant)
 	if hasAsc {
 		if ascHouse == 2 && (marsSign == "Gemini" || marsSign == "Virgo") {
-			res.Cancellations = append(res.Cancellations, domain.ManglikCancellation{Rule: "Mars is in the 2nd house in a Mercury sign (" + marsSign + ")."})
+			res.Cancellations = append(res.Cancellations, domain.ManglikCancellation{Rule: "Mars is in the 2nd house in a Mercury sign (" + marsSign + "), creating a neutral intellectual environment that cancels the dosha."})
 			isCancelled = true
 		} else if ascHouse == 4 && (marsSign == "Aries" || marsSign == "Scorpio") {
-			res.Cancellations = append(res.Cancellations, domain.ManglikCancellation{Rule: "Mars is in the 4th house in its own sign (" + marsSign + ")."})
+			res.Cancellations = append(res.Cancellations, domain.ManglikCancellation{Rule: "Mars is in the 4th house in its own sign (" + marsSign + "), keeping domestic peace intact."})
 			isCancelled = true
 		} else if ascHouse == 7 && (marsSign == "Cancer" || marsSign == "Capricorn") {
-			res.Cancellations = append(res.Cancellations, domain.ManglikCancellation{Rule: "Mars is in the 7th house in " + marsSign + "."})
+			res.Cancellations = append(res.Cancellations, domain.ManglikCancellation{Rule: "Mars is in the 7th house in " + marsSign + ", where its placement is considered exceptionally stable for this specific sign."})
 			isCancelled = true
 		} else if ascHouse == 8 && (marsSign == "Sagittarius" || marsSign == "Pisces") {
-			res.Cancellations = append(res.Cancellations, domain.ManglikCancellation{Rule: "Mars is in the 8th house in a Jupiter sign (" + marsSign + ")."})
+			res.Cancellations = append(res.Cancellations, domain.ManglikCancellation{Rule: "Mars is in the 8th house in a Jupiter sign (" + marsSign + "), where Jupiter's underlying rulership protects longevity."})
 			isCancelled = true
 		} else if ascHouse == 12 && (marsSign == "Taurus" || marsSign == "Libra") {
-			res.Cancellations = append(res.Cancellations, domain.ManglikCancellation{Rule: "Mars is in the 12th house in a Venus sign (" + marsSign + ")."})
+			res.Cancellations = append(res.Cancellations, domain.ManglikCancellation{Rule: "Mars is in the 12th house in a Venus sign (" + marsSign + "), where Venus's rulership absorbs the malefic marital impact."})
 			isCancelled = true
 		}
 	}

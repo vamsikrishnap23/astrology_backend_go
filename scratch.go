@@ -22,9 +22,9 @@ func main() {
 			Timezone:    5.5,
 			Ayanamsa:    "Lahiri",
 		},
-		Gender: "Male",
+		Gender:           "Male",
 		ScanMinusMinutes: 10,
-		ScanPlusMinutes: 5,
+		ScanPlusMinutes:  5,
 	}
 
 	utcTime, _ := astronomyTime.ParseLocalToUTC(input.DateOfBirth, input.TimeOfBirth, input.Timezone)
