@@ -23,8 +23,26 @@ func InitAuth() error {
 
 	jwksURL := "https://" + projectRef + ".supabase.co/auth/v1/jwks"
 
+	// The Supabase API gateway (Kong) requires the anon key to be passed in the apikey header
+	// even for public endpoints like JWKS.
+	anonKey := os.Getenv("SUPABASE_ANON_KEY")
+	if anonKey == "" {
+		log.Println("WARNING: SUPABASE_ANON_KEY not set. JWKS fetch might fail with 401 Unauthorized.")
+	}
+
+	// Create a custom HTTP client that injects the apikey header
+	client := &http.Client{
+		Transport: &headerTransport{
+			Transport: http.DefaultTransport,
+			Headers: map[string]string{
+				"apikey": anonKey,
+			},
+		},
+	}
+
 	// Create the JWKS from the resource at the given URL.
 	options := keyfunc.Options{
+		Client:          client,
 		RefreshInterval: time.Hour,
 		RefreshTimeout:  time.Second * 10,
 		RefreshErrorHandler: func(err error) {
@@ -75,4 +93,16 @@ func SupabaseAuthMiddleware(next http.Handler) http.Handler {
 		// Token is valid! Proceed to the astrology calculations
 		next.ServeHTTP(w, r)
 	})
+}
+
+type headerTransport struct {
+	Transport http.RoundTripper
+	Headers   map[string]string
+}
+
+func (h *headerTransport) RoundTrip(req *http.Request) (*http.Response, error) {
+	for k, v := range h.Headers {
+		req.Header.Set(k, v)
+	}
+	return h.Transport.RoundTrip(req)
 }
