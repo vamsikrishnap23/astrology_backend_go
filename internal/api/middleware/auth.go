@@ -1,15 +1,49 @@
 package middleware
 
 import (
-	"fmt"
+	"log"
 	"net/http"
 	"os"
 	"strings"
+	"time"
 
+	"github.com/MicahParks/keyfunc/v2"
 	"github.com/golang-jwt/jwt/v5"
 )
 
-// SupabaseAuthMiddleware ensures the request has a valid Supabase JWT.
+var jwks *keyfunc.JWKS
+
+// InitAuth initializes the JWKS fetcher. It should be called during server startup.
+func InitAuth() error {
+	projectRef := os.Getenv("SUPABASE_PROJECT_REF")
+	if projectRef == "" {
+		log.Println("WARNING: SUPABASE_PROJECT_REF not set. Auth middleware will fail if accessed.")
+		return nil
+	}
+
+	jwksURL := "https://" + projectRef + ".supabase.co/auth/v1/jwks"
+
+	// Create the JWKS from the resource at the given URL.
+	options := keyfunc.Options{
+		RefreshInterval: time.Hour,
+		RefreshTimeout:  time.Second * 10,
+		RefreshErrorHandler: func(err error) {
+			log.Printf("There was an error with the jwt.Keyfunc\nError: %s", err.Error())
+		},
+	}
+
+	var err error
+	jwks, err = keyfunc.Get(jwksURL, options)
+	if err != nil {
+		log.Printf("Failed to create JWKS from resource at the given URL.\nError: %s", err.Error())
+		return err
+	}
+
+	log.Printf("Successfully initialized Supabase JWKS from %s", jwksURL)
+	return nil
+}
+
+// SupabaseAuthMiddleware ensures the request has a valid Supabase JWT signed via ES256 (or RS256).
 func SupabaseAuthMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// Allow CORS preflight requests
@@ -24,23 +58,15 @@ func SupabaseAuthMiddleware(next http.Handler) http.Handler {
 			return
 		}
 
-		tokenString := strings.TrimPrefix(authHeader, "Bearer ")
-
-		secret := os.Getenv("SUPABASE_JWT_SECRET")
-		if secret == "" {
-			// Fail-safe in case env is missing
-			http.Error(w, "Server Configuration Error: Missing JWT Secret", http.StatusInternalServerError)
+		if jwks == nil {
+			http.Error(w, "Server Configuration Error: JWKS not initialized", http.StatusInternalServerError)
 			return
 		}
 
-		// Parse and verify the token using your Supabase JWT Secret
-		token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-				return nil, fmt.Errorf("unexpected signing method")
-			}
-			return []byte(secret), nil
-		})
+		tokenString := strings.TrimPrefix(authHeader, "Bearer ")
 
+		// Parse and verify the token using the dynamically fetched JWKS
+		token, err := jwt.Parse(tokenString, jwks.Keyfunc)
 		if err != nil || !token.Valid {
 			http.Error(w, "Unauthorized: Invalid Token", http.StatusUnauthorized)
 			return

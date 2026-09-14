@@ -39,6 +39,11 @@ func main() {
 	}
 	defer ephemeris.Close()
 
+	// Initialize Supabase Auth (JWKS)
+	if err := middleware.InitAuth(); err != nil {
+		log.Fatalf("Failed to initialize Supabase Auth: %v", err)
+	}
+
 	// Health Check
 	http.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
