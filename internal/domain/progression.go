@@ -20,6 +20,7 @@ type ProgressedAspect struct {
 	Orb              float64 `json:"orb"`
 	AspectType       string  `json:"aspect_type"`
 	Nature           string  `json:"nature"`
+	AstrologicalRule string  `json:"astrological_rule"`
 	Reason           string  `json:"reason"`
 }
 

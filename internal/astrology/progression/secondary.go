@@ -74,29 +74,34 @@ func CalculateSecondaryProgression(natalCtx *domain.CalculationContext, targetDa
 			// Define orb for progressions
 			orbMax := 1.0
 
-			var aspectType, nature, reason string
+			var aspectType, nature, astrologicalRule, reason string
 			var exactAngle float64
 
 			if diff <= orbMax {
 				aspectType = "Conjunction"
 				exactAngle = 0.0
 				nature = "Variable"
+				astrologicalRule = "At 0 degrees, the progressed planet and natal planet occupy the exact same point in space. This creates an intense blending of their energies where they can no longer operate independently."
 			} else if math.Abs(diff-60.0) <= orbMax {
 				aspectType = "Sextile"
 				exactAngle = 60.0
 				nature = "Harmonious"
+				astrologicalRule = "At 60 degrees, the planets are in complementary elements (like Fire and Air, or Earth and Water). This creates a cooperative geometry that naturally generates favorable opportunities."
 			} else if math.Abs(diff-90.0) <= orbMax {
 				aspectType = "Square"
 				exactAngle = 90.0
 				nature = "Hard/Dynamic"
+				astrologicalRule = "At 90 degrees, the planets are in conflicting elemental natures but share the same modality. They block each other's path, creating intense psychological or external friction that forces action."
 			} else if math.Abs(diff-120.0) <= orbMax {
 				aspectType = "Trine"
 				exactAngle = 120.0
 				nature = "Harmonious"
+				astrologicalRule = "At exactly 120 degrees, both planets are positioned in the exact same Astrological Element (e.g., both in Fire). Their energies flow together without any resistance, generating luck and effortless harmony."
 			} else if math.Abs(diff-180.0) <= orbMax {
 				aspectType = "Opposition"
 				exactAngle = 180.0
 				nature = "Hard/Dynamic"
+				astrologicalRule = "At 180 degrees, the planets are at opposite ends of the zodiac. They pull in completely opposing directions, creating a dynamic tug-of-war that requires conscious balance and compromise."
 			}
 
 			if aspectType != "" {
@@ -112,6 +117,7 @@ func CalculateSecondaryProgression(natalCtx *domain.CalculationContext, targetDa
 					Orb:              orb,
 					AspectType:       aspectType,
 					Nature:           nature,
+					AstrologicalRule: astrologicalRule,
 					Reason:           reason,
 				})
 			}
