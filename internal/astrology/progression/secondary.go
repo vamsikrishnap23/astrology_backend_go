@@ -81,30 +81,26 @@ func CalculateSecondaryProgression(natalCtx *domain.CalculationContext, targetDa
 				aspectType = "Conjunction"
 				exactAngle = 0.0
 				nature = "Variable"
-				reason = "Intensely powerful merging of energies. Effect depends heavily on the planets involved."
 			} else if math.Abs(diff-60.0) <= orbMax {
 				aspectType = "Sextile"
 				exactAngle = 60.0
 				nature = "Harmonious"
-				reason = "Brings positive opportunities and favorable circumstances. A door is unlocked, but action is required."
 			} else if math.Abs(diff-90.0) <= orbMax {
 				aspectType = "Square"
 				exactAngle = 90.0
 				nature = "Hard/Dynamic"
-				reason = "Creates friction, stress, or tension that forces necessary action and growth."
 			} else if math.Abs(diff-120.0) <= orbMax {
 				aspectType = "Trine"
 				exactAngle = 120.0
 				nature = "Harmonious"
-				reason = "Brings effortless flow, luck, and natural talents manifesting without friction."
 			} else if math.Abs(diff-180.0) <= orbMax {
 				aspectType = "Opposition"
 				exactAngle = 180.0
 				nature = "Hard/Dynamic"
-				reason = "Indicates a tug-of-war or conflict requiring balance and compromise between opposing forces."
 			}
 
 			if aspectType != "" {
+				reason = generateAspectReason(pPlanet.Planet, nPlanet.Planet, aspectType, nature)
 				orb := math.Abs(diff - exactAngle)
 				// Round orb to 2 decimal places
 				orb = math.Round(orb*100) / 100
@@ -137,4 +133,62 @@ func CalculateSecondaryProgression(natalCtx *domain.CalculationContext, targetDa
 	}
 
 	return res, nil
+}
+
+func generateAspectReason(progPlanet, natPlanet, aspectType, nature string) string {
+	progKeywords := map[string]string{
+		"Sun":     "core identity, ego, and life focus",
+		"Moon":    "emotional needs, intuition, and domestic life",
+		"Mercury": "communication, mindset, and daily routines",
+		"Venus":   "values, romantic desires, and financial flow",
+		"Mars":    "drive, ambition, and physical energy",
+		"Jupiter": "desire for expansion, growth, and optimism",
+		"Saturn":  "sense of duty, discipline, and restriction",
+		"Uranus":  "need for radical change, freedom, and innovation",
+		"Neptune": "spiritual ideals, dreams, and potential illusions",
+		"Pluto":   "urge for deep transformation, power, and rebirth",
+	}
+
+	natKeywords := map[string]string{
+		"Sun":     "your fundamental life purpose and vitality",
+		"Moon":    "your baseline emotional security",
+		"Mercury": "how you naturally process information",
+		"Venus":   "your capacity for love and receiving abundance",
+		"Mars":    "your natural assertiveness and conflict resolution",
+		"Jupiter": "where you naturally seek luck and higher meaning",
+		"Saturn":  "your deep-seated boundaries, fears, and structures",
+		"Uranus":  "your authentic individuality and rebelliousness",
+		"Neptune": "your inherent spiritual connection and compassion",
+		"Pluto":   "your psychological depths and hidden power",
+	}
+
+	pK, ok1 := progKeywords[progPlanet]
+	nK, ok2 := natKeywords[natPlanet]
+
+	if !ok1 || !ok2 {
+		return "A significant energetic exchange between these two celestial bodies, heavily influenced by the angle of the aspect."
+	}
+
+	if progPlanet == natPlanet {
+		if aspectType == "Conjunction" {
+			return "A major life milestone. Your " + pK + " is undergoing a powerful reset and renewal, returning to its purest form."
+		} else if aspectType == "Opposition" {
+			return "A profound mid-cycle crisis. Your current " + pK + " is clashing heavily with " + nK + ", demanding massive re-evaluation."
+		}
+	}
+
+	switch aspectType {
+	case "Conjunction":
+		return "An intense merging of forces. Your current " + pK + " is powerfully activating " + nK + ". This creates a hyper-focused period where these two areas of life cannot be separated."
+	case "Trine":
+		return "A period of supreme ease and luck. Your evolving " + pK + " effortlessly supports and enhances " + nK + ". Doors open naturally without forcing them."
+	case "Sextile":
+		return "An opportunity for productive growth. Your " + pK + " is in a cooperative position with " + nK + ". If you put in the effort, you will see highly positive results."
+	case "Square":
+		return "A highly stressful but necessary turning point. Your current " + pK + " is creating severe friction with " + nK + ". This tension forces you to break through obstacles and make hard choices."
+	case "Opposition":
+		return "A major tug-of-war. Your evolving " + pK + " is directly clashing with " + nK + ". You must find a compromise between these opposing forces, often triggered by other people or external events."
+	default:
+		return "A significant energetic exchange."
+	}
 }
