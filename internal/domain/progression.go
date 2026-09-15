@@ -13,15 +13,26 @@ type ProgressedPlanet struct {
 }
 
 // ProgressionResult represents the final progressed chart.
+type ProgressedAspect struct {
+	ProgressedPlanet string  `json:"progressed_planet"`
+	NatalPlanet      string  `json:"natal_planet"`
+	Angle            float64 `json:"angle"`
+	Orb              float64 `json:"orb"`
+	AspectType       string  `json:"aspect_type"`
+	Nature           string  `json:"nature"`
+	Reason           string  `json:"reason"`
+}
+
 type ProgressionResult struct {
-	NatalDateUTC          string           `json:"natal_date_utc"`
-	TargetProgressionDate string           `json:"target_progression_date"`
-	AgeInYears            float64          `json:"age_in_years"`
-	ProgressedDateUTC     string           `json:"progressed_date_utc"`
-	ProgressedJulianDay   float64          `json:"progressed_julian_day"`
-	ProgressedAyanamsa    float64          `json:"progressed_ayanamsa"`
-	Ascendant             float64          `json:"ascendant"`
-	MC                    float64          `json:"mc"`
-	ProgressedPlanets     []PlanetPosition `json:"progressed_planets"`
-	ProgressedHouses      []HouseCusp      `json:"progressed_houses"`
+	NatalDateUTC          string             `json:"natal_date_utc"`
+	TargetProgressionDate string             `json:"target_progression_date"`
+	AgeInYears            float64            `json:"age_in_years"`
+	ProgressedDateUTC     string             `json:"progressed_date_utc"`
+	ProgressedJulianDay   float64            `json:"progressed_julian_day"`
+	ProgressedAyanamsa    float64            `json:"progressed_ayanamsa"`
+	Ascendant             float64            `json:"ascendant"`
+	MC                    float64            `json:"mc"`
+	ProgressedPlanets     []PlanetPosition   `json:"progressed_planets"`
+	ProgressedHouses      []HouseCusp        `json:"progressed_houses"`
+	Aspects               []ProgressedAspect `json:"aspects"`
 }
