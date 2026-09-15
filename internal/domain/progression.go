@@ -21,7 +21,8 @@ type ProgressedAspect struct {
 	AspectType       string  `json:"aspect_type"`
 	Nature           string  `json:"nature"`
 	AstrologicalRule string  `json:"astrological_rule"`
-	Reason           string  `json:"reason"`
+	ProgKeyword      string  `json:"prog_keyword"`
+	NatKeyword       string  `json:"nat_keyword"`
 }
 
 type ProgressionResult struct {
