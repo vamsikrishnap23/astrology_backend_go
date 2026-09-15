@@ -2,6 +2,7 @@ package progression
 
 import (
 	"math"
+	"strings"
 	"time"
 
 	"github.com/vamsikrishnap23/astrology_backend_go/internal/astronomy/houses"
@@ -52,7 +53,7 @@ func CalculateSecondaryProgression(natalCtx *domain.CalculationContext, targetDa
 	}
 
 	// Calculate natal houses to check for aspects to Ascendant and MC (Bhavas)
-	natAsc, natMC, _, err := houses.CalculateHouses(natalCtx)
+	_, _, natHouseCusps, err := houses.CalculateHouses(natalCtx)
 	if err != nil {
 		return domain.ProgressionResult{}, err
 	}
@@ -71,8 +72,46 @@ func CalculateSecondaryProgression(natalCtx *domain.CalculationContext, targetDa
 			progPoints = append(progPoints, AstrologicalPoint{Name: p.Planet, Longitude: p.SiderealLongitude})
 		}
 	}
-	progPoints = append(progPoints, AstrologicalPoint{Name: "Ascendant", Longitude: progAsc})
-	progPoints = append(progPoints, AstrologicalPoint{Name: "MC", Longitude: progMC})
+	for _, cusp := range progHouseCusps {
+		name := "Bhava 1" // fallback
+		if cusp.HouseNumber == 1 {
+			name = "Bhava 1 (Ascendant)"
+		}
+		if cusp.HouseNumber == 2 {
+			name = "Bhava 2"
+		}
+		if cusp.HouseNumber == 3 {
+			name = "Bhava 3"
+		}
+		if cusp.HouseNumber == 4 {
+			name = "Bhava 4"
+		}
+		if cusp.HouseNumber == 5 {
+			name = "Bhava 5"
+		}
+		if cusp.HouseNumber == 6 {
+			name = "Bhava 6"
+		}
+		if cusp.HouseNumber == 7 {
+			name = "Bhava 7 (Descendant)"
+		}
+		if cusp.HouseNumber == 8 {
+			name = "Bhava 8"
+		}
+		if cusp.HouseNumber == 9 {
+			name = "Bhava 9"
+		}
+		if cusp.HouseNumber == 10 {
+			name = "Bhava 10 (MC)"
+		}
+		if cusp.HouseNumber == 11 {
+			name = "Bhava 11"
+		}
+		if cusp.HouseNumber == 12 {
+			name = "Bhava 12"
+		}
+		progPoints = append(progPoints, AstrologicalPoint{Name: name, Longitude: cusp.Longitude})
+	}
 
 	var natPoints []AstrologicalPoint
 	for _, n := range natalPlanets {
@@ -80,13 +119,51 @@ func CalculateSecondaryProgression(natalCtx *domain.CalculationContext, targetDa
 			natPoints = append(natPoints, AstrologicalPoint{Name: n.Planet, Longitude: n.SiderealLongitude})
 		}
 	}
-	natPoints = append(natPoints, AstrologicalPoint{Name: "Ascendant", Longitude: natAsc})
-	natPoints = append(natPoints, AstrologicalPoint{Name: "MC", Longitude: natMC})
+	for _, cusp := range natHouseCusps {
+		name := "Bhava 1" // fallback
+		if cusp.HouseNumber == 1 {
+			name = "Bhava 1 (Ascendant)"
+		}
+		if cusp.HouseNumber == 2 {
+			name = "Bhava 2"
+		}
+		if cusp.HouseNumber == 3 {
+			name = "Bhava 3"
+		}
+		if cusp.HouseNumber == 4 {
+			name = "Bhava 4"
+		}
+		if cusp.HouseNumber == 5 {
+			name = "Bhava 5"
+		}
+		if cusp.HouseNumber == 6 {
+			name = "Bhava 6"
+		}
+		if cusp.HouseNumber == 7 {
+			name = "Bhava 7 (Descendant)"
+		}
+		if cusp.HouseNumber == 8 {
+			name = "Bhava 8"
+		}
+		if cusp.HouseNumber == 9 {
+			name = "Bhava 9"
+		}
+		if cusp.HouseNumber == 10 {
+			name = "Bhava 10 (MC)"
+		}
+		if cusp.HouseNumber == 11 {
+			name = "Bhava 11"
+		}
+		if cusp.HouseNumber == 12 {
+			name = "Bhava 12"
+		}
+		natPoints = append(natPoints, AstrologicalPoint{Name: name, Longitude: cusp.Longitude})
+	}
 
 	for _, pPoint := range progPoints {
 		for _, nPoint := range natPoints {
-			// Skip Ascendant to Ascendant or MC to MC
-			if pPoint.Name == nPoint.Name && (pPoint.Name == "Ascendant" || pPoint.Name == "MC") {
+			// Skip self-aspects for identical Bhavas (e.g. Progressed Bhava 1 to Natal Bhava 1)
+			if pPoint.Name == nPoint.Name && strings.Contains(pPoint.Name, "Bhava") {
 				continue
 			}
 
@@ -134,33 +211,53 @@ func CalculateSecondaryProgression(natalCtx *domain.CalculationContext, targetDa
 
 			if aspectType != "" {
 				progKeywords := map[string]string{
-					"Ascendant": "physical body, outward personality, and life path",
-					"MC":        "career, public reputation, and highest ambitions",
-					"Sun":       "core identity, ego, and life focus",
-					"Moon":      "emotional needs, intuition, and domestic life",
-					"Mercury":   "communication, mindset, and daily routines",
-					"Venus":     "values, romantic desires, and financial flow",
-					"Mars":      "drive, ambition, and physical energy",
-					"Jupiter":   "desire for expansion, growth, and optimism",
-					"Saturn":    "sense of duty, discipline, and restriction",
-					"Uranus":    "need for radical change, freedom, and innovation",
-					"Neptune":   "spiritual ideals, dreams, and potential illusions",
-					"Pluto":     "urge for deep transformation, power, and rebirth",
+					"Bhava 1 (Ascendant)":  "physical body, outward personality, and life path",
+					"Bhava 2":              "personal wealth, values, and family lineage",
+					"Bhava 3":              "courage, siblings, and communication skills",
+					"Bhava 4":              "inner peace, mother, and foundational home life",
+					"Bhava 5":              "creativity, intellect, and children",
+					"Bhava 6":              "health, daily service, and ability to overcome enemies",
+					"Bhava 7 (Descendant)": "marriage, partnerships, and public dealings",
+					"Bhava 8":              "longevity, hidden wealth, and deep transformations",
+					"Bhava 9":              "dharma, higher learning, and fortune",
+					"Bhava 10 (MC)":        "career, public reputation, and highest ambitions",
+					"Bhava 11":             "major gains, aspirations, and social networks",
+					"Bhava 12":             "spirituality, isolation, and foreign connections",
+					"Sun":                  "core identity, ego, and life focus",
+					"Moon":                 "emotional needs, intuition, and domestic life",
+					"Mercury":              "communication, mindset, and daily routines",
+					"Venus":                "values, romantic desires, and financial flow",
+					"Mars":                 "drive, ambition, and physical energy",
+					"Jupiter":              "desire for expansion, growth, and optimism",
+					"Saturn":               "sense of duty, discipline, and restriction",
+					"Uranus":               "need for radical change, freedom, and innovation",
+					"Neptune":              "spiritual ideals, dreams, and potential illusions",
+					"Pluto":                "urge for deep transformation, power, and rebirth",
 				}
 
 				natKeywords := map[string]string{
-					"Ascendant": "your physical presence, self-image, and approach to life",
-					"MC":        "your ultimate career goals, social standing, and legacy",
-					"Sun":       "your fundamental life purpose and vitality",
-					"Moon":      "your baseline emotional security",
-					"Mercury":   "how you naturally process information",
-					"Venus":     "your capacity for love and receiving abundance",
-					"Mars":      "your natural assertiveness and conflict resolution",
-					"Jupiter":   "where you naturally seek luck and higher meaning",
-					"Saturn":    "your deep-seated boundaries, fears, and structures",
-					"Uranus":    "your authentic individuality and rebelliousness",
-					"Neptune":   "your inherent spiritual connection and compassion",
-					"Pluto":     "your psychological depths and hidden power",
+					"Bhava 1 (Ascendant)":  "your physical presence, self-image, and approach to life",
+					"Bhava 2":              "your personal wealth, values, and family lineage",
+					"Bhava 3":              "your courage, siblings, and communication skills",
+					"Bhava 4":              "your inner peace, mother, and foundational home life",
+					"Bhava 5":              "your creativity, intellect, and children",
+					"Bhava 6":              "your health, daily service, and ability to overcome enemies",
+					"Bhava 7 (Descendant)": "your marriage, partnerships, and public dealings",
+					"Bhava 8":              "your longevity, hidden wealth, and deep transformations",
+					"Bhava 9":              "your dharma, higher learning, and fortune",
+					"Bhava 10 (MC)":        "your ultimate career goals, social standing, and legacy",
+					"Bhava 11":             "your major gains, aspirations, and social networks",
+					"Bhava 12":             "your spirituality, isolation, and foreign connections",
+					"Sun":                  "your fundamental life purpose and vitality",
+					"Moon":                 "your baseline emotional security",
+					"Mercury":              "how you naturally process information",
+					"Venus":                "your capacity for love and receiving abundance",
+					"Mars":                 "your natural assertiveness and conflict resolution",
+					"Jupiter":              "where you naturally seek luck and higher meaning",
+					"Saturn":               "your deep-seated boundaries, fears, and structures",
+					"Uranus":               "your authentic individuality and rebelliousness",
+					"Neptune":              "your inherent spiritual connection and compassion",
+					"Pluto":                "your psychological depths and hidden power",
 				}
 
 				pK := progKeywords[pPoint.Name]
