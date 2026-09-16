@@ -50,7 +50,7 @@ func ManglikHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	houseCusps, ascendant, _, err := houses.CalculateHouses(ctx)
+	ascendant, _, houseCusps, err := houses.CalculateHouses(ctx)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
