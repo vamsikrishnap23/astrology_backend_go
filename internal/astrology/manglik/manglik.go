@@ -72,7 +72,7 @@ func CalculateManglikDosha(planets []domain.PlanetPosition, ascLon float64) doma
 
 	// Exception 1b: Aries or Aquarius Ascendant with Mars in 1st house
 	if ascHouse == 1 && (ascSignIdx == 0 || ascSignIdx == 10) { // Aries or Aquarius
-		res.Cancellations = append(res.Cancellations, domain.ManglikCancellation{Rule: "Mars is in the 1st house for an Aries or Aquarius Ascendant, neutralizing its malefic effects on marriage."})
+		res.Cancellations = append(res.Cancellations, domain.ManglikCancellation{Rule: "The Moon is in the 1st house for an Aries or Aquarius Ascendant, neutralizing its malefic effects on marriage."})
 		isCancelled = true
 	}
 
@@ -131,19 +131,19 @@ func CalculateManglikDosha(planets []domain.PlanetPosition, ascLon float64) doma
 	// Exception 4: Specific House/Sign rules (From Ascendant)
 	if hasAsc {
 		if ascHouse == 2 && (marsSign == "Gemini" || marsSign == "Virgo") {
-			res.Cancellations = append(res.Cancellations, domain.ManglikCancellation{Rule: "Mars is in the 2nd house in a Mercury sign (" + marsSign + "), creating a neutral intellectual environment that cancels the dosha."})
+			res.Cancellations = append(res.Cancellations, domain.ManglikCancellation{Rule: "The Moon is in the 2nd house in a Mercury sign (" + marsSign + "), creating a neutral intellectual environment that cancels the dosha."})
 			isCancelled = true
 		} else if ascHouse == 4 && (marsSign == "Aries" || marsSign == "Scorpio") {
-			res.Cancellations = append(res.Cancellations, domain.ManglikCancellation{Rule: "Mars is in the 4th house in its own sign (" + marsSign + "), keeping domestic peace intact."})
+			res.Cancellations = append(res.Cancellations, domain.ManglikCancellation{Rule: "The Moon is in the 4th house in its own sign (" + marsSign + "), keeping domestic peace intact."})
 			isCancelled = true
 		} else if ascHouse == 7 && (marsSign == "Cancer" || marsSign == "Capricorn") {
-			res.Cancellations = append(res.Cancellations, domain.ManglikCancellation{Rule: "Mars is in the 7th house in " + marsSign + ", where its placement is considered exceptionally stable for this specific sign."})
+			res.Cancellations = append(res.Cancellations, domain.ManglikCancellation{Rule: "The Moon is in the 7th house in " + marsSign + ", where its placement is considered exceptionally stable for this specific sign."})
 			isCancelled = true
 		} else if ascHouse == 8 && (marsSign == "Sagittarius" || marsSign == "Pisces") {
-			res.Cancellations = append(res.Cancellations, domain.ManglikCancellation{Rule: "Mars is in the 8th house in a Jupiter sign (" + marsSign + "), where Jupiter's underlying rulership protects longevity."})
+			res.Cancellations = append(res.Cancellations, domain.ManglikCancellation{Rule: "The Moon is in the 8th house in a Jupiter sign (" + marsSign + "), where Jupiter's underlying rulership protects longevity."})
 			isCancelled = true
 		} else if ascHouse == 12 && (marsSign == "Taurus" || marsSign == "Libra") {
-			res.Cancellations = append(res.Cancellations, domain.ManglikCancellation{Rule: "Mars is in the 12th house in a Venus sign (" + marsSign + "), where Venus's rulership absorbs the malefic marital impact."})
+			res.Cancellations = append(res.Cancellations, domain.ManglikCancellation{Rule: "The Moon is in the 12th house in a Venus sign (" + marsSign + "), where Venus's rulership absorbs the malefic marital impact."})
 			isCancelled = true
 		}
 	}
