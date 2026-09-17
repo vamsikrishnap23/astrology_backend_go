@@ -68,7 +68,7 @@ func CalculateSecondaryProgression(natalCtx *domain.CalculationContext, targetDa
 
 	var progPoints []AstrologicalPoint
 	for _, p := range progPlanets {
-		if p.Planet == "Sun" || p.Planet == "Moon" || p.Planet == "Mercury" || p.Planet == "Venus" || p.Planet == "Mars" {
+		if p.Planet != "Neptune" && p.Planet != "Pluto" {
 			progPoints = append(progPoints, AstrologicalPoint{Name: p.Planet, Longitude: p.SiderealLongitude})
 		}
 	}
@@ -115,7 +115,7 @@ func CalculateSecondaryProgression(natalCtx *domain.CalculationContext, targetDa
 
 	var natPoints []AstrologicalPoint
 	for _, n := range natalPlanets {
-		if n.Planet != "Rahu" && n.Planet != "Ketu" {
+		if true {
 			natPoints = append(natPoints, AstrologicalPoint{Name: n.Planet, Longitude: n.SiderealLongitude})
 		}
 	}
@@ -235,6 +235,8 @@ func CalculateSecondaryProgression(natalCtx *domain.CalculationContext, targetDa
 					"Uranus":               "need for radical change, freedom, and innovation",
 					"Neptune":              "spiritual ideals, dreams, and potential illusions",
 					"Pluto":                "urge for deep transformation, power, and rebirth",
+					"Rahu":                 "karmic drive, obsessions, and material ambitions",
+					"Ketu":                 "spiritual detachment, past-life instincts, and letting go",
 				}
 
 				natKeywords := map[string]string{
@@ -260,6 +262,8 @@ func CalculateSecondaryProgression(natalCtx *domain.CalculationContext, targetDa
 					"Uranus":               "your authentic individuality and rebelliousness",
 					"Neptune":              "your inherent spiritual connection and compassion",
 					"Pluto":                "your psychological depths and hidden power",
+					"Rahu":                 "your core karmic desires and worldly ambitions",
+					"Ketu":                 "your innate spiritual wisdom and need for liberation",
 				}
 
 				pK := progKeywords[pPoint.Name]
