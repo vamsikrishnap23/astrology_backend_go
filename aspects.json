@@ -1,0 +1,145 @@
+[
+  {
+    "progressed_planet": "Moon",
+    "natal_planet": "Venus",
+    "angle": 90,
+    "orb": 0.53,
+    "aspect_type": "Square",
+    "nature": "Hard/Dynamic",
+    "astrological_rule": "At 90 degrees, the planets are in conflicting elemental natures but share the same modality. They block each other's path, creating intense psychological or external friction that forces action.",
+    "prog_keyword": "emotional needs, intuition, and domestic life",
+    "nat_keyword": "your capacity for love and receiving abundance"
+  },
+  {
+    "progressed_planet": "Venus",
+    "natal_planet": "Sun",
+    "angle": 90,
+    "orb": 0.56,
+    "aspect_type": "Square",
+    "nature": "Hard/Dynamic",
+    "astrological_rule": "At 90 degrees, the planets are in conflicting elemental natures but share the same modality. They block each other's path, creating intense psychological or external friction that forces action.",
+    "prog_keyword": "values, romantic desires, and financial flow",
+    "nat_keyword": "your fundamental life purpose and vitality"
+  },
+  {
+    "progressed_planet": "Bhava 1 (Ascendant)",
+    "natal_planet": "Venus",
+    "angle": 120,
+    "orb": 0.97,
+    "aspect_type": "Trine",
+    "nature": "Harmonious",
+    "astrological_rule": "At exactly 120 degrees, both planets are positioned in the exact same Astrological Element (e.g., both in Fire). Their energies flow together without any resistance, generating luck and effortless harmony.",
+    "prog_keyword": "physical body, outward personality, and life path",
+    "nat_keyword": "your capacity for love and receiving abundance"
+  },
+  {
+    "progressed_planet": "Bhava 4",
+    "natal_planet": "Venus",
+    "angle": 150,
+    "orb": 0.74,
+    "aspect_type": "Quincunx",
+    "nature": "Mixed",
+    "astrological_rule": "At 150 degrees, the planets have nothing in common (different element, different modality, different polarity). This creates an awkward, irritating energy that requires constant adjustment.",
+    "prog_keyword": "inner peace, mother, and foundational home life",
+    "nat_keyword": "your capacity for love and receiving abundance"
+  },
+  {
+    "progressed_planet": "Bhava 5",
+    "natal_planet": "Sun",
+    "angle": 90,
+    "orb": 0.51,
+    "aspect_type": "Square",
+    "nature": "Hard/Dynamic",
+    "astrological_rule": "At 90 degrees, the planets are in conflicting elemental natures but share the same modality. They block each other's path, creating intense psychological or external friction that forces action.",
+    "prog_keyword": "creativity, intellect, and children",
+    "nat_keyword": "your fundamental life purpose and vitality"
+  },
+  {
+    "progressed_planet": "Bhava 5",
+    "natal_planet": "Venus",
+    "angle": 120,
+    "orb": 0.14,
+    "aspect_type": "Trine",
+    "nature": "Harmonious",
+    "astrological_rule": "At exactly 120 degrees, both planets are positioned in the exact same Astrological Element (e.g., both in Fire). Their energies flow together without any resistance, generating luck and effortless harmony.",
+    "prog_keyword": "creativity, intellect, and children",
+    "nat_keyword": "your capacity for love and receiving abundance"
+  },
+  {
+    "progressed_planet": "Bhava 6",
+    "natal_planet": "Sun",
+    "angle": 60,
+    "orb": 0.83,
+    "aspect_type": "Sextile",
+    "nature": "Harmonious",
+    "astrological_rule": "At 60 degrees, the planets are in complementary elements (like Fire and Air, or Earth and Water). This creates a cooperative geometry that naturally generates favorable opportunities.",
+    "prog_keyword": "health, daily service, and ability to overcome enemies",
+    "nat_keyword": "your fundamental life purpose and vitality"
+  },
+  {
+    "progressed_planet": "Bhava 6",
+    "natal_planet": "Venus",
+    "angle": 90,
+    "orb": 0.17,
+    "aspect_type": "Square",
+    "nature": "Hard/Dynamic",
+    "astrological_rule": "At 90 degrees, the planets are in conflicting elemental natures but share the same modality. They block each other's path, creating intense psychological or external friction that forces action.",
+    "prog_keyword": "health, daily service, and ability to overcome enemies",
+    "nat_keyword": "your capacity for love and receiving abundance"
+  },
+  {
+    "progressed_planet": "Bhava 7 (Descendant)",
+    "natal_planet": "Venus",
+    "angle": 60,
+    "orb": 0.97,
+    "aspect_type": "Sextile",
+    "nature": "Harmonious",
+    "astrological_rule": "At 60 degrees, the planets are in complementary elements (like Fire and Air, or Earth and Water). This creates a cooperative geometry that naturally generates favorable opportunities.",
+    "prog_keyword": "marriage, partnerships, and public dealings",
+    "nat_keyword": "your capacity for love and receiving abundance"
+  },
+  {
+    "progressed_planet": "Bhava 11",
+    "natal_planet": "Sun",
+    "angle": 90,
+    "orb": 0.51,
+    "aspect_type": "Square",
+    "nature": "Hard/Dynamic",
+    "astrological_rule": "At 90 degrees, the planets are in conflicting elemental natures but share the same modality. They block each other's path, creating intense psychological or external friction that forces action.",
+    "prog_keyword": "major gains, aspirations, and social networks",
+    "nat_keyword": "your fundamental life purpose and vitality"
+  },
+  {
+    "progressed_planet": "Bhava 11",
+    "natal_planet": "Venus",
+    "angle": 60,
+    "orb": 0.14,
+    "aspect_type": "Sextile",
+    "nature": "Harmonious",
+    "astrological_rule": "At 60 degrees, the planets are in complementary elements (like Fire and Air, or Earth and Water). This creates a cooperative geometry that naturally generates favorable opportunities.",
+    "prog_keyword": "major gains, aspirations, and social networks",
+    "nat_keyword": "your capacity for love and receiving abundance"
+  },
+  {
+    "progressed_planet": "Bhava 12",
+    "natal_planet": "Sun",
+    "angle": 120,
+    "orb": 0.83,
+    "aspect_type": "Trine",
+    "nature": "Harmonious",
+    "astrological_rule": "At exactly 120 degrees, both planets are positioned in the exact same Astrological Element (e.g., both in Fire). Their energies flow together without any resistance, generating luck and effortless harmony.",
+    "prog_keyword": "spirituality, isolation, and foreign connections",
+    "nat_keyword": "your fundamental life purpose and vitality"
+  },
+  {
+    "progressed_planet": "Bhava 12",
+    "natal_planet": "Venus",
+    "angle": 90,
+    "orb": 0.17,
+    "aspect_type": "Square",
+    "nature": "Hard/Dynamic",
+    "astrological_rule": "At 90 degrees, the planets are in conflicting elemental natures but share the same modality. They block each other's path, creating intense psychological or external friction that forces action.",
+    "prog_keyword": "spirituality, isolation, and foreign connections",
+    "nat_keyword": "your capacity for love and receiving abundance"
+  }
+]

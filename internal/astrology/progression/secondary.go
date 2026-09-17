@@ -163,7 +163,9 @@ func CalculateSecondaryProgression(natalCtx *domain.CalculationContext, targetDa
 	for _, pPoint := range progPoints {
 		for _, nPoint := range natPoints {
 			// Skip self-aspects for identical Bhavas (e.g. Progressed Bhava 1 to Natal Bhava 1)
-			if pPoint.Name == nPoint.Name && strings.Contains(pPoint.Name, "Bhava") {
+			isProgBhava := strings.Contains(pPoint.Name, "Bhava")
+			isNatBhava := strings.Contains(nPoint.Name, "Bhava")
+			if isProgBhava && isNatBhava {
 				continue
 			}
 
