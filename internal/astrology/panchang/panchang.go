@@ -51,12 +51,7 @@ func CalculatePanchang(ctx *domain.CalculationContext) (domain.PanchangResult, e
 	}
 
 	formatStrictEventTime := func(jd float64) string {
-		utc := jdToUTC(jd)
-		tLocal := utc.In(loc)
-		if tLocal.Year() != localStart.Year() || tLocal.Month() != localStart.Month() || tLocal.Day() != localStart.Day() {
-			return ""
-		}
-		return tLocal.Format("2006-01-02T15:04:05-07:00")
+		return formatTime(jd)
 	}
 
 	zodiacSigns := []string{"Aries", "Taurus", "Gemini", "Cancer", "Leo", "Virgo", "Libra", "Scorpio", "Sagittarius", "Capricorn", "Aquarius", "Pisces"}
@@ -163,12 +158,7 @@ func CalculateDailyPanchang(ctx *domain.CalculationContext) (domain.DailyPanchan
 	}
 
 	formatStrictEventTime := func(jd float64) string {
-		utc := jdToUTC(jd)
-		tLocal := utc.In(loc)
-		if tLocal.Year() != localStart.Year() || tLocal.Month() != localStart.Month() || tLocal.Day() != localStart.Day() {
-			return ""
-		}
-		return tLocal.Format("2006-01-02T15:04:05-07:00")
+		return formatTime(jd)
 	}
 
 	teluguCal := CalculateTeluguCalendar(ctx.JulianDayUT)
