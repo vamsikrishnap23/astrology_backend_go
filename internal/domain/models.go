@@ -45,6 +45,11 @@ type PlanetPosition struct {
 	Speed             float64 `json:"speed"`
 	Retrograde        bool    `json:"retrograde"`
 	Combust           bool    `json:"combust"`
+	IsPushkaramsa     bool    `json:"is_pushkaramsa"`
+	IsPushkaraBhaga   bool    `json:"is_pushkara_bhaga"`
+	AvasthaAge        string  `json:"avastha_age,omitempty"`
+	AvasthaMood       string  `json:"avastha_mood,omitempty"`
+	IsMrityuBhaga     bool    `json:"is_mrityu_bhaga"`
 	Sign              string  `json:"sign"`
 	DegreeInSign      float64 `json:"degree_in_sign"`
 	Degree            int     `json:"degree"`

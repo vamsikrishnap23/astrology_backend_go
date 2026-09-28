@@ -2,6 +2,9 @@ package planets
 
 import (
 	"fmt"
+	"github.com/vamsikrishnap23/astrology_backend_go/internal/astrology/avastha"
+	"github.com/vamsikrishnap23/astrology_backend_go/internal/astrology/mrityu"
+	"github.com/vamsikrishnap23/astrology_backend_go/internal/astrology/pushkara"
 	"math"
 	"strings"
 
@@ -110,6 +113,7 @@ func CalculatePlanets(ctx *domain.CalculationContext) ([]domain.PlanetPosition, 
 			combust = dist <= 15.0
 		}
 		positions[i].Combust = combust
+		positions[i].AvasthaMood = avastha.GetDeeptadiAvastha(p.Planet, p.Sign, combust)
 	}
 
 	return positions, nil
@@ -186,4 +190,8 @@ func setDMS(pos *domain.PlanetPosition) {
 	pos.NakshatraPada = pada
 	pos.NakshatraLord = nakLord
 	pos.DegreeInSign = float64(deg) + float64(min)/60.0 + sec/3600.0
+	pos.IsPushkaramsa = pushkara.IsPushkaramsa(pos.Sign, pos.DegreeInSign)
+	pos.IsPushkaraBhaga = pushkara.IsPushkaraBhaga(pos.Sign, pos.DegreeInSign)
+	pos.AvasthaAge = avastha.GetBaaladiAvastha(pos.Sign, pos.DegreeInSign)
+	pos.IsMrityuBhaga = mrityu.IsMrityuBhaga(pos.Planet, pos.Sign, pos.DegreeInSign)
 }
