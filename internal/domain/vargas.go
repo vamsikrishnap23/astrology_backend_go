@@ -14,6 +14,11 @@ type VargaPlanet struct {
 	SignLord        string  `json:"sign_lord"`
 	Retrograde      bool    `json:"retrograde"`
 	Combust         bool    `json:"combust"`
+	IsPushkaramsa   bool    `json:"is_pushkaramsa"`
+	IsPushkaraBhaga bool    `json:"is_pushkara_bhaga"`
+	AvasthaAge      string  `json:"avastha_age,omitempty"`
+	AvasthaMood     string  `json:"avastha_mood,omitempty"`
+	IsMrityuBhaga   bool    `json:"is_mrityu_bhaga"`
 }
 
 // VargaChart represents a complete divisional chart (like D1, D9).

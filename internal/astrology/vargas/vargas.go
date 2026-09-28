@@ -1,6 +1,9 @@
 package vargas
 
 import (
+	"github.com/vamsikrishnap23/astrology_backend_go/internal/astrology/avastha"
+	"github.com/vamsikrishnap23/astrology_backend_go/internal/astrology/mrityu"
+	"github.com/vamsikrishnap23/astrology_backend_go/internal/astrology/pushkara"
 	astronomyTime "github.com/vamsikrishnap23/astrology_backend_go/internal/astronomy/time"
 	"github.com/vamsikrishnap23/astrology_backend_go/internal/domain"
 	"math"
@@ -68,6 +71,11 @@ func CalculateVargas(tables domain.TablesResult, cusps []domain.HouseCusp) domai
 				SignLord:        signLords[pos.SignIndex],
 				Retrograde:      false,
 				Combust:         false,
+				IsPushkaramsa:   pushkara.IsPushkaramsa(signNames[pos.SignIndex], pos.LongitudeInDivision),
+				IsPushkaraBhaga: pushkara.IsPushkaraBhaga(signNames[pos.SignIndex], pos.LongitudeInDivision),
+				AvasthaAge:      avastha.GetBaaladiAvastha(signNames[pos.SignIndex], pos.LongitudeInDivision),
+				AvasthaMood:     "",    // Ascendant has no mood
+				IsMrityuBhaga:   false, // Ascendant could have MB, but omitting for now
 			}
 		}
 
@@ -90,6 +98,11 @@ func CalculateVargas(tables domain.TablesResult, cusps []domain.HouseCusp) domai
 				SignLord:        signLords[pos.SignIndex],
 				Retrograde:      p.Retrograde,
 				Combust:         p.Combust,
+				IsPushkaramsa:   pushkara.IsPushkaramsa(signNames[pos.SignIndex], pos.LongitudeInDivision),
+				IsPushkaraBhaga: pushkara.IsPushkaraBhaga(signNames[pos.SignIndex], pos.LongitudeInDivision),
+				AvasthaAge:      avastha.GetBaaladiAvastha(signNames[pos.SignIndex], pos.LongitudeInDivision),
+				AvasthaMood:     avastha.GetDeeptadiAvastha(p.PlanetName, signNames[pos.SignIndex], p.Combust),
+				IsMrityuBhaga:   mrityu.IsMrityuBhaga(p.PlanetName, signNames[pos.SignIndex], pos.LongitudeInDivision),
 			})
 		}
 
