@@ -58,6 +58,16 @@ func CalculateVargas(tables domain.TablesResult, cusps []domain.HouseCusp) domai
 			_, deg, min, sec := astronomyTime.DecimalToDMS(pos.LongitudeInDivision)
 			nakName, nakPada, nakLord := getNakshatraInfo(pos.SignIndex, pos.LongitudeInDivision)
 
+			var isPushkaramsa, isPushkaraBhaga, isMrityuBhaga *bool
+			var avasthaAge, avasthaMood *string
+
+			if rule.Division() == 1 || rule.Division() == 9 {
+				isPushkaramsa = boolPtr(pushkara.IsPushkaramsa(signNames[pos.SignIndex], pos.LongitudeInDivision))
+				isPushkaraBhaga = boolPtr(pushkara.IsPushkaraBhaga(signNames[pos.SignIndex], pos.LongitudeInDivision))
+				avasthaAge = strPtr(avastha.GetBaaladiAvastha(signNames[pos.SignIndex], pos.LongitudeInDivision))
+				// Ascendant has no mood, omitting mrityu bhaga
+			}
+
 			chart.Ascendant = domain.VargaPlanet{
 				Planet:          "Ascendant",
 				SourceLongitude: ascLon,
@@ -71,11 +81,11 @@ func CalculateVargas(tables domain.TablesResult, cusps []domain.HouseCusp) domai
 				SignLord:        signLords[pos.SignIndex],
 				Retrograde:      false,
 				Combust:         false,
-				IsPushkaramsa:   pushkara.IsPushkaramsa(signNames[pos.SignIndex], pos.LongitudeInDivision),
-				IsPushkaraBhaga: pushkara.IsPushkaraBhaga(signNames[pos.SignIndex], pos.LongitudeInDivision),
-				AvasthaAge:      avastha.GetBaaladiAvastha(signNames[pos.SignIndex], pos.LongitudeInDivision),
-				AvasthaMood:     "",    // Ascendant has no mood
-				IsMrityuBhaga:   false, // Ascendant could have MB, but omitting for now
+				IsPushkaramsa:   isPushkaramsa,
+				IsPushkaraBhaga: isPushkaraBhaga,
+				AvasthaAge:      avasthaAge,
+				AvasthaMood:     avasthaMood,
+				IsMrityuBhaga:   isMrityuBhaga,
 			}
 		}
 
@@ -84,6 +94,17 @@ func CalculateVargas(tables domain.TablesResult, cusps []domain.HouseCusp) domai
 			pos := rule.Calculate(p.ExactLongitude)
 			_, deg, min, sec := astronomyTime.DecimalToDMS(pos.LongitudeInDivision)
 			nakName, nakPada, nakLord := getNakshatraInfo(pos.SignIndex, pos.LongitudeInDivision)
+
+			var isPushkaramsa, isPushkaraBhaga, isMrityuBhaga *bool
+			var avasthaAge, avasthaMood *string
+
+			if rule.Division() == 1 || rule.Division() == 9 {
+				isPushkaramsa = boolPtr(pushkara.IsPushkaramsa(signNames[pos.SignIndex], pos.LongitudeInDivision))
+				isPushkaraBhaga = boolPtr(pushkara.IsPushkaraBhaga(signNames[pos.SignIndex], pos.LongitudeInDivision))
+				isMrityuBhaga = boolPtr(mrityu.IsMrityuBhaga(p.PlanetName, signNames[pos.SignIndex], pos.LongitudeInDivision))
+				avasthaAge = strPtr(avastha.GetBaaladiAvastha(signNames[pos.SignIndex], pos.LongitudeInDivision))
+				avasthaMood = strPtr(avastha.GetDeeptadiAvastha(p.PlanetName, signNames[pos.SignIndex], p.Combust))
+			}
 
 			chart.Planets = append(chart.Planets, domain.VargaPlanet{
 				Planet:          p.PlanetName,
@@ -98,11 +119,11 @@ func CalculateVargas(tables domain.TablesResult, cusps []domain.HouseCusp) domai
 				SignLord:        signLords[pos.SignIndex],
 				Retrograde:      p.Retrograde,
 				Combust:         p.Combust,
-				IsPushkaramsa:   pushkara.IsPushkaramsa(signNames[pos.SignIndex], pos.LongitudeInDivision),
-				IsPushkaraBhaga: pushkara.IsPushkaraBhaga(signNames[pos.SignIndex], pos.LongitudeInDivision),
-				AvasthaAge:      avastha.GetBaaladiAvastha(signNames[pos.SignIndex], pos.LongitudeInDivision),
-				AvasthaMood:     avastha.GetDeeptadiAvastha(p.PlanetName, signNames[pos.SignIndex], p.Combust),
-				IsMrityuBhaga:   mrityu.IsMrityuBhaga(p.PlanetName, signNames[pos.SignIndex], pos.LongitudeInDivision),
+				IsPushkaramsa:   isPushkaramsa,
+				IsPushkaraBhaga: isPushkaraBhaga,
+				AvasthaAge:      avasthaAge,
+				AvasthaMood:     avasthaMood,
+				IsMrityuBhaga:   isMrityuBhaga,
 			})
 		}
 
@@ -153,4 +174,12 @@ func getNakshatraInfo(signIndex int, lonInDiv float64) (string, int, string) {
 	nakProgress := math.Mod(absLon, interval) / interval * 100.0
 	pada := int(math.Floor(nakProgress/25.0)) + 1
 	return nakName, pada, nakLord
+}
+
+func boolPtr(b bool) *bool { return &b }
+func strPtr(s string) *string {
+	if s == "" {
+		return nil
+	}
+	return &s
 }
