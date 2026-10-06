@@ -176,104 +176,36 @@ func CalculateSecondaryProgression(natalCtx *domain.CalculationContext, targetDa
 			}
 
 			orbMax := 1.0
-			var aspectType, nature, astrologicalRule string
+			var aspectType, nature string
 			var exactAngle float64
 
 			if diff <= orbMax {
 				aspectType = "Conjunction"
 				exactAngle = 0.0
 				nature = "Variable"
-				astrologicalRule = "At 0 degrees, the progressed planet and natal planet occupy the exact same point in space. This creates an intense blending of their energies where they can no longer operate independently."
 			} else if math.Abs(diff-60.0) <= orbMax {
 				aspectType = "Sextile"
 				exactAngle = 60.0
 				nature = "Harmonious"
-				astrologicalRule = "At 60 degrees, the planets are in complementary elements (like Fire and Air, or Earth and Water). This creates a cooperative geometry that naturally generates favorable opportunities."
 			} else if math.Abs(diff-90.0) <= orbMax {
 				aspectType = "Square"
 				exactAngle = 90.0
 				nature = "Hard/Dynamic"
-				astrologicalRule = "At 90 degrees, the planets are in conflicting elemental natures but share the same modality. They block each other's path, creating intense psychological or external friction that forces action."
 			} else if math.Abs(diff-120.0) <= orbMax {
 				aspectType = "Trine"
 				exactAngle = 120.0
 				nature = "Harmonious"
-				astrologicalRule = "At exactly 120 degrees, both planets are positioned in the exact same Astrological Element (e.g., both in Fire). Their energies flow together without any resistance, generating luck and effortless harmony."
 			} else if math.Abs(diff-150.0) <= orbMax {
 				aspectType = "Quincunx"
 				exactAngle = 150.0
 				nature = "Mixed"
-				astrologicalRule = "At 150 degrees, the planets have nothing in common (different element, different modality, different polarity). This creates an awkward, irritating energy that requires constant adjustment."
 			} else if math.Abs(diff-180.0) <= orbMax {
 				aspectType = "Opposition"
 				exactAngle = 180.0
 				nature = "Hard/Dynamic"
-				astrologicalRule = "At 180 degrees, the planets are at opposite ends of the zodiac. They pull in completely opposing directions, creating a dynamic tug-of-war that requires conscious balance and compromise."
 			}
 
 			if aspectType != "" {
-				progKeywords := map[string]string{
-					"Bhava 1 (Ascendant)":  "physical body, outward personality, and life path",
-					"Bhava 2":              "personal wealth, values, and family lineage",
-					"Bhava 3":              "courage, siblings, and communication skills",
-					"Bhava 4":              "inner peace, mother, and foundational home life",
-					"Bhava 5":              "creativity, intellect, and children",
-					"Bhava 6":              "health, daily service, and ability to overcome enemies",
-					"Bhava 7 (Descendant)": "marriage, partnerships, and public dealings",
-					"Bhava 8":              "longevity, hidden wealth, and deep transformations",
-					"Bhava 9":              "dharma, higher learning, and fortune",
-					"Bhava 10 (MC)":        "career, public reputation, and highest ambitions",
-					"Bhava 11":             "major gains, aspirations, and social networks",
-					"Bhava 12":             "spirituality, isolation, and foreign connections",
-					"Sun":                  "core identity, ego, and life focus",
-					"Moon":                 "emotional needs, intuition, and domestic life",
-					"Mercury":              "communication, mindset, and daily routines",
-					"Venus":                "values, romantic desires, and financial flow",
-					"Mars":                 "drive, ambition, and physical energy",
-					"Jupiter":              "desire for expansion, growth, and optimism",
-					"Saturn":               "sense of duty, discipline, and restriction",
-					"Uranus":               "need for radical change, freedom, and innovation",
-					"Neptune":              "spiritual ideals, dreams, and potential illusions",
-					"Pluto":                "urge for deep transformation, power, and rebirth",
-					"Rahu":                 "karmic drive, obsessions, and material ambitions",
-					"Ketu":                 "spiritual detachment, past-life instincts, and letting go",
-				}
-
-				natKeywords := map[string]string{
-					"Bhava 1 (Ascendant)":  "your physical presence, self-image, and approach to life",
-					"Bhava 2":              "your personal wealth, values, and family lineage",
-					"Bhava 3":              "your courage, siblings, and communication skills",
-					"Bhava 4":              "your inner peace, mother, and foundational home life",
-					"Bhava 5":              "your creativity, intellect, and children",
-					"Bhava 6":              "your health, daily service, and ability to overcome enemies",
-					"Bhava 7 (Descendant)": "your marriage, partnerships, and public dealings",
-					"Bhava 8":              "your longevity, hidden wealth, and deep transformations",
-					"Bhava 9":              "your dharma, higher learning, and fortune",
-					"Bhava 10 (MC)":        "your ultimate career goals, social standing, and legacy",
-					"Bhava 11":             "your major gains, aspirations, and social networks",
-					"Bhava 12":             "your spirituality, isolation, and foreign connections",
-					"Sun":                  "your fundamental life purpose and vitality",
-					"Moon":                 "your baseline emotional security",
-					"Mercury":              "how you naturally process information",
-					"Venus":                "your capacity for love and receiving abundance",
-					"Mars":                 "your natural assertiveness and conflict resolution",
-					"Jupiter":              "where you naturally seek luck and higher meaning",
-					"Saturn":               "your deep-seated boundaries, fears, and structures",
-					"Uranus":               "your authentic individuality and rebelliousness",
-					"Neptune":              "your inherent spiritual connection and compassion",
-					"Pluto":                "your psychological depths and hidden power",
-					"Rahu":                 "your core karmic desires and worldly ambitions",
-					"Ketu":                 "your innate spiritual wisdom and need for liberation",
-				}
-
-				pK := progKeywords[pPoint.Name]
-				nK := natKeywords[nPoint.Name]
-				if pK == "" {
-					pK = pPoint.Name
-				}
-				if nK == "" {
-					nK = nPoint.Name
-				}
 
 				orb := math.Abs(diff - exactAngle)
 				orb = math.Round(orb*100) / 100
@@ -285,9 +217,6 @@ func CalculateSecondaryProgression(natalCtx *domain.CalculationContext, targetDa
 					Orb:              orb,
 					AspectType:       aspectType,
 					Nature:           nature,
-					AstrologicalRule: astrologicalRule,
-					ProgKeyword:      pK,
-					NatKeyword:       nK,
 				})
 			}
 		}
