@@ -184,7 +184,11 @@ func SupabaseAuthMiddleware(next http.Handler) http.Handler {
 		}
 
 		var exists int
-		queryErr := db.QueryRow("SELECT 1 FROM approved_users WHERE email = $1 LIMIT 1", email).Scan(&exists)
+		// Fix for Supabase PgBouncer (Transaction Pooling) causing "unnamed prepared statement does not exist"
+		// We bypass lib/pq's implicit prepared statements by safely escaping and interpolating the string natively.
+		safeEmail := strings.ReplaceAll(email, "'", "''")
+		query := fmt.Sprintf("SELECT 1 FROM approved_users WHERE email = '%s' LIMIT 1", safeEmail)
+		queryErr := db.QueryRow(query).Scan(&exists)
 		if queryErr != nil {
 			if queryErr == sql.ErrNoRows {
 				http.Error(w, "Forbidden: User is not approved", http.StatusForbidden)
