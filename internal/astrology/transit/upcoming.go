@@ -87,7 +87,7 @@ func findNextIngress(startJD float64, planet string, ayanamsaMode int) (float64,
 				// Retrograde cross
 				boundaryLon = float64(startSign * 30)
 			} else {
-				// Large jump? Adjust boundary (e.g. Moon fast movement)
+				// Large jump? Adjust boundary (such as Moon fast movement)
 				if (sign-startSign+12)%12 < 6 {
 					boundaryLon = float64(sign * 30) // Forward
 				} else {

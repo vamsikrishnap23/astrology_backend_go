@@ -3,7 +3,7 @@ package domain
 // ProgressionInput adds progression-specific parameters to the standard BirthInput.
 type ProgressionInput struct {
 	BirthInput
-	ProgressionDate string `json:"progression_date"` // The target date (e.g. "2040-05-15") to progress to
+	ProgressionDate string `json:"progression_date"` // The target date (such as "2040-05-15") to progress to
 }
 
 // ProgressedPlanet represents a planet's progressed position.

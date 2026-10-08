@@ -81,7 +81,7 @@ func CalculateAshtakavarga(ctx *domain.CalculationContext) (domain.AshtakavargaR
 
 			for _, rh := range relativeHouses {
 				// rh is 1-indexed relative house.
-				// e.g. rh=1 means the same sign as sourcePlanet.
+				// such as rh=1 means the same sign as sourcePlanet.
 				targetSignIdx := (sourceSignIdx + rh - 1) % 12
 
 				// Add to BAV

@@ -19,7 +19,7 @@ func ParseLocalToUTC(dateStr, timeStr string, tzOffset float64) (time.Time, erro
 		return time.Time{}, err
 	}
 
-	// tzOffset is hours. e.g. 5.5 hours = 5 hours 30 mins
+	// tzOffset is hours. such as 5.5 hours = 5 hours 30 mins
 	// local = UTC + offset
 	// UTC = local - offset
 	offsetDuration := time.Duration(tzOffset * float64(time.Hour))

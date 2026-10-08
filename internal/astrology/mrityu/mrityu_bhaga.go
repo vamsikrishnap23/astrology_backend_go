@@ -47,7 +47,7 @@ func IsMrityuBhaga(planet, sign string, degreeInSign float64) bool {
 
 	planetMap, exists := mbDegrees[planet]
 	if !exists {
-		return false // Planet not in standard MB tables (e.g. Uranus)
+		return false // Planet not in standard MB tables (such as Uranus)
 	}
 
 	targetDegree, exists := planetMap[sign]

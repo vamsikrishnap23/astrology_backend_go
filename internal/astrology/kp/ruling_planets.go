@@ -20,7 +20,7 @@ var weekdayRulers = []string{
 // If a true planet is a ruling planet, any Node acting as its agent is appended as a ruling planet.
 //
 // Deduplication Decision:
-// We do NOT deduplicate planets. A planet appearing multiple times (e.g., as Moon Sign Lord AND Day Lord)
+// We do NOT deduplicate planets. A planet appearing multiple times (such as as Moon Sign Lord AND Day Lord)
 // is considered a stronger ruling planet in KP astrology. We preserve all occurrences and their sources.
 func CalculateRulingPlanets(input domain.BirthInput, tables domain.TablesResult) domain.KPRulingPlanetsResult {
 	var rps []domain.RulingPlanet

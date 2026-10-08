@@ -1,0 +1,387 @@
+{
+  "_comment": "This file contains exact string outputs from the backend mapped to English display names and Telugu terminology for React i18n mapping.",
+  "categories": {
+    "lagna_match": {
+      "en": "Ascendant Compatibility",
+      "te": "లగ్న కూటమి (Lagna Kootami)"
+    },
+    "doshas": {
+      "en": "Mutual Fatal Flaws",
+      "te": "పరస్పర దోషాలు"
+    },
+    "risks": {
+      "en": "Individual Chart Risks",
+      "te": "వ్యక్తిగత జాతక దోషాలు"
+    }
+  },
+  "kootas": {
+    "varna": {
+      "en": "Varna",
+      "te": "వర్ణ (Varna)"
+    },
+    "vashya": {
+      "en": "Vashya",
+      "te": "వశ్య (Vashya)"
+    },
+    "tara": {
+      "en": "Tara Balam",
+      "te": "తారా బలం (Tara Balam)"
+    },
+    "yoni": {
+      "en": "Yoni",
+      "te": "యోని (Yoni)"
+    },
+    "graha_maitri": {
+      "en": "Graha Maitri",
+      "te": "గ్రహ మైత్రి (Graha Maitri)"
+    },
+    "gana": {
+      "en": "Gana",
+      "te": "గణ (Gana)"
+    },
+    "bhakoot": {
+      "en": "Bhakoot (Rasi)",
+      "te": "రాశి కూటమి (Bhakoot)"
+    },
+    "nadi": {
+      "en": "Nadi",
+      "te": "నాడి (Nadi)"
+    },
+    "rajju": {
+      "en": "Rajju",
+      "te": "రజ్జు (Rajju)"
+    }
+  },
+  "rajju_types": {
+    "Shiro": {
+      "en": "Head (Shiro)",
+      "te": "శిరో రజ్జు (Head)"
+    },
+    "Kantha": {
+      "en": "Neck (Kantha)",
+      "te": "కంఠ రజ్జు (Neck)"
+    },
+    "Nabhi": {
+      "en": "Navel (Nabhi)",
+      "te": "నాభి రజ్జు (Navel)"
+    },
+    "Kati": {
+      "en": "Waist (Kati)",
+      "te": "కటి రజ్జు (Waist)"
+    },
+    "Pada": {
+      "en": "Feet (Pada)",
+      "te": "పాద రజ్జు (Feet)"
+    }
+  },
+  "mutual_doshas": {
+    "kala_sarpa_match": {
+      "en": "Kala Sarpa Match",
+      "te": "కాలసర్ప దోషం"
+    },
+    "mruga_vairam": {
+      "en": "Animal Enmity",
+      "te": "మృగ వైరం"
+    },
+    "special_tara": {
+      "en": "Inauspicious Star Pair",
+      "te": "అశుభ కూర్పు (Ashubha Kurpu)"
+    }
+  },
+  "individual_risks": {
+    "vaidhavya_dosham": {
+      "en": "Widowhood Risk (Vaidhavya)",
+      "te": "వైధవ్య దోషం / అల్పాయుష్షు"
+    },
+    "dwikalatra_dosham": {
+      "en": "Second Marriage (Dwikalatra)",
+      "te": "ద్వికళత్ర దోషం"
+    },
+    "napumsakatvam": {
+      "en": "Impotency Risk",
+      "te": "నపుంసకత్వం"
+    },
+    "dampatya_marakatva": {
+      "en": "Lethal Marital Flaws",
+      "te": "దాంపత్య మారకత్వ దోషం"
+    }
+  },
+  "relationships": {
+    "Friendly": {
+      "en": "Friendly",
+      "te": "మిత్ర (Mitra)"
+    },
+    "Inimical": {
+      "en": "Inimical / Enemies",
+      "te": "శత్రు (Shatru)"
+    },
+    "Neutral": {
+      "en": "Neutral",
+      "te": "సమ (Sama)"
+    },
+    "Same": {
+      "en": "Same / Identical",
+      "te": "సమాన (Samana)"
+    }
+  },
+  "risk_factors_backend_strings": {
+    "Mars, Venus, and Rahu conjunction.": "కుజ, శుక్ర, రాహువుల సంయోగం.",
+    "Ketu in Aquarius (Madhyamayuvu).": "కుంభ రాశిలో కేతువు (మధ్యమాయుష్షు).",
+    "Exchange (Parivartana) of 7th and 8th lords.": "7, 8 అధిపతుల పరివర్తన.",
+    "7th and 8th lords are conjunct in a Kendra (1,4,7,10).": "కేంద్ర స్థానాల్లో (1,4,7,10) 7, 8 అధిపతుల సంయోగం.",
+    "7th and 8th lords are conjunct in the 5th house.": "5వ స్థానంలో 7, 8 అధిపతుల సంయోగం.",
+    "Mercury and Rahu conjunct in the 2nd house (Kutumba Nasanam).": "2వ స్థానంలో బుధ, రాహువుల సంయోగం (కుటుంబ నాశనం).",
+    "Exchange (Parivartana) between 2nd and 12th lords.": "2, 12 అధిపతుల పరివర్తన.",
+    "Mercury and Saturn conjunct in 7th house (Groom chart).": "వరుని జాతకంలో 7వ స్థానంలో బుధ, శనుల సంయోగం.",
+    "Mars and Venus conjunct in 7th house (Groom chart).": "వరుని జాతకంలో 7వ స్థానంలో కుజ, శుక్రుల సంయోగం.",
+    "Lagna Lord, 7th Lord, and Venus are conjunct together in a Dual Sign.": "ద్విస్వభావ రాశిలో లగ్నాధిపతి, 7వ అధిపతి, శుక్రుడి సంయోగం.",
+    "Saturn in 2nd/6th/12th in a water sign with malefic in Lagna.": "లగ్నంలో పాప గ్రహం ఉండి, జల రాశిలో (2, 6, 12 స్థానాల్లో) శని.",
+    "Saturn debilitated in 6th or 12th with Malefic in Lagna.": "లగ్నంలో పాప గ్రహం ఉండి, 6 లేదా 12వ స్థానంలో శని నీచ స్థితి.",
+    "Moon and Venus conjunct with Mars and Saturn in opposition.": "చంద్ర, శుక్రుల సంయోగానికి ఎదురుగా కుజ, శనుల దృష్టి.",
+    "5th and 7th lords connection/exchange.": "5, 7 అధిపతుల సంబంధం లేదా పరివర్తన.",
+    "7th and 8th lords placement/exchange.": "7, 8 అధిపతుల స్థితి లేదా పరివర్తన.",
+    "Saturn and Venus conjunct outside Libra.": "తులా రాశి కాకుండా వేరే రాశిలో శని, శుక్రుల సంయోగం.",
+    "Mars and Saturn conjunct in Lagna.": "లగ్నంలో కుజ, శనుల సంయోగం.",
+    "Mars and Saturn conjunct in 7th house.": "7వ స్థానంలో కుజ, శనుల సంయోగం.",
+    "7th house is in Papa Kartari (hemmed between malefics).": "7వ స్థానం పాపకర్తరి యోగంలో ఉంది.",
+    "7th Lord is in Papa Kartari (hemmed between malefics).": "7వ అధిపతి పాపకర్తరి యోగంలో ఉన్నాడు.",
+    "Venus is in Papa Kartari (hemmed between malefics).": "శుక్రుడు పాపకర్తరి యోగంలో ఉన్నాడు.",
+    "Taurus Lagna with Venus in 7th (Scorpio).": "వృషభ లగ్నానికి 7వ స్థానంలో (వృశ్చికంలో) శుక్రుడు.",
+    "Scorpio Lagna with Mercury in 7th (Taurus).": "వృశ్చిక లగ్నానికి 7వ స్థానంలో (వృషభంలో) బుధుడు.",
+    "Cancer Lagna with Jupiter in 7th (Capricorn).": "కర్కాటక లగ్నానికి 7వ స్థానంలో (మకరంలో) గురువు.",
+    "Virgo Lagna with Saturn in 7th and Sun in 1st.": "కన్యా లగ్నంలో రవి, 7వ స్థానంలో శని.",
+    "Saturn in the 10th house.": "10వ స్థానంలో శని.",
+    "Mars in the 10th house.": "10వ స్థానంలో కుజుడు.",
+    "Lagna lord placed in the 3rd or 6th house.": "లగ్నాధిపతి 3 లేదా 6వ స్థానంలో ఉన్నాడు.",
+    "Mars in the 9th house (Alpayush).": "9వ స్థానంలో కుజుడు (అల్పాయుష్షు).",
+    "Saturn in the 9th house.": "9వ స్థానంలో శని.",
+    "Saturn is in the 8th house (risk of Alpayush/Vaidhavya).": "8వ స్థానంలో శని (అల్పాయుష్షు/వైధవ్య ప్రమాదం).",
+    "Ashtamadhipati (8th Lord) is in an inauspicious house.": "అష్టమాధిపతి (8వ అధిపతి) అశుభ స్థానంలో ఉన్నాడు.",
+    "Lagnadhipati (Lagna Lord) is in the 6th, 8th, or 12th house.": "లగ్నాధిపతి 6, 8, లేదా 12వ స్థానంలో ఉన్నాడు.",
+    "Nadi dosha cancelled per Jaimini Maharshi exemptions for these specific Nakshatras.": "ఈ నిర్దిష్ట నక్షత్రాల కోసం జైమిని మహర్షి మినహాయింపుల ప్రకారం నాడీ దోషం రద్దు చేయబడింది.",
+    "Nadi dosha cancelled due to same Nakshatra but different Padas.": "ఒకే నక్షత్రం కానీ వేర్వేరు పాదాలు అయినందున నాడీ దోషం రద్దు చేయబడింది.",
+    "Nadi dosha cancelled due to same Rashi but different Nakshatras.": "ఒకే రాశి కానీ వేర్వేరు నక్షత్రాలు అయినందున నాడీ దోషం రద్దు చేయబడింది.",
+    "Bhakoot dosha cancelled because Rashi lords are same or friends (Graha Maitri).": "రాశ్యాధిపతులు ఒకరే లేదా మిత్రులు (గ్రహ మైత్రి) అయినందున భకూట్ దోషం రద్దు చేయబడింది.",
+    "Bhakoot dosha cancelled because this specific sign combination is highly auspicious.": "ఈ నిర్దిష్ట రాశి కలయిక అత్యంత శుభకరం అయినందున భకూట్ దోషం రద్దు చేయబడింది.",
+    "Rajju dosha cancelled because Rasi Lords are same or friendly.": "రాశ్యాధిపతులు ఒకరే లేదా మిత్రులు అయినందున రజ్జు దోషం రద్దు చేయబడింది.",
+    "Rajju dosha cancelled because Lagna Lords are same or friendly.": "లగ్నాధిపతులు ఒకరే లేదా మిత్రులు అయినందున రజ్జు దోషం రద్దు చేయబడింది.",
+    "Saptamadhipati (7th Lord) is in the 1st, 2nd, 6th, or 8th house.": "సప్తమాధిపతి (7వ అధిపతి) 1, 2, 6, లేదా 8వ స్థానంలో ఉన్నాడు.",
+    "Mars and Venus conjunction outside of own signs.": "స్వక్షేత్రాలు కాకుండా ఇతర రాశులలో కుజ, శుక్రుల సంయోగం.",
+    "Sun is in the 8th house.": "8వ స్థానంలో రవి.",
+    "Mars and Rahu conjunct in the 8th house.": "8వ స్థానంలో కుజ, రాహువుల సంయోగం."
+  },
+  "bhakoot_warnings": {
+    "WARNING: Groom's Moon is 2nd from Bride's Moon (Risk of Vaidhavya/Poverty per Telugu rules).": "హెచ్చరిక: వధువు చంద్రుడి నుండి వరుడి చంద్రుడు 2వ స్థానంలో ఉన్నాడు (వైధవ్య/దారిద్ర్య ప్రమాదం).",
+    "WARNING: Groom's Moon is 5th from Bride's Moon (Risk of Vaidhavya/Loss of children per Telugu rules).": "హెచ్చరిక: వధువు చంద్రుడి నుండి వరుడి చంద్రుడు 5వ స్థానంలో ఉన్నాడు (సంతాన నష్టం/వైధవ్య ప్రమాదం).",
+    "WARNING: Groom's Moon is 3rd from Bride's Moon (Risk of Sorrows/Hardships).": "హెచ్చరిక: వధువు చంద్రుడి నుండి వరుడి చంద్రుడు 3వ స్థానంలో ఉన్నాడు (కష్టాలు/దుఃఖం).",
+    "WARNING: Groom's Moon is 6th from Bride's Moon (Risk of Loss of children/Quarrels).": "హెచ్చరిక: వధువు చంద్రుడి నుండి వరుడి చంద్రుడు 6వ స్థానంలో ఉన్నాడు (సంతాన నష్టం/కలహాలు)."
+  },
+  "planets": {
+    "Sun": {
+      "en": "Sun",
+      "te": "రవి / సూర్య"
+    },
+    "Moon": {
+      "en": "Moon",
+      "te": "చంద్ర"
+    },
+    "Mars": {
+      "en": "Mars",
+      "te": "కుజ / అంగారక"
+    },
+    "Mercury": {
+      "en": "Mercury",
+      "te": "బుధ"
+    },
+    "Jupiter": {
+      "en": "Jupiter",
+      "te": "గురు / బృహస్పతి"
+    },
+    "Venus": {
+      "en": "Venus",
+      "te": "శుక్ర"
+    },
+    "Saturn": {
+      "en": "Saturn",
+      "te": "శని"
+    },
+    "Rahu": {
+      "en": "Rahu",
+      "te": "రాహు"
+    },
+    "Ketu": {
+      "en": "Ketu",
+      "te": "కేతు"
+    }
+  },
+  "signs": {
+    "Aries": {
+      "en": "Aries",
+      "te": "మేషం"
+    },
+    "Taurus": {
+      "en": "Taurus",
+      "te": "వృషభం"
+    },
+    "Gemini": {
+      "en": "Gemini",
+      "te": "మిథునం"
+    },
+    "Cancer": {
+      "en": "Cancer",
+      "te": "కర్కాటకం"
+    },
+    "Leo": {
+      "en": "Leo",
+      "te": "సింహం"
+    },
+    "Virgo": {
+      "en": "Virgo",
+      "te": "కన్య"
+    },
+    "Libra": {
+      "en": "Libra",
+      "te": "తుల"
+    },
+    "Scorpio": {
+      "en": "Scorpio",
+      "te": "వృశ్చికం"
+    },
+    "Sagittarius": {
+      "en": "Sagittarius",
+      "te": "ధనుస్సు"
+    },
+    "Capricorn": {
+      "en": "Capricorn",
+      "te": "మకరం"
+    },
+    "Aquarius": {
+      "en": "Aquarius",
+      "te": "కుంభం"
+    },
+    "Pisces": {
+      "en": "Pisces",
+      "te": "మీనం"
+    }
+  },
+  "yoni_animals": {
+    "Horse": {
+      "en": "Horse",
+      "te": "అశ్వం (గుర్రం)"
+    },
+    "Elephant": {
+      "en": "Elephant",
+      "te": "గజం (ఏనుగు)"
+    },
+    "Sheep": {
+      "en": "Sheep",
+      "te": "మేషం (గొర్రె)"
+    },
+    "Serpent": {
+      "en": "Serpent",
+      "te": "సర్పం (పాము)"
+    },
+    "Dog": {
+      "en": "Dog",
+      "te": "శ్వానం (కుక్క)"
+    },
+    "Cat": {
+      "en": "Cat",
+      "te": "మార్జాలం (పిల్లి)"
+    },
+    "Rat": {
+      "en": "Rat",
+      "te": "మూషికం (ఎలుక)"
+    },
+    "Cow": {
+      "en": "Cow",
+      "te": "గోవు (ఆవు)"
+    },
+    "Buffalo": {
+      "en": "Buffalo",
+      "te": "మహిషం (గేదె)"
+    },
+    "Tiger": {
+      "en": "Tiger",
+      "te": "వ్యాఘ్రం (పులి)"
+    },
+    "Deer": {
+      "en": "Deer",
+      "te": "మృగం (లేడి)"
+    },
+    "Monkey": {
+      "en": "Monkey",
+      "te": "వానరం (కోతి)"
+    },
+    "Mongoose": {
+      "en": "Mongoose",
+      "te": "ముంగిస"
+    },
+    "Lion": {
+      "en": "Lion",
+      "te": "సింహం"
+    }
+  },
+  "ganas": {
+    "Deva": {
+      "en": "Deva",
+      "te": "దేవ గణ"
+    },
+    "Manushya": {
+      "en": "Manushya",
+      "te": "మనుష్య గణ"
+    },
+    "Rakshasa": {
+      "en": "Rakshasa",
+      "te": "రాక్షస గణ"
+    }
+  },
+  "varnas": {
+    "Brahmin": {
+      "en": "Brahmin",
+      "te": "బ్రాహ్మణ"
+    },
+    "Kshatriya": {
+      "en": "Kshatriya",
+      "te": "క్షత్రియ"
+    },
+    "Vaishya": {
+      "en": "Vaishya",
+      "te": "వైశ్య"
+    },
+    "Shudra": {
+      "en": "Shudra",
+      "te": "శూద్ర"
+    }
+  },
+  "vashyas": {
+    "Chatuspada": {
+      "en": "Chatuspada",
+      "te": "చతుష్పాద"
+    },
+    "Manav": {
+      "en": "Manav",
+      "te": "మానవ (ద్విపాద)"
+    },
+    "Jalachar": {
+      "en": "Jalachar",
+      "te": "జలచర"
+    },
+    "Vanachar": {
+      "en": "Vanachar",
+      "te": "వనచర"
+    },
+    "Keeta": {
+      "en": "Keeta",
+      "te": "కీట"
+    }
+  },
+  "dynamic_templates": {
+    "MRUGA VAIRAM DOSHA: Groom's Yoni animal is {groomAnimal} and Bride's Yoni animal is {brideAnimal}. These are natural enemies, indicating extreme incompatibility.": "మృగ వైర దోషం: వరుని యోని జంతువు {groomAnimal} మరియు వధువు యోని జంతువు {brideAnimal}. ఇవి సహజ శత్రువులు, కావున తీవ్రమైన ప్రతికూలతను సూచిస్తాయి.",
+    "ASHUBHA KURPU DOSHA: The pairing of Bride's {brideStar} and Groom's {groomStar} is explicitly forbidden in the Telugu matchmaking text.": "అశుభ కూర్పు దోషం: వధువు నక్షత్రం {brideStar} మరియు వరుని నక్షత్రం {groomStar} జంట తెలుగు వివాహ పొంతన గ్రంథాల ప్రకారం ఖచ్చితంగా నిషిద్ధం.",
+    "FATAL DOSHA: Both the Groom and the Bride suffer from Kala Sarpa Dosha in their natal charts. The match is explicitly rejected.": "తీవ్ర దోషం: వరుడు మరియు వధువు ఇరువురి జాతకాలలో కాలసర్ప దోషం ఉంది. కావున ఈ సంబంధం ఖచ్చితంగా తిరస్కరించబడింది.",
+    "Groom Rajju is {groomRajju}. Bride Rajju is {brideRajju}. FATAL DOSHA: Both belong to the same Rajju. This is highly inauspicious.": "వరుని రజ్జు {groomRajju}. వధువు రజ్జు {brideRajju}. తీవ్ర దోషం: ఇరువురూ ఒకే రజ్జుకు చెందినవారు. ఇది అత్యంత అశుభకరం.",
+    "Groom gana {groomGana} vs Bride gana {brideGana}": "వరుని {groomGana} గణ మరియు వధువు {brideGana} గణ",
+    "Groom's lord {groomLord} and Bride's lord {brideLord} are {relationship}.": "వరుని రాశ్యాధిపతి {groomLord} మరియు వధువు రాశ్యాధిపతి {brideLord} {relationship}."
+  }
+}

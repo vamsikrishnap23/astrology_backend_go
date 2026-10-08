@@ -1,6 +1,9 @@
 package matchmaking
 
 import (
+	"github.com/vamsikrishnap23/astrology_backend_go/internal/astronomy/houses"
+	"github.com/vamsikrishnap23/astrology_backend_go/internal/astronomy/time"
+
 	"github.com/vamsikrishnap23/astrology_backend_go/internal/astronomy/planets"
 	"math"
 
@@ -76,13 +79,8 @@ func evaluateIndividualRisks(ctx *domain.CalculationContext, isGroom bool) domai
 		return res
 	}
 
-	var ascSign string
-	for _, p := range pls {
-		if p.Planet == "Ascendant" {
-			ascSign = p.Sign
-			break
-		}
-	}
+	ascLong, _, _, _ := houses.CalculateHouses(ctx)
+	ascSign, _, _, _ := time.DecimalToDMS(ascLong)
 
 	ascIdx := getSignIndex(ascSign)
 	h7Idx := (ascIdx + 6) % 12
@@ -536,22 +534,12 @@ func CalculateMatch(groomCtx, brideCtx *domain.CalculationContext) (domain.Match
 	brideMoon := getMoonDetails(brideCtx.JulianDayUT, brideCtx.Ayanamsa)
 
 	// --- Lagna Kootami (From PDF Rule 1, 2, 3) ---
-	gPls, _ := planets.CalculatePlanets(groomCtx)
-	bPls, _ := planets.CalculatePlanets(brideCtx)
 
-	var gLagna, bLagna string
-	for _, p := range gPls {
-		if p.Planet == "Ascendant" {
-			gLagna = p.Sign
-			break
-		}
-	}
-	for _, p := range bPls {
-		if p.Planet == "Ascendant" {
-			bLagna = p.Sign
-			break
-		}
-	}
+	gAscLong, _, _, _ := houses.CalculateHouses(groomCtx)
+	gLagna, _, _, _ := time.DecimalToDMS(gAscLong)
+
+	bAscLong, _, _, _ := houses.CalculateHouses(brideCtx)
+	bLagna, _, _, _ := time.DecimalToDMS(bAscLong)
 
 	gLagnaIdx := getSignIndex(gLagna)
 	bLagnaIdx := getSignIndex(bLagna)
@@ -955,9 +943,13 @@ func CalculateMatch(groomCtx, brideCtx *domain.CalculationContext) (domain.Match
 
 	// B. Mruga Vairam (Animal Enmity)
 	hasMrugaVairam := (MrugaEnmity[gYoni] == bYoni)
+	mExpl := "Checks if the Yoni (Animal) of the couple are natural enemies."
+	if hasMrugaVairam {
+		mExpl = fmt.Sprintf("MRUGA VAIRAM DOSHA: Groom's Yoni animal is %s and Bride's Yoni animal is %s. These are natural enemies, indicating extreme incompatibility.", gYoni, bYoni)
+	}
 	mrugaVairamRes := domain.DoshaCheck{
 		HasDosha:    hasMrugaVairam,
-		Explanation: "Checks if the Yoni (Animal) of the couple are natural enemies (e.g. Cow-Tiger, Snake-Mongoose).",
+		Explanation: mExpl,
 	}
 
 	// C. Special Tara Rejections
