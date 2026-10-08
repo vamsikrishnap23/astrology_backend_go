@@ -920,13 +920,18 @@ func CalculateMatch(groomCtx, brideCtx *domain.CalculationContext) (domain.Match
 		}
 	}
 
+	rExpl := fmt.Sprintf("Groom Rajju is %s. Bride Rajju is %s.", gRajju, bRajju)
+	if isRajjuDosha && !rCancel {
+		rExpl += " FATAL DOSHA: Both belong to the same Rajju. This is highly inauspicious."
+	}
+
 	rajjuRes := domain.RajjuResult{
 		GroomRajju:          gRajju,
 		BrideRajju:          bRajju,
 		Dosha:               isRajjuDosha,
 		CancellationApplied: rCancel,
 		CancellationReason:  rReason,
-		Explanation:         "Body part (Rajju) matching. Same Rajju is a Dosha.",
+		Explanation:         rExpl,
 	}
 
 	rawTotal := varnaScore + vashyaScore + taraRes.Score + yoniScore + gmScore + ganaScore + rawBhakoot + rawNadi
@@ -939,9 +944,13 @@ func CalculateMatch(groomCtx, brideCtx *domain.CalculationContext) (domain.Match
 	bKalaSarpa := checkKalaSarpa(brideCtx)
 	hasKalaSarpaMatch := (gKalaSarpa && bKalaSarpa)
 
+	kExpl := "Checks if both Bride and Groom have Kala Sarpa Dosha. (If both have it, the match is rejected)."
+	if hasKalaSarpaMatch {
+		kExpl = "FATAL DOSHA: Both the Groom and the Bride suffer from Kala Sarpa Dosha in their natal charts. The match is explicitly rejected."
+	}
 	kalaSarpaRes := domain.DoshaCheck{
 		HasDosha:    hasKalaSarpaMatch,
-		Explanation: "If both Bride and Groom have Kala Sarpa Dosha (all planets between Rahu and Ketu), the match is strictly rejected.",
+		Explanation: kExpl,
 	}
 
 	// B. Mruga Vairam (Animal Enmity)
@@ -966,9 +975,13 @@ func CalculateMatch(groomCtx, brideCtx *domain.CalculationContext) (domain.Match
 		hasSpecialTara = true
 	}
 
+	tExpl := "Checks for specifically rejected Tara combinations (Ashubha Kurpu)."
+	if hasSpecialTara {
+		tExpl = fmt.Sprintf("ASHUBHA KURPU DOSHA: The pairing of Bride's %s and Groom's %s is explicitly forbidden in the Telugu matchmaking text.", brideMoon.Nakshatra, groomMoon.Nakshatra)
+	}
 	specialTaraRes := domain.DoshaCheck{
 		HasDosha:    hasSpecialTara,
-		Explanation: "Checks for specifically rejected Tara combinations (e.g., Bride Krittika + Groom Bharani).",
+		Explanation: tExpl,
 	}
 
 	matchDoshas := domain.MatchDoshas{
