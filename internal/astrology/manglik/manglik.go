@@ -151,7 +151,7 @@ func CalculateManglikDosha(planets []domain.PlanetPosition, ascLon float64) doma
 	// Exception 5: Nakshatra Bhanga
 	exemptNakshatras := map[string]bool{
 		"Ashwini": true, "Mrigashira": true, "Punarvasu": true, "Pushya": true,
-		"Ashlesha": true, "Uttara Phalguni": true, "Swati": true, "Anuradha": true,
+		"Uttara Phalguni": true, "Swati": true, "Anuradha": true,
 		"Purva Ashadha": true, "Uttara Ashadha": true, "Shravana": true,
 		"Uttara Bhadrapada": true, "Revati": true,
 	}

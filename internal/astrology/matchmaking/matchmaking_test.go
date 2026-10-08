@@ -1,4 +1,4 @@
-package ashtakoota
+package matchmaking
 
 import (
 	"github.com/tejzpr/go-swisseph"

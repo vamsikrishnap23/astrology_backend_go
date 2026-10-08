@@ -1,4 +1,4 @@
-package ashtakoota
+package matchmaking
 
 // classical-guna-milan-v1
 
@@ -134,4 +134,93 @@ var NakshatraNadi = map[string]string{
 
 	"Krittika": "Antya", "Rohini": "Antya", "Ashlesha": "Antya", "Magha": "Antya",
 	"Swati": "Antya", "Vishakha": "Antya", "Uttara Ashadha": "Antya", "Shravana": "Antya", "Revati": "Antya",
+}
+
+// Rajju Mapping
+var NakshatraRajju = map[string]string{
+	"Ashwini": "Pada", "Bharani": "Uru", "Krittika": "Nabhi", "Rohini": "Kantha", "Mrigashira": "Shiro",
+	"Ardra": "Kantha", "Punarvasu": "Nabhi", "Pushya": "Uru", "Ashlesha": "Pada",
+	"Magha": "Pada", "Purva Phalguni": "Uru", "Uttara Phalguni": "Nabhi", "Hasta": "Kantha", "Chitra": "Shiro",
+	"Swati": "Kantha", "Vishakha": "Nabhi", "Anuradha": "Uru", "Jyeshtha": "Pada",
+	"Mula": "Pada", "Purva Ashadha": "Uru", "Uttara Ashadha": "Nabhi", "Shravana": "Kantha",
+	"Dhanishta": "Shiro", "Shatabhisha": "Kantha", "Purva Bhadrapada": "Nabhi", "Uttara Bhadrapada": "Uru", "Revati": "Pada",
+}
+
+// Jaimini Maharshi Nadi Exceptions
+var JaiminiNadiExceptions = map[string]bool{
+	"Uttara Phalguni": true, "Shatabhisha": true, "Purva Bhadrapada": true, "Punarvasu": true, "Ardra": true, "Mula": true, "Ashwini": true, // Adi
+	"Purva Ashadha": true, "Anuradha": true, "Dhanishta": true, "Pushya": true, "Chitra": true, "Purva Phalguni": true, "Mrigashira": true, // Madhya
+	"Krittika": true, "Vishakha": true, "Ashlesha": true, "Shravana": true, "Magha": true, "Uttara Ashadha": true, "Rohini": true, // Antya
+}
+
+// Bhakoot Exceptions (Auspicious pairs that cancel the Dosha)
+// We store them as "Sign1-Sign2" strings (alphabetically sorted internally or just both combinations)
+var AuspiciousBhakootPairs = map[string]bool{
+	// 2/12 Auspicious
+	"Aries-Pisces": true, "Pisces-Aries": true,
+	"Cancer-Leo": true, "Leo-Cancer": true,
+	"Libra-Virgo": true, "Virgo-Libra": true,
+	"Aquarius-Capricorn": true, "Capricorn-Aquarius": true,
+	"Gemini-Taurus": true, "Taurus-Gemini": true,
+	"Sagittarius-Scorpio": true, "Scorpio-Sagittarius": true,
+
+	// 5/9 Auspicious
+	"Aries-Leo": true, "Leo-Aries": true,
+	"Gemini-Libra": true, "Libra-Gemini": true,
+	"Aquarius-Libra": true, "Libra-Aquarius": true,
+	"Aries-Sagittarius": true, "Sagittarius-Aries": true,
+	"Taurus-Virgo": true, "Virgo-Taurus": true,
+	"Leo-Sagittarius": true, "Sagittarius-Leo": true,
+	"Pisces-Scorpio": true, "Scorpio-Pisces": true,
+	"Capricorn-Taurus": true, "Taurus-Capricorn": true,
+
+	// 6/8 Auspicious
+	"Aries-Scorpio": true, "Scorpio-Aries": true,
+	"Leo-Pisces": true, "Pisces-Leo": true,
+	"Cancer-Sagittarius": true, "Sagittarius-Cancer": true,
+	"Capricorn-Gemini": true, "Gemini-Capricorn": true,
+	"Libra-Taurus": true, "Taurus-Libra": true,
+	"Aquarius-Virgo": true, "Virgo-Aquarius": true,
+}
+
+// Mruga Vairam (Animal Enmity for Yoni)
+var MrugaEnmity = map[string]string{
+	"Horse": "Buffalo", "Buffalo": "Horse",
+	"Cow": "Tiger", "Tiger": "Cow",
+	"Monkey": "Sheep", "Sheep": "Monkey",
+	"Hare": "Dog", "Dog": "Hare",
+	"Elephant": "Lion", "Lion": "Elephant",
+	"Serpent": "Mongoose", "Mongoose": "Serpent",
+	"Cat": "Rat", "Rat": "Cat",
+}
+
+// Eka Nakshatra (Same Nakshatra) Exceptions (Page 3 of PDF)
+// If same nakshatra, these specific ones are Ashubham (Inauspicious)
+// Eka Nakshatra (Same Nakshatra) Exceptions (Page 3 of PDF)
+// Only the explicitly Ashubham (Inauspicious) stars are mapped here.
+// Missing stars are either Shubham (Good) or Madhyamam (Medium), both of which bypass the Dosha.
+var BadEkaNakshatras = map[string]bool{
+	"Bharani": true, "Ashlesha": true, "Swati": true,
+	"Jyeshtha": true, "Mula": true, "Dhanishta": true,
+	"Shatabhisha": true, "Purva Bhadrapada": true,
+}
+
+// Ashubha Kurpu (Inauspicious Combinations - 15 explicitly rejected pairs from Page 3)
+// Key: Bride Nakshatra, Value: Groom Nakshatra
+var AshubhaKurpu = map[string]string{
+	"Krittika":          "Ashlesha",
+	"Mrigashira":        "Purva Phalguni",
+	"Ashlesha":          "Swati",
+	"Magha":             "Vishakha",
+	"Uttara Phalguni":   "Jyeshtha",
+	"Hasta":             "Mula",
+	"Chitra":            "Purva Ashadha",
+	"Vishakha":          "Shravana",
+	"Anuradha":          "Dhanishta",
+	"Jyeshtha":          "Shatabhisha",
+	"Shravana":          "Ashwini",
+	"Dhanishta":         "Bharani",
+	"Shatabhisha":       "Krittika",
+	"Uttara Bhadrapada": "Mrigashira",
+	"Revati":            "Ardra",
 }

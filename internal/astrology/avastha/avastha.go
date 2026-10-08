@@ -105,7 +105,7 @@ func GetDeeptadiAvastha(planet, sign string, isCombust bool) string {
 			Exalt:   "Libra",
 			Debil:   "Aries",
 			Friends: []string{"Gemini", "Virgo", "Taurus"}, // Libra is exalt
-			Enemies: []string{"Leo", "Cancer", "Scorpio"}, // Aries is debil
+			Enemies: []string{"Leo", "Cancer", "Scorpio"},  // Aries is debil
 		},
 	}
 

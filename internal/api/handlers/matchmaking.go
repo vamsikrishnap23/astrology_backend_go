@@ -5,7 +5,7 @@ import (
 	"github.com/tejzpr/go-swisseph"
 	"net/http"
 
-	"github.com/vamsikrishnap23/astrology_backend_go/internal/astrology/ashtakoota"
+	"github.com/vamsikrishnap23/astrology_backend_go/internal/astrology/matchmaking"
 	"github.com/vamsikrishnap23/astrology_backend_go/internal/astronomy/ephemeris"
 	astronomyTime "github.com/vamsikrishnap23/astrology_backend_go/internal/astronomy/time"
 	"github.com/vamsikrishnap23/astrology_backend_go/internal/domain"
@@ -39,7 +39,7 @@ func buildContext(input domain.BirthInput) (*domain.CalculationContext, error) {
 	}, nil
 }
 
-func AshtakootaHandler(w http.ResponseWriter, r *http.Request) {
+func MatchmakingHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
@@ -63,7 +63,7 @@ func AshtakootaHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	res, err := ashtakoota.CalculateMatch(groomCtx, brideCtx)
+	res, err := matchmaking.CalculateMatch(groomCtx, brideCtx)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

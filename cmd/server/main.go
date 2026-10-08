@@ -70,7 +70,7 @@ func main() {
 	apiMux.HandleFunc("/api/ashtakavarga", handlers.AshtakavargaHandler)
 	apiMux.HandleFunc("/api/shadbala", handlers.ShadbalaHandler)
 	apiMux.HandleFunc("/api/jaimini-karakas", handlers.JaiminiKarakasHandler)
-	apiMux.HandleFunc("/api/ashtakoota", handlers.AshtakootaHandler)
+	apiMux.HandleFunc("/api/vivaha-pontana", handlers.MatchmakingHandler)
 	apiMux.HandleFunc("/api/btr", handlers.BTRHandler)
 	apiMux.HandleFunc("/api/retrogrades", handlers.RetrogradesHandler)
 	apiMux.HandleFunc("/api/manglik-dosha", handlers.ManglikHandler)
