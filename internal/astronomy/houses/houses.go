@@ -1,6 +1,7 @@
 package houses
 
 import (
+	"fmt"
 	"github.com/tejzpr/go-swisseph"
 	"github.com/vamsikrishnap23/astrology_backend_go/internal/astronomy/ephemeris"
 	"github.com/vamsikrishnap23/astrology_backend_go/internal/astronomy/time"
@@ -30,32 +31,11 @@ func CalculateHouses(ctx *domain.CalculationContext) (float64, float64, []domain
 		targetSiderealAsc, _ := GetHoraryAscendant(ctx.Input.HoraryNumber)
 		targetTropAsc := math.Mod(targetSiderealAsc+ctx.Ayanamsa, 360.0)
 
-		// Initial guess for the Phantom JD
-		resGuess := swisseph.HousesEx(calcJD, 0, ctx.Input.Latitude, ctx.Input.Longitude, ctx.Config.HouseCode)
-		currentTropAsc := resGuess.Points[0]
-
-		diff := math.Mod(targetTropAsc-currentTropAsc+540.0, 360.0) - 180.0
-		timeOffset := (diff / 360.0) * 0.997269 // Approx days it takes for Asc to move 'diff' degrees
-		calcJD += timeOffset
-
-		// Bisection search within a tight +/- 0.1 day window around the guess
-		low := calcJD - 0.1
-		high := calcJD + 0.1
-		for i := 0; i < 50; i++ {
-			mid := (low + high) / 2.0
-			resMid := swisseph.HousesEx(mid, 0, ctx.Input.Latitude, ctx.Input.Longitude, ctx.Config.HouseCode)
-			val := resMid.Points[0]
-			d := math.Mod(val-targetTropAsc+540.0, 360.0) - 180.0
-			if math.Abs(d) < 0.000001 {
-				calcJD = mid
-				break
-			}
-			if d < 0 {
-				low = mid
-			} else {
-				high = mid
-			}
+		phantomJD, err := findPhantomJD(ctx.JulianDayUT, targetTropAsc, ctx.Input.Latitude, ctx.Input.Longitude, ctx.Config.HouseCode)
+		if err != nil {
+			return 0, 0, nil, err
 		}
+		calcJD = phantomJD
 	}
 
 	// Calculate Tropical houses using either real time or Phantom time
@@ -113,4 +93,62 @@ func CalculateHouses(ctx *domain.CalculationContext) (float64, float64, []domain
 	}
 
 	return ascendant, mc, houseCusps, nil
+}
+
+// findPhantomJD finds the Julian Day nearest to startJD at which the tropical
+// ascendant equals targetTropAsc (used for KP horary numbers). The ascendant
+// advances monotonically through 360 degrees about once per sidereal day but at
+// a rate that varies with sign and latitude, so the root is bracketed by a
+// coarse scan over +/- half a day before bisecting. The caller must hold ephemeris.Mu.
+func findPhantomJD(startJD, targetTropAsc, lat, lon float64, houseCode byte) (float64, error) {
+	const (
+		window = 0.5  // days either side of startJD; one full ascendant cycle spans ~1 day
+		step   = 0.02 // ~29 minutes; the ascendant moves well under 180 degrees per step
+	)
+	// signed angular offset of the ascendant from the target, in (-180, 180]
+	offset := func(jd float64) float64 {
+		asc := swisseph.HousesEx(jd, 0, lat, lon, houseCode).Points[0]
+		return math.Mod(asc-targetTropAsc+540.0, 360.0) - 180.0
+	}
+
+	var (
+		bestLow, bestHigh float64
+		bestDist          = math.Inf(1)
+		found             bool
+	)
+
+	prevJD := startJD - window
+	prev := offset(prevJD)
+	for jd := prevJD + step; jd <= startJD+window+1e-9; jd += step {
+		cur := offset(jd)
+		// A genuine crossing goes from negative to non-negative with a small jump;
+		// the +180 -> -180 wrap-around is rejected by prev < 0 and the span check.
+		if prev < 0 && cur >= 0 && cur-prev < 180.0 {
+			dist := math.Abs((prevJD+jd)/2.0 - startJD)
+			if dist < bestDist {
+				bestDist, bestLow, bestHigh, found = dist, prevJD, jd, true
+			}
+		}
+		prevJD, prev = jd, cur
+	}
+	if !found {
+		return 0, fmt.Errorf("could not resolve ascendant %.4f for horary number at lat %.4f", targetTropAsc, lat)
+	}
+
+	low, high := bestLow, bestHigh
+	for i := 0; i < 60; i++ {
+		mid := (low + high) / 2.0
+		if offset(mid) < 0 {
+			low = mid
+		} else {
+			high = mid
+		}
+	}
+	root := (low + high) / 2.0
+	// Beyond the polar circle the ascendant is discontinuous, and the bracket can
+	// collapse onto the jump instead of a true root. Never return that silently.
+	if math.Abs(offset(root)) > 1e-4 {
+		return 0, fmt.Errorf("horary ascendant %.4f is not attainable at lat %.4f (ascendant discontinuous)", targetTropAsc, lat)
+	}
+	return root, nil
 }
