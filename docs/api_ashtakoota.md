@@ -53,7 +53,7 @@ All eight kootas (`varna`, `vashya`, `tara`, `yoni`, `graha_maitri`, `gana`, `bh
 | Field | Meaning |
 |---|---|
 | `name` | display name |
-| `satisfied` | **true when there is no outstanding problem** (for a dosha-type check, true means the dosha is absent or was cancelled) |
+| `satisfied` | **true when there is no outstanding problem**: the dosha is absent, or a cancellation was applied (`cancellation_applied`, with the reason in `cancellation_reason`). Used by `rajju` and `stree_deergha` |
 | `groom`, `bride` | what each person was classified as (rajju group, nakshatra, yoni animal; `Present`/`Absent` for kala sarpa) |
 | `cancellation_applied`, `cancellation_reason` | only when a dosha was cancelled (rajju) |
 | `explanation` | short text |
@@ -204,6 +204,57 @@ All eight kootas (`varna`, `vashya`, `tara`, `yoni`, `graha_maitri`, `gana`, `bh
 - **Nadi (8):** same nadi scores 0; cancelled only for same nakshatra with a different pada, or same rasi with a different nakshatra. If both nakshatras are in the Jaimini Maharshi list of 21, a `suggestion` states the rule and the score is **not** changed.
 - **Summary:** `raw_total` and `effective_total` are the sums of `raw_score` and `score`; `traditional_threshold_met` is `effective_total >= 18`.
 - **Lagna:** `distance` is counted from the bride's lagna to the groom's; `quality` is Auspicious (1, 3, 5, 9, 11), Moderate (2, 7) or Inauspicious (4, 6, 8, 10, 12).
-- **Checks:** `mahendra` (count 4, 7, 10, 13, 16, 19, 22 or 25 from the bride's nakshatra), `stree_deergha` (count above 9 in three navakas of 9; some opinions above 7; exception when Bhakoot and Graha Maitri are good), `vedha` (13 obstructing nakshatra pairs), `rajju` (same rajju group is a dosha, with cancellations), `mruga_vairam` (enemy yoni animals), `special_tara` (rejected nakshatra pairings), `kala_sarpa` (satisfied unless both persons have it).
+- **Checks:** `mahendra` (count 4, 7, 10, 13, 16, 19, 22 or 25 from the bride's nakshatra), `stree_deergha` (count above 9 in three navakas of 9; some opinions above 7; when the count falls short but Bhakoot and Graha Maitri are good, the shortfall is tolerated: `satisfied` is true with `cancellation_applied` and the reason), `vedha` (13 obstructing nakshatra pairs), `rajju` (same rajju group is a dosha, with cancellations), `mruga_vairam` (enemy yoni animals), `special_tara` (rejected nakshatra pairings), `kala_sarpa` (satisfied unless both persons have it).
+
+## Translating the response (Telugu)
+`FRONTEND_TRANSLATIONS.json` (repository root) translates **everything** this endpoint can output. It holds:
+
+| Key | Use |
+|---|---|
+| `fields` | label for every JSON key name in the response |
+| `kootas`, `checks`, `risks` | labels for the 8 koota keys, the 7 check keys and the 4 risk keys (their English label equals the `name` the backend sends) |
+| `enums` | Telugu for every enumerated value: `signs`, `nakshatras`, `planets`, `yoni_animals`, `ganas`, `varnas`, `nadis`, `rajju_groups`, `taras`, `lagna_quality`, `lords_relationships`, `maitri_relationships`, `stree_deergha_quality`, `present_absent`, `ayanamsas` |
+| `enum_paths` | which enum set translates the value found at a JSON path (`*` = groom or bride), e.g. `ashtakoota.kootas.gana.groom` -> `ganas` |
+| `strings` | every fixed text (explanations, cancellation reasons, risk factors), keyed by the exact English text |
+| `templates` | texts with values in them, keyed by the English text with `{param}` placeholders; `params` names the enum that translates each value (`null` = a number, copied as is) |
+| `rule_sets` | label for `rule_set.name` |
+
+How to translate a response:
+1. **Key names**: `fields[key]`; under `ashtakoota.kootas` use `kootas[key]`, under `checks` use `checks[key]`, under `groom.risks` / `bride.risks` use `risks[key]`.
+2. **Enumerated values**: find the response path in `enum_paths`, then take `enums[set][value].te`.
+3. **Free text** (`explanation`, `cancellation_reason`, `suggestion`, each item of `risk_factors`): look the exact text up in `strings`; otherwise match it against `templates` as below.
+4. Numbers, scores, booleans, `relationship` (e.g. `10/4`) and person names are shown as they are.
+
+```js
+// translateText(englishText) -> Telugu text, or undefined if the text is not covered
+const escapeRe = s => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+const templates = Object.entries(tr.templates).map(([key, t]) => {
+  const names = [];
+  const src = escapeRe(key).replace(/\\\{(\w+)\\\}/g, (_, n) => { names.push(n); return '(.+?)'; });
+  return { re: new RegExp('^' + src + '$'), names, t };
+});
+const enumTe = (set, v) => tr.enums[set]?.[v]?.te;
+function translateText(s) {
+  if (tr.strings[s] !== undefined) return tr.strings[s];
+  for (const { re, names, t } of templates) {
+    const m = re.exec(s);
+    if (!m) continue;
+    const vals = {};
+    let ok = true;
+    names.forEach((n, i) => {
+      const set = t.params[n];
+      const te = set ? enumTe(set, m[i + 1]) : m[i + 1];
+      if (te === undefined) ok = false; else vals[n] = te;
+    });
+    if (ok) return t.te.replace(/\{(\w+)\}/g, (_, n) => vals[n]);
+  }
+  return undefined;
+}
+const pathRe = p => new RegExp('^' + p.split('.').map(seg => seg === '*' ? '[^.]+' : escapeRe(seg)).join('\\.') + '$');
+const enumPaths = Object.entries(tr.enum_paths).map(([p, set]) => ({ re: pathRe(p), set }));
+const enumFor = path => enumPaths.find(e => e.re.test(path))?.set;
+```
+
+**Keeping it complete.** `TestTranslationsCoverEveryOutputString`, `TestTranslationsCoverEveryEnumeratedValue`, `TestTranslationsCoverEveryKey` and `TestTranslationLabelsMatchEmittedNames` (`internal/astrology/matchmaking/translations_test.go`) enumerate every Moon position (27 nakshatras x 4 padas, 11,664 couples), every koota and check including the cancellation variants, and the risk-factor strings read from the source code. They fail when the backend can output something the file does not cover, when a template is ambiguous, or when the file holds an entry the backend no longer produces. After changing any output text or adding a koota, check or risk rule, update `FRONTEND_TRANSLATIONS.json` until these tests pass.
 
 Code: `internal/astrology/matchmaking/` (`kootas.go`, `checks.go`, `lagna.go`, `matchmaking.go`, `tables.go`); types in `internal/domain/matchmaking.go`.

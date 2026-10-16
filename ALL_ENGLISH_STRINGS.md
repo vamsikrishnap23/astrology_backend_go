@@ -1,6 +1,6 @@
 # Exhaustive List of Output Strings (Matchmaking API)
 
-This document lists **each and every possible English string** that the `/api/vivaha-pontana` backend can output. 
+This document lists **each and every possible English string** that the `/api/vivaha-pontana` backend can output. The machine-readable, tested version (English to Telugu) is `FRONTEND_TRANSLATIONS.json`; if the two ever differ, the JSON is the one the tests keep correct.
 
 ---
 
@@ -109,6 +109,6 @@ This document lists **each and every possible English string** that the `/api/vi
 
 * **Kala Sarpa `groom`/`bride`:** `Present` / `Absent`.
 * **Gana `suggestion`** (only when the gana is mismatched and the count is more than 14; the score is not changed): `The count from the bride's nakshatra to the groom's is {n} (more than 14), which greatly reduces the harm of a gana mismatch (Telugu muhurta book, p. 65). This is a suggestion only and is not counted in the score.`
-* **Mahendra:** `Groom's nakshatra is the {n}th from the bride's, one of 4, 7, 10, 13, 16, 19, 22, 25: auspicious, increases married life.` / `Groom's nakshatra is the {n}th from the bride's, not one of 4, 7, 10, 13, 16, 19, 22, 25.`
-* **Stree Deergha:** `Groom's nakshatra is the {n}th from the bride's, in navaka {k}: {quality}.` with `quality` = `Kalaham (quarrel)` / `Samanyam (average)` / `Shubham (auspicious)`; appended when the exception applies: ` Rasi koota and graha maitri are good, so the shortfall can be tolerated.`
+* **Mahendra:** `The groom's nakshatra is number {n} counting from the bride's, one of 4, 7, 10, 13, 16, 19, 22, 25: auspicious, increases married life.` / `The groom's nakshatra is number {n} counting from the bride's, not one of 4, 7, 10, 13, 16, 19, 22, 25.`
+* **Stree Deergha:** `The groom's nakshatra is number {n} counting from the bride's, in navaka {k}: {quality}.` with `quality` = `Kalaham (quarrel)` / `Samanyam (average)` / `Shubham (auspicious)`;; when the exception applies, `cancellation_reason` is `Rasi koota and graha maitri are good, so the shortfall can be tolerated.`
 * **Vedha:** `{groom} and {bride} obstruct each other (vedha); marriage should proceed only with remedial indications.` / `The two nakshatras do not obstruct each other (no vedha).`
