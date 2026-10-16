@@ -12,13 +12,12 @@ import (
 var WeekdayLords = []string{"Sun", "Moon", "Mars", "Mercury", "Jupiter", "Venus", "Saturn"}
 
 func CalculateKalaBala(planet string, ctx *domain.CalculationContext, sunLon, moonLon, declination float64) domain.KalaBala {
-	ephemeris.Mu.Lock()
-	swisseph.SetEphePath(ephemeris.EphePath)
+	ephemeris.Lock()
 	geopos := [3]float64{ctx.Input.Longitude, ctx.Input.Latitude, 0}
 	searchJD := ctx.JulianDayUT - 0.5
 	resRise := swisseph.RiseTrans(searchJD, swisseph.Sun, "", int32(swisseph.FlagSwieph), int32(swisseph.CalcRise), geopos, 0, 0)
 	resSet := swisseph.RiseTrans(searchJD, swisseph.Sun, "", int32(swisseph.FlagSwieph), int32(swisseph.CalcSet), geopos, 0, 0)
-	ephemeris.Mu.Unlock()
+	ephemeris.Unlock()
 
 	sunriseJD := resRise.Time
 	sunsetJD := resSet.Time
@@ -85,16 +84,16 @@ func CalculateKalaBala(planet string, ctx *domain.CalculationContext, sunLon, mo
 		} else {
 			isDay = false
 			if ctx.JulianDayUT < sunriseJD {
-				ephemeris.Mu.Lock()
+				ephemeris.Lock()
 				resPrevSet := swisseph.RiseTrans(ctx.JulianDayUT-1.0, swisseph.Sun, "", int32(swisseph.FlagSwieph), int32(swisseph.CalcSet), geopos, 0, 0)
-				ephemeris.Mu.Unlock()
+				ephemeris.Unlock()
 				start = resPrevSet.Time
 				end = sunriseJD
 			} else {
 				start = sunsetJD
-				ephemeris.Mu.Lock()
+				ephemeris.Lock()
 				resNextRise := swisseph.RiseTrans(ctx.JulianDayUT, swisseph.Sun, "", int32(swisseph.FlagSwieph), int32(swisseph.CalcRise), geopos, 0, 0)
-				ephemeris.Mu.Unlock()
+				ephemeris.Unlock()
 				end = resNextRise.Time
 			}
 		}
@@ -206,17 +205,17 @@ func CalculateKalaBala(planet string, ctx *domain.CalculationContext, sunLon, mo
 		var activeSunset, nextSunrise float64
 		if ctx.JulianDayUT < sunriseJD {
 			// Born in the early morning before today's sunrise -> belongs to previous night
-			ephemeris.Mu.Lock()
+			ephemeris.Lock()
 			resPrevSet := swisseph.RiseTrans(ctx.JulianDayUT-1.0, swisseph.Sun, "", int32(swisseph.FlagSwieph), int32(swisseph.CalcSet), geopos, 0, 0)
-			ephemeris.Mu.Unlock()
+			ephemeris.Unlock()
 			activeSunset = resPrevSet.Time
 			nextSunrise = sunriseJD
 		} else {
 			// Born after today's sunset -> belongs to tonight
 			activeSunset = sunsetJD
-			ephemeris.Mu.Lock()
+			ephemeris.Lock()
 			resNextRise := swisseph.RiseTrans(ctx.JulianDayUT, swisseph.Sun, "", int32(swisseph.FlagSwieph), int32(swisseph.CalcRise), geopos, 0, 0)
-			ephemeris.Mu.Unlock()
+			ephemeris.Unlock()
 			nextSunrise = resNextRise.Time
 		}
 

@@ -32,13 +32,11 @@ func CalculatePlanets(ctx *domain.CalculationContext) ([]domain.PlanetPosition, 
 	var positions []domain.PlanetPosition
 
 	// Lock the global ephemeris mutex to prevent C-level concurrency corruption
-	ephemeris.Mu.Lock()
-	defer ephemeris.Mu.Unlock()
+	ephemeris.Lock()
+	defer ephemeris.Unlock()
 
-	// IMPORTANT: Swiss Ephemeris C library uses thread-local storage.
-	// Since Go routines jump between OS threads, we MUST explicitly set the path
-	// for the current OS thread before every calculation.
-	swisseph.SetEphePath(ephemeris.EphePath)
+	// ephemeris.Lock pins this goroutine to its OS thread and sets the ephemeris path on it
+	// (the C library keeps that state per thread); the sidereal mode is set below.
 
 	// Set Ayanamsa for this calculation
 	swisseph.SetSidMode(int32(ctx.Config.AyanamsaMode), 0, 0)

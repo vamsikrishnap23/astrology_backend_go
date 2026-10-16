@@ -24,11 +24,10 @@ func buildContext(input domain.BirthInput) (*domain.CalculationContext, error) {
 		HouseCode:    ephemeris.GetHouseSystemCode(input.HouseSystem),
 	}
 
-	ephemeris.Mu.Lock()
-	swisseph.SetEphePath(ephemeris.EphePath)
+	ephemeris.Lock()
 	swisseph.SetSidMode(int32(config.AyanamsaMode), 0, 0)
 	ayanamsa := swisseph.GetAyanamsaUT(jd)
-	ephemeris.Mu.Unlock()
+	ephemeris.Unlock()
 
 	return &domain.CalculationContext{
 		Input:       input,

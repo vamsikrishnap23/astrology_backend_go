@@ -80,9 +80,8 @@ func formatTime(jd float64, tz float64) string {
 }
 
 func CalculateRetrogrades(input domain.RetrogradesInput) (domain.RetrogradesResult, error) {
-	ephemeris.Mu.Lock()
-	defer ephemeris.Mu.Unlock()
-	swisseph.SetEphePath(ephemeris.EphePath)
+	ephemeris.Lock()
+	defer ephemeris.Unlock()
 
 	utcStart, err := astrotime.ParseLocalToUTC(input.StartDate, "00:00:00", input.Timezone)
 	if err != nil {

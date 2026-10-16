@@ -23,9 +23,8 @@ var targetPlanets = []string{
 }
 
 func getSiderealLon(jd float64, planet string, ayanamsaMode int) float64 {
-	ephemeris.Mu.Lock()
-	defer ephemeris.Mu.Unlock()
-	swisseph.SetEphePath(ephemeris.EphePath)
+	ephemeris.Lock()
+	defer ephemeris.Unlock()
 
 	swisseph.SetSidMode(int32(ayanamsaMode), 0, 0)
 	ayanamsa := swisseph.GetAyanamsaUT(jd)

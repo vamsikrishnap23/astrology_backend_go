@@ -10,9 +10,8 @@ import (
 )
 
 func CalculatePanchang(ctx *domain.CalculationContext) (domain.PanchangResult, error) {
-	ephemeris.Mu.Lock()
-	defer ephemeris.Mu.Unlock()
-	swisseph.SetEphePath(ephemeris.EphePath)
+	ephemeris.Lock()
+	defer ephemeris.Unlock()
 
 	swisseph.SetSidMode(int32(ctx.Config.AyanamsaMode), 0, 0)
 
@@ -130,9 +129,8 @@ func CalculatePanchang(ctx *domain.CalculationContext) (domain.PanchangResult, e
 }
 
 func CalculateDailyPanchang(ctx *domain.CalculationContext) (domain.DailyPanchangResult, error) {
-	ephemeris.Mu.Lock()
-	defer ephemeris.Mu.Unlock()
-	swisseph.SetEphePath(ephemeris.EphePath)
+	ephemeris.Lock()
+	defer ephemeris.Unlock()
 	swisseph.SetSidMode(int32(ctx.Config.AyanamsaMode), 0, 0)
 
 	tzOff := time.Duration(ctx.Input.Timezone * float64(time.Hour))

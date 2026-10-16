@@ -9,8 +9,8 @@ import (
 )
 
 func getMoonDetails(jd float64, ayanamsa float64) domain.MoonDetails {
-	ephemeris.Mu.Lock()
-	defer ephemeris.Mu.Unlock()
+	ephemeris.Lock()
+	defer ephemeris.Unlock()
 
 	iflag := int32(swisseph.FlagSwieph)
 	res := swisseph.CalcUT(jd, swisseph.Moon, iflag)

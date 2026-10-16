@@ -13,9 +13,8 @@ import (
 )
 
 func getSunrise(jd float64, lat float64, lon float64) float64 {
-	ephemeris.Mu.Lock()
-	defer ephemeris.Mu.Unlock()
-	swisseph.SetEphePath(ephemeris.EphePath)
+	ephemeris.Lock()
+	defer ephemeris.Unlock()
 
 	geopos := [3]float64{lon, lat, 0}
 	epheflag := int32(swisseph.FlagSwieph)

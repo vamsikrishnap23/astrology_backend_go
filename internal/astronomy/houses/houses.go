@@ -12,12 +12,9 @@ import (
 // CalculateHouses calculates the Ascendant, MC and House cusps.
 func CalculateHouses(ctx *domain.CalculationContext) (float64, float64, []domain.HouseCusp, error) {
 
-	// Lock the global ephemeris mutex to prevent C-level concurrency corruption
-	ephemeris.Mu.Lock()
-	defer ephemeris.Mu.Unlock()
-
-	// IMPORTANT: Re-initialize path for the current OS thread
-	swisseph.SetEphePath(ephemeris.EphePath)
+	// Serialise access to the C library and pin this goroutine to one OS thread (see ephemeris.Lock)
+	ephemeris.Lock()
+	defer ephemeris.Unlock()
 
 	// Set Ayanamsa for Sidereal House calculation
 	swisseph.SetSidMode(int32(ctx.Config.AyanamsaMode), 0, 0)
@@ -99,7 +96,7 @@ func CalculateHouses(ctx *domain.CalculationContext) (float64, float64, []domain
 // ascendant equals targetTropAsc (used for KP horary numbers). The ascendant
 // advances monotonically through 360 degrees about once per sidereal day but at
 // a rate that varies with sign and latitude, so the root is bracketed by a
-// coarse scan over +/- half a day before bisecting. The caller must hold ephemeris.Mu.
+// coarse scan over +/- half a day before bisecting. The caller must hold ephemeris.Lock.
 func findPhantomJD(startJD, targetTropAsc, lat, lon float64, houseCode byte) (float64, error) {
 	const (
 		window = 0.5  // days either side of startJD; one full ascendant cycle spans ~1 day
