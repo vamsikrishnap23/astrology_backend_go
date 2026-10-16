@@ -1,6 +1,7 @@
 package matchmaking
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/vamsikrishnap23/astrology_backend_go/internal/domain"
@@ -87,6 +88,34 @@ func TestStreeDeerghaCheck(t *testing.T) {
 	}
 	if exception(12, true, 5) {
 		t.Error("exception is only for a failed stree deergha")
+	}
+}
+
+// When the shortfall is tolerated the verdict must agree with the text: satisfied is true and the reason is
+// reported as a cancellation (like Rajju), so a UI never shows "problem" beside "can be tolerated".
+func TestStreeDeerghaToleratedShortfallIsConsistent(t *testing.T) {
+	g, b := moon("Ashwini", "Aries", 1), moon("Bharani", "Aries", 1)
+
+	c := streeDeerghaCheck(g, b, 3, true, 4) // count 3 is not above 9, bhakoot and maitri are good
+	if !c.Satisfied || !c.CancellationApplied || c.CancellationReason == "" {
+		t.Errorf("tolerated shortfall: %+v", c)
+	}
+	if !c.Details.(domain.StreeDeerghaDetails).ExceptionApplies {
+		t.Errorf("details must still say the exception applied: %+v", c.Details)
+	}
+	if strings.Contains(c.Explanation, "tolerated") {
+		t.Errorf("the explanation must not carry the tolerance sentence any more: %q", c.Explanation)
+	}
+
+	// an unrepaired shortfall stays a problem and carries no cancellation
+	c = streeDeerghaCheck(g, b, 3, false, 4)
+	if c.Satisfied || c.CancellationApplied || c.CancellationReason != "" {
+		t.Errorf("unrepaired shortfall: %+v", c)
+	}
+	// a rule that is met needs no cancellation
+	c = streeDeerghaCheck(g, b, 12, true, 5)
+	if !c.Satisfied || c.CancellationApplied {
+		t.Errorf("rule met: %+v", c)
 	}
 }
 

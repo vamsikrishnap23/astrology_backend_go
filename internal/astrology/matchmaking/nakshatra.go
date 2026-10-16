@@ -8,6 +8,8 @@ import (
 	"github.com/vamsikrishnap23/astrology_backend_go/internal/domain"
 )
 
+// getMoonDetails reads the Moon's tropical longitude at jd, converts it to sidereal with the ayanamsa and
+// classifies it.
 func getMoonDetails(jd float64, ayanamsa float64) domain.MoonDetails {
 	ephemeris.Lock()
 	defer ephemeris.Unlock()
@@ -16,8 +18,11 @@ func getMoonDetails(jd float64, ayanamsa float64) domain.MoonDetails {
 	res := swisseph.CalcUT(jd, swisseph.Moon, iflag)
 	tropLon := res.Data[0]
 
-	sidLon := math.Mod(tropLon-ayanamsa+360.0, 360.0)
+	return moonFromLongitude(math.Mod(tropLon-ayanamsa+360.0, 360.0))
+}
 
+// moonFromLongitude classifies a sidereal Moon longitude (0..360): sign, degree, nakshatra, pada and lords.
+func moonFromLongitude(sidLon float64) domain.MoonDetails {
 	signIdx := int(math.Floor(sidLon / 30.0))
 	sign := Signs[signIdx]
 

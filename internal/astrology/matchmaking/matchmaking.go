@@ -527,6 +527,9 @@ func evaluateIndividualRisks(ctx *domain.CalculationContext, isGroom bool) domai
 	return res
 }
 
+// ruleSetName identifies the scoring rules in the response (rule_set.name).
+const ruleSetName = "classical-guna-milan-v2"
+
 // CalculateMatch computes the full matchmaking result for a groom and a bride.
 func CalculateMatch(groomCtx, brideCtx *domain.CalculationContext) (domain.MatchmakingResult, error) {
 	groom := getMoonDetails(groomCtx.JulianDayUT, groomCtx.Ayanamsa)
@@ -559,7 +562,7 @@ func CalculateMatch(groomCtx, brideCtx *domain.CalculationContext) (domain.Match
 	}
 
 	return domain.MatchmakingResult{
-		RuleSet:    domain.RuleSetInfo{Name: "classical-guna-milan-v2", Ayanamsa: groomCtx.Input.Ayanamsa},
+		RuleSet:    domain.RuleSetInfo{Name: ruleSetName, Ayanamsa: groomCtx.Input.Ayanamsa},
 		Groom:      domain.PersonMatchDetails{Name: groomCtx.Input.Name, Moon: groom, Risks: evaluateIndividualRisks(groomCtx, true)},
 		Bride:      domain.PersonMatchDetails{Name: brideCtx.Input.Name, Moon: bride, Risks: evaluateIndividualRisks(brideCtx, false)},
 		Lagna:      lagna,

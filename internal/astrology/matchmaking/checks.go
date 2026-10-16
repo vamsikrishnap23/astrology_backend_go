@@ -89,9 +89,9 @@ func vedhaCheck(groom, bride domain.MoonDetails) domain.Check {
 // mahendraCheck: the groom's nakshatra is the 4th, 7th, 10th, 13th, 16th, 19th, 22nd or 25th from the bride's.
 func mahendraCheck(groom, bride domain.MoonDetails, count int) domain.Check {
 	ok := count >= 4 && count <= 25 && (count-4)%3 == 0
-	explanation := fmt.Sprintf("Groom's nakshatra is the %dth from the bride's, not one of 4, 7, 10, 13, 16, 19, 22, 25.", count)
+	explanation := fmt.Sprintf("The groom's nakshatra is number %d counting from the bride's, not one of 4, 7, 10, 13, 16, 19, 22, 25.", count)
 	if ok {
-		explanation = fmt.Sprintf("Groom's nakshatra is the %dth from the bride's, one of 4, 7, 10, 13, 16, 19, 22, 25: auspicious, increases married life.", count)
+		explanation = fmt.Sprintf("The groom's nakshatra is number %d counting from the bride's, one of 4, 7, 10, 13, 16, 19, 22, 25: auspicious, increases married life.", count)
 	}
 	return domain.Check{
 		Name: "Mahendra", Satisfied: ok, Groom: groom.Nakshatra, Bride: bride.Nakshatra,
@@ -100,27 +100,32 @@ func mahendraCheck(groom, bride domain.MoonDetails, count int) domain.Check {
 }
 
 // streeDeerghaCheck: the 27 nakshatras counted from the bride's are split into three navakas of 9.
-// The groom in the 1st navaka is quarrelsome, the 2nd average, the 3rd auspicious. It is satisfied when
-// the count is above 9 (some opinions: above 7). If Bhakoot and Graha Maitri are good, a shortfall is
-// tolerable ("good" Graha Maitri is taken as a score of 4 or more).
+// The groom in the 1st navaka is quarrelsome, the 2nd average, the 3rd auspicious. The rule is met when
+// the count is above 9 (some opinions: above 7). If it is not met but Bhakoot and Graha Maitri are good,
+// the shortfall is tolerated ("good" Graha Maitri is taken as a score of 4 or more): like a cancelled
+// Rajju dosha, that makes the check satisfied and is reported as a cancellation.
 func streeDeerghaCheck(groom, bride domain.MoonDetails, count int, bhakootGood bool, grahaMaitriScore float64) domain.Check {
 	navaka := (count-1)/9 + 1
 	quality := map[int]string{1: "Kalaham (quarrel)", 2: "Samanyam (average)", 3: "Shubham (auspicious)"}[navaka]
-	satisfied := count > 9
-	exception := !satisfied && bhakootGood && grahaMaitriScore >= 4
+	ruleMet := count > 9
+	tolerated := !ruleMet && bhakootGood && grahaMaitriScore >= 4
 
-	explanation := fmt.Sprintf("Groom's nakshatra is the %dth from the bride's, in navaka %d: %s.", count, navaka, quality)
-	if exception {
-		explanation += " Rasi koota and graha maitri are good, so the shortfall can be tolerated."
-	}
-	return domain.Check{
-		Name: "Stree Deergha", Satisfied: satisfied, Groom: groom.Nakshatra, Bride: bride.Nakshatra,
-		Explanation: explanation,
+	check := domain.Check{
+		Name:        "Stree Deergha",
+		Satisfied:   ruleMet || tolerated,
+		Groom:       groom.Nakshatra,
+		Bride:       bride.Nakshatra,
+		Explanation: fmt.Sprintf("The groom's nakshatra is number %d counting from the bride's, in navaka %d: %s.", count, navaka, quality),
 		Details: domain.StreeDeerghaDetails{
 			BrideToGroomCount: count, Navaka: navaka, Quality: quality,
-			SatisfiedByAlternateOpinion: count > 7, ExceptionApplies: exception,
+			SatisfiedByAlternateOpinion: count > 7, ExceptionApplies: tolerated,
 		},
 	}
+	if tolerated {
+		check.CancellationApplied = true
+		check.CancellationReason = "Rasi koota and graha maitri are good, so the shortfall can be tolerated."
+	}
+	return check
 }
 
 // mrugaVairamCheck: the yoni animals of the couple are natural enemies.
@@ -159,8 +164,11 @@ func specialTaraCheck(groom, bride domain.MoonDetails) domain.Check {
 
 // kalaSarpaCheck: the match is rejected when both persons have Kala Sarpa dosha.
 func kalaSarpaCheck(groomCtx, brideCtx *domain.CalculationContext) domain.Check {
-	g := checkKalaSarpa(groomCtx)
-	b := checkKalaSarpa(brideCtx)
+	return kalaSarpaResult(checkKalaSarpa(groomCtx), checkKalaSarpa(brideCtx))
+}
+
+// kalaSarpaResult builds the check from whether each person has Kala Sarpa dosha.
+func kalaSarpaResult(g, b bool) domain.Check {
 	both := g && b
 
 	explanation := "Checks if both Bride and Groom have Kala Sarpa Dosha. (If both have it, the match is rejected)."
