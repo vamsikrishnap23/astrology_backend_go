@@ -177,11 +177,11 @@ Returns `karakas` array sorting the 7 planets into AK, AmK, BK, MK, PK, GK, and 
 
 ---
 
-## 16. Ashtakoota (Guna Milan Compatibility)
-**Endpoint:** `POST /api/ashtakoota`
+## 16. Matchmaking (Ashtakoota / Guna Milan Compatibility)
+**Endpoint:** `POST /api/vivaha-pontana`
 
 **Payload:**
-Requires dual birth inputs:
+Requires dual birth inputs (the `ayanamsa` is ignored: matchmaking always uses Lahiri):
 ```json
 {
   "groom": { /* BirthInput */ },
@@ -190,7 +190,17 @@ Requires dual birth inputs:
 ```
 
 **Response:**
-Returns `kootas` dictionary resolving Varna, Vashya, Tara, Yoni, Graha Maitri, Gana, Bhakoot, and Nadi with exact scores, dosha evaluations, and a final `summary`.
+Six sections, always in this order:
+
+| Section | Contents |
+|---|---|
+| `rule_set` | `name`, `ayanamsa` (always `Lahiri`) |
+| `groom`, `bride` | `name`, `moon` (sign, nakshatra, pada, lords), `risks` (four individual chart risk checks) |
+| `lagna` | ascendant compatibility: `distance`, `quality` (`Auspicious` / `Moderate` / `Inauspicious`), lords' relationship |
+| `ashtakoota` | `kootas` (the 8 scored kootas: `varna`, `vashya`, `tara`, `yoni`, `graha_maitri`, `gana`, `bhakoot`, `nadi`) and `summary` (`raw_total`, `effective_total`, `maximum` 36, `percentage`, `traditional_threshold_met`) |
+| `checks` | non-scored checks: `rajju`, `vedha`, `mahendra`, `stree_deergha`, `mruga_vairam`, `special_tara`, `kala_sarpa` |
+
+Every koota has the same fields (`name`, `maximum`, `raw_score`, `score`, `groom`, `bride`, `dosha`, `cancellation_applied`, `cancellation_reason`, `suggestion`, `explanation`, `details`); `score` is the value counted in the total. Every check has the same fields (`name`, `satisfied`, `groom`, `bride`, `cancellation_applied`, `cancellation_reason`, `explanation`, `details`); `satisfied: true` means no outstanding problem. A koota or check may carry a `suggestion`: a rule that may apply but is **not** counted in the score. Full field reference and example: `docs/api_ashtakoota.md`.
 
 ---
 

@@ -1,54 +1,32 @@
 # Feature: Ashtakoota / Guna Milan
 
 ## Overview
-This implements the traditional 8-Koota (36-point) compatibility matching algorithm for Jyotish, based directly on exact Swiss Ephemeris astronomical Moon positions. 
+The traditional 8-koota (36-point) compatibility matching for Jyotish, based on the sidereal Moon positions from the Swiss Ephemeris (Lahiri ayanamsa, always). Besides the eight scored kootas, the response carries a set of non-scored compatibility checks (`checks`) and an ascendant comparison (`lagna`). Endpoint: `POST /api/vivaha-pontana`. Field reference: `docs/api_ashtakoota.md`.
 
 ## The 8 Kootas & Maximum Points
-1. **Varna** (1 point): Spiritual/ego compatibility based on Moon signs.
-2. **Vashya** (2 points): Dominance/influence compatibility based on Moon signs.
-3. **Tara/Dina** (3 points): Daily destiny/health compatibility based on Nakshatras.
-4. **Yoni** (4 points): Intimacy and physical compatibility based on Nakshatra animals.
-5. **Graha Maitri** (5 points): Psychological/mental compatibility based on Moon sign Lords.
-6. **Gana** (6 points): Temperament compatibility based on Nakshatra Gana (Deva/Manushya/Rakshasa).
-7. **Bhakoot** (7 points): Family and welfare compatibility based on Moon sign relative distances (2/12, 5/9, 6/8 are doshas).
-8. **Nadi** (8 points): Genetic and health compatibility based on Nakshatra Nadi (Adi, Madhya, Antya).
+1. **Varna** (1): groom's varna equal to or above the bride's, by Moon sign.
+2. **Vashya** (2): the Telugu book's rasi-pair table (pp. 69-70); 2 if either rasi lists the other.
+3. **Tara** (3): nakshatras counted both ways; 1.5 per favourable direction.
+4. **Yoni** (4): animal compatibility of the birth nakshatras.
+5. **Graha Maitri** (5): natural friendship of the two Moon-sign lords.
+6. **Gana** (6): Deva / Manushya / Rakshasa; the table is read as [bride gana][groom gana].
+7. **Bhakoot** (7): Moon-sign distances; 2/12, 5/9, 6/8 are doshas.
+8. **Nadi** (8): Adi / Madhya / Antya; same nadi is a dosha.
 
-Total Maximum Points: **36**.
+Total maximum: **36**; `traditional_threshold_met` when the effective total is 18 or more.
 
 ## Rule Set
-**Version**: `classical-guna-milan-v1`
-The lookup tables for Vashya, Yoni, and Gana strictly follow the canonical texts (Brihat Parashara Hora Shastra / B.V. Raman tables).
-- **Vashya Mapping**: Simplified canonical (Aries/Taurus/Sagittarius=Chatuspada, Gemini/Virgo/Libra/Aquarius=Manav, Cancer/Capricorn/Pisces=Jalchar, Leo=Vanchar, Scorpio=Keeta).
-- **Yoni Table**: Complete 14-animal matrix.
-- **Bhakoot Cancellation**: Triggered automatically if the Rashi lords are identical or friendly (Graha Maitri score >= 4).
-- **Nadi Cancellation**: Triggered automatically if the Nakshatras are identical but Padas differ, or if the Rashis are identical but Nakshatras differ.
+**Version**: `classical-guna-milan-v2`.
+- **Vashya**: the book's rasi-pair table. The earlier 5-animal-category rule was removed.
+- **Gana**: table read as [bride][groom] (a Deva bride with a Manushya groom scores 6, a Manushya bride with a Deva groom 5, a Deva bride with a Rakshasa groom 0, a Rakshasa bride with a Deva groom 1). A Rakshasa bride whose nakshatra is Ashlesha, Chitra, Vishakha, Jyeshtha, Mula or Shatabhisha scores the full 6. When the gana is mismatched but the bride-to-groom nakshatra count is more than 14, a `suggestion` says the harm is greatly reduced (book p. 65); the score is not changed.
+- **Bhakoot cancellation**: an auspicious sign pair, or Graha Maitri of 4 or more.
+- **Nadi cancellation**: same nakshatra with a different pada, or same rasi with a different nakshatra. If both nakshatras are in the Jaimini Maharshi list of 21, a `suggestion` states the rule; the score is **not** changed.
+- **Checks (not scored)**: Rajju, Vedha, Mahendra, Stree Deergha, Mruga Vairam, Special Tara, Kala Sarpa. Mahendra, Stree Deergha and Vedha come from the Telugu muhurta book pages kept in `ref/`.
 
 ## Output
-The API outputs both a `raw_score` and an `effective_score` (if cancellations apply), preserving full transparency.
+Every koota reports `raw_score` (before cancellation) and `score` (counted in the total), so a cancellation is always visible. Every check reports `satisfied`.
 
-## API Endpoint
-`POST /api/v1/ashtakoota`
-
-**Payload:**
-```json
-{
-  "groom": {
-    "name": "Groom",
-    "date_of_birth": "2005-11-23",
-    "time_of_birth": "15:35:00",
-    "latitude": 16.3938,
-    "longitude": 80.1522,
-    "timezone": 5.5,
-    "ayanamsa": "Lahiri"
-  },
-  "bride": {
-    "name": "Bride",
-    "date_of_birth": "2002-05-14",
-    "time_of_birth": "10:00:00",
-    "latitude": 12.9716,
-    "longitude": 77.5946,
-    "timezone": 5.5,
-    "ayanamsa": "Lahiri"
-  }
-}
-```
+## Sources and validation
+- Telugu muhurta book pages (`ref/`): Dina, Gana distance, Mahendra, Stree Deergha, Rasi koota, Vashya, Vedha.
+- Review of every calculation against the book and online sources: `docs/matchmaking_report_te.pdf` (Telugu), with the owner's decisions recorded in `CLAUDE.md`.
+- Open points still to verify against the printed book are listed in the TODO table in `CLAUDE.md` (rows starting "Matchmaking").

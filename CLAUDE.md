@@ -104,7 +104,7 @@ Exact field-level response shapes: see `internal/domain/*.go` and `docs/api_*.md
 - **Dasha**: Vimshottari, year = 365.2425 days, from Moon sidereal longitude.
 - **Progression**: secondary, 1 day = 1 tropical year (365.242190402), same natal location.
 - **Panchang**: tithi/nakshatra/yoga/karana boundaries by bisection; sunrise/sunset with `swisseph.RiseTrans` (Sun = upper limb + refraction, Moon = disc centre, no refraction — "Drik Panchang" methodology per code comment). Panchang handlers call `CalculationContext` without UTCTime/Ayanamsa set.
-- **Concurrency**: global `ephemeris.Mu` sync.Mutex guards all SE calls; each calculation re-calls `SetEphePath`/`SetSidMode` (thread-local state in C lib). Any new SE call must take `ephemeris.Mu` and set path/sid mode first. Note `swisseph.SetSidMode` is global per call so mixing ayanamsas relies on this lock.
+- **Concurrency**: every Swiss Ephemeris call must sit between `ephemeris.Lock()` and `ephemeris.Unlock()` (there is no exported mutex any more). `Lock` serialises access, pins the goroutine to its OS thread (`runtime.LockOSThread`, because the C library keeps its state per thread and Go may otherwise move a goroutine between cgo calls) and re-applies the ephemeris path on that thread. `Lock` is NOT reentrant: never call a function that locks while holding the lock. Callers still call `swisseph.SetSidMode` themselves before using the ayanamsa. `TestConcurrentCalculationsAreStable` guards this (it failed 3 of 3 runs before the fix and passes 15 of 15 after).
 
 ## Data / persistence
 
@@ -130,7 +130,7 @@ Exact field-level response shapes: see `internal/domain/*.go` and `docs/api_*.md
 - `ProgressionResult` doc-comment sits above `ProgressedAspect` (misplaced comment). `ProgressedPlanet` is just an embedded `PlanetPosition`.
 - Code comments with outdated claims: `ephemeris.GetHouseSystemCode` "equal: 'E' // or 'A'"; `Nodes ... using Mean for now`.
 - README is stale: lists `POST /api/v1/chart/natal`, `/api/v1/vargas` and a `cmd/verify_panchang/` tool that do not exist; actual paths are `/api/<name>` with no `v1`. `static/index.html` also calls `/api/v1/vargas` and `/api/v1/dasha` (would 404 and is also behind auth) — **TODO: verify** if static UI is still used.
-- `Mu` / `EphePath` are exported package globals mutated at runtime.
+- `EphePath` is an exported package global set once by `ephemeris.Init`.
 - Commit style: conventional-ish (`feat:`, `chore:`); work happens directly on `main`.
 
 ## Calculation reference (read from code, 2026-10-15)
@@ -182,7 +182,7 @@ Registry of rule structs (`Name/Division/Calculate(lon) -> {SignIndex, Longitude
 - **Gochar (transits)**: house from natal Moon (sign-based); good-house + Vedha table, Vama Vedha built by inverting it. Sun/Saturn and Moon/Mercury do not obstruct each other. Rasi-transit endpoint fakes the Moon at mid-sign.
 - **Upcoming ingress**: steps 1 day (0.1 for Moon) until the sidereal sign changes (cap 2000 days), then 50-iter bisection; handles retrograde back-crossings. Rahu/Ketu use Mean Node. Result in UTC RFC3339.
 - **Progression**: `progressedJD = natalJD + (targetJD - natalJD)/365.242190402`; progressed planets+houses at natal location; aspects within 1 deg orb (conj/sextile/square/trine/quincunx/opposition) vs natal planets and cusps (cusp-cusp skipped; Neptune/Pluto excluded from progressed side only).
-- **Matchmaking**: Moon position from raw `CalcUT` minus `ctx.Ayanamsa`; kootas: Varna 1, Vashya 2, Tara 3 (1.5 each direction, with Anu-Janma/Eka-nakshatra/Revati/Sama-saptama exceptions), Yoni 4, Graha Maitri 5, Gana 6, Bhakoot 7, Nadi 8 (raw + effective after cancellations); Rajju, Lagna kootami, Kala Sarpa, Mruga Vairam, Ashubha Kurpu, individual risk checks are extras from a "Telugu book" (`tables.go` header `classical-guna-milan-v1`). `Maximum: 36` on the main total. **TODO: verify** exact scoring beyond the structure above; matchmaking.go is ~1000 lines of rules.
+- **Matchmaking**: see the "Matchmaking reference" section below.
 - **BTR** (Nadi Tatwa): LMT = clock - (tz*15 - lon)*4min; sunrise (Hindu rising) vs 06:00 offset shifts time; 480 rows of 3 minutes; tatwa/gender by weekday group and half-cycle direction; row planet from 9-planet cycle offset by sign modality and weekday lord; candidates scanned in a +-window (default -10/+5 min) and scored (gender match +5, star lord match +5). `btr/tatwa.go` (`CalculateTatwa`) appears unused by `btr.go` (**TODO: verify**).
 
 ### Calculation quirks worth knowing before changing code
@@ -205,7 +205,13 @@ Status key: FIXED = done and tested; PLANNED = owner will fix later; KEEP = inte
 | Pushkara | Pushkara Bhaga is element-based (fire 21, earth 14, air 24, water 7) and Pushkaramsa ranges follow a book the owner used | KEEP as is; VERIFY against the source book before any change (a per-sign table exists in other texts) |
 | Manglik | Cancellation rules are listed even when no dosha is present, and any single rule cancels | KEEP (owner decision) |
 | BTR | Incomplete/partial, shelved. Parses date as UTC midnight, ignores tz for sunrise, truncates minutes in weekday, `btr/tatwa.go` unused | SHELVED |
-| Matchmaking | Recently written, not reviewed | REVIEW LATER when needed |
+| Matchmaking: decisions applied | Vashya = book table (old categories removed); Lahiri forced; Gana orientation fixed (also Deva bride + Rakshasa groom 0); Lagna 3-tier quality; Nadi 21-nakshatra list moved to `suggestion`; Tara, Bhakoot, Yoni, Graha Maitri, Rajju, Kala Sarpa, Special Tara, individual risks left as they were; rule set bumped to `classical-guna-milan-v2` | DONE |
+| Matchmaking: book rules | Mahendra, Stree Deergha, Vedha and the Gana "count > 14" rule were added (now in `checks.*` and the Gana `suggestion`); the book's Dina and Rasi koota intentionally not used | DONE |
+| Matchmaking: book readings | (a) Vedha: book prints Pushya's partner as Punarvasu (duplicate), implemented as Purva Ashadha; other sources also pair Chitra with Mrigashira and Dhanishta; (b) Vashya: book says Aries - Leo, Virgo (common tables: Leo, Scorpio), kept as printed, same-rasi couples score 0; (c) Stree Deergha exception uses "good" = Bhakoot effective 7 and Graha Maitri >= 4 | VERIFY against the printed book |
+| Matchmaking: kept as-is, unverified | Tara exceptions (4 rules) and Janma counted bad; Gana Rakshasa-bride exemption and Rakshasa/Rakshasa = 6; Bhakoot symmetric dosha and cancellation at Graha Maitri >= 4 (book/sources say mutual friends and a directional rule); Rajju cancellations; Kala Sarpa match; Special Tara lists; 8th-lord and other individual-risk rules are broad | owner confirmed correct; see report for the other traditions |
+| Matchmaking: other | Telugu translations for the new/changed strings missing in `FRONTEND_TRANSLATIONS.json`; `docs/source-validation/ashtakoota.md` outdated; frontend must be updated for the restructured JSON | LOW |
+| Swiss Ephemeris thread-safety | The C library keeps its state per OS thread and Go could move a goroutine to another thread between cgo calls, giving sporadic Moshier-fallback errors (HTTP 500s) and silent all-empty results where errors are swallowed (matchmaking risks, Kala Sarpa, BTR, lagna) | **FIXED 2026-10-16** (`ephemeris.Lock/Unlock` pin the OS thread and set the path; regression test `TestConcurrentCalculationsAreStable`) |
+| Swallowed errors | `evaluateIndividualRisks`, `checkKalaSarpa`, BTR and the lagna calculation ignore errors from `CalculatePlanets`/`CalculateHouses` and fall back to "no risk"/zero values instead of failing the request | LOW (the root cause above is fixed, but a real failure would still be silent) |
 | Panchang | Durmuhurtam table for Friday (4th+12th) and Saturday (1st+2nd) differs from the common table (Fri 4th+9th, Sat 1st) | VERIFY |
 | Panchang/KP | Vara and KP day lord use the calendar date, not sunrise (Kala Bala dina does use sunrise) | VERIFY / decide |
 | Transits | `/api/transits/upcoming` defaults search start to the birth date, not now | VERIFY intent |
@@ -224,3 +230,44 @@ Two ways of producing sidereal longitude coexist:
 - **`FlagSidereal`**: SE applies its own sidereal transform. Used in `panchang/{nakshatra,yoga,telugu_calendar}.go`.
 Measured difference for the Moon (same ayanamsa mode): -1.3" (1950), -12.7" (1985), -15.9" (2000), -3.8" (2024), -15.1" (2040): it varies with date, up to ~16", consistent with nutation in longitude (not proven). The code comment "~4 arcsec" is just the 2024 value.
 Consequence: `/api/chart` Moon and `/api/panchang` nakshatra can disagree near a nakshatra/pada boundary; `GetKPLords` sub-sub-sub spans can be as small as ~6", so the 5th KP level can differ. Decide one convention (and the matching KP/Lahiri expectation of the reference software) before changing either side.
+
+## Matchmaking reference (`internal/astrology/matchmaking`, `handlers/matchmaking.go`, `domain/matchmaking.go`)
+
+Endpoint `POST /api/vivaha-pontana`, body `{groom: BirthInput, bride: BirthInput}`. Handler `buildContext` builds each person's context: ayanamsa is **always Lahiri** (the request value is ignored), house system from the request, `ctx.Ayanamsa` set under `ephemeris.Lock`; a bad date returns 400 "Invalid groom/bride date/time format". Full field-level docs: `docs/api_ashtakoota.md`; every output string: `ALL_ENGLISH_STRINGS.md`.
+
+### Response layout (restructured 2026-10-16; breaking change for the frontend)
+Six sections: `rule_set`, `groom`/`bride` (name, moon, risks), `lagna`, `ashtakoota` (`kootas` + `summary`), `checks`.
+- **Every scored koota has one shape** (`domain.Koota`): `name, maximum, raw_score, score (counted in the total), groom, bride, dosha, cancellation_applied, cancellation_reason, suggestion, explanation, details`. `details` only for tara, graha_maitri, bhakoot.
+- **Every non-scored check has one shape** (`domain.Check`): `name, satisfied (true = no outstanding problem), groom, bride, cancellation_*, explanation, details` (details only for mahendra, stree_deergha).
+- `suggestion` = a rule that may apply but is deliberately not counted (used by Nadi for the 21-nakshatra list and by Gana for the "count > 14" book rule).
+- Old -> new keys: `kootas.*` -> `ashtakoota.kootas.*` with `effective_score` -> `score`, `GroomValue/BrideValue` -> `groom/bride`; `summary` -> `ashtakoota.summary`; `lagna_match` -> `lagna`; `kootas.rajju` and `doshas.*` and `book_rules.*` -> `checks.*` (`has_dosha` -> `!satisfied`); tara `groom_to_bride/bride_to_groom` and graha_maitri/bhakoot extras -> `details`. There is no `book_rules`, `doshas` or `lagna_match` any more (`TestResponseShape` enforces this).
+
+### Code layout
+`matchmaking.go` (`CalculateMatch` orchestration, Moon helpers, Kala Sarpa test, individual-risk rules), `kootas.go` (one function per scored koota + `summarize`), `checks.go` (one function per check, vedha pairs), `lagna.go`, `tables.go` (lookup tables, rule-set tag `classical-guna-milan-v2`), `nakshatra.go` (Moon details).
+
+### Calculations
+1. `getMoonDetails(jd, ctx.Ayanamsa)`: raw `CalcUT` Moon minus `ctx.Ayanamsa` (manual sidereal), sign, degree, nakshatra = floor(minutes/800), pada, nakshatra lord, rashi lord (modern: Mars for Scorpio, Saturn for Aquarius).
+2. **Lagna**: `distance = (groomLagna - brideLagna + 12)%12 + 1`; `quality` Auspicious {1,3,5,9,11}, Moderate {2,7}, Inauspicious {4,6,8,10,12} (`is_auspicious` kept for the first group). Lords relationship: same lord "Same"; both Friend "Friendly"; either Enemy "Inimical"; else "Neutral". Not scored; feeds the Rajju cancellation.
+3. **Scored kootas** (tables directional where noted):
+
+| Koota | Max | Basis | Scoring |
+|---|---|---|---|
+| Varna | 1 | Moon sign -> Brahmin(4)/Kshatriya(3)/Vaishya(2)/Shudra(1) | 1 if groom rank >= bride rank |
+| Vashya | 2 | the book's rasi-pair table `VashyaRasis` (pp. 69-70); the old 5-animal-category rule was removed | 2 if either rasi lists the other, else 0 (same rasi 0; Aries lists Leo and Virgo as printed) |
+| Tara | 3 | nakshatra count each way, `(count-1)%9` -> Janma, Sampat, Vipat, Kshema, Pratyari, Sadhaka, Vadha, Mitra, Ati-Mitra | 1.5 per favourable direction; bad = Janma, Vipat, Pratyari, Vadha. Overrides in order: count 10-18 with Vipat/Pratyari/Vadha is OK unless pada is 1/4/3; same nakshatra bad only for `BadEkaNakshatras`; Revati either side good; Moon signs 7th apart cancel Vipat |
+| Yoni | 4 | nakshatra -> 14 animals | `YoniScores` 14x14 (symmetric, diagonal 4, the 7 enemy pairs 0) |
+| Graha Maitri | 5 | natural friendship of the two Moon-sign lords | same lord 5; F/F 5; F/N 4; N/N 3; F/E 1; N/E 0.5; E/E 0 |
+| Gana | 6 | nakshatra -> Deva/Manushya/Rakshasa | `GanaScores[bride gana][groom gana]` (Deva bride + Manushya groom 6, Manushya bride + Deva groom 5, Deva bride + Rakshasa groom 0, Rakshasa bride + Deva groom 1, Rakshasa/Manushya 0 both ways, same gana 6); BRIDE nakshatra in `GanaExemptBrideNakshatras` (Ashlesha, Chitra, Vishakha, Jyeshtha, Mula, Shatabhisha) scores 6 regardless. If score < 6 and the bride->groom count > 14: `suggestion` (book p. 65), score unchanged |
+| Bhakoot | 7 | Moon-sign distances both ways | dosha if 2/12, 5/9 or 6/8 (either order) => 0 else 7; cancelled (score 7) if the sign pair is in `AuspiciousBhakootPairs` or Graha Maitri >= 4 |
+| Nadi | 8 | nakshatra -> Adi/Madhya/Antya | same nadi => 0 else 8; cancelled (8) only for same nakshatra + different pada, or same sign + different nakshatra. Both nakshatras in the 21-nakshatra `JaiminiNadiExceptions` => `suggestion`, score unchanged |
+
+   `summary`: `raw_total` = sum of `raw_score`, `effective_total` = sum of `score`, percentage = effective / 36, `traditional_threshold_met` = effective >= 18.
+4. **Checks (not scored)**: `rajju` (same rajju group is a dosha; cancelled if rashi lords same, Graha Maitri >= 4, or lagna lords Same/Friendly), `vedha` (13 obstructing pairs incl. Pushya-Purva Ashadha; Chitra has none), `mahendra` (bride->groom count in {4,7,10,13,16,19,22,25}), `stree_deergha` (count > 9 in three navakas of 9; alternate opinion > 7; exception when Bhakoot score is 7 and Graha Maitri >= 4), `mruga_vairam` (enemy yoni animals), `special_tara` (3 pairs + 15 `AshubhaKurpu` pairs), `kala_sarpa` (satisfied unless both persons have all seven planets on one side of Rahu-Ketu).
+5. **Individual risks** (`groom.risks`, `bride.risks`): Vaidhavya, Dwikalatra, Napumsakatvam (groom only), Dampatya Marakatva; whole-sign houses from the Lagna sign, from a Telugu book. Informational. NOTE: `evaluateIndividualRisks` still returns all-false silently if `CalculatePlanets` fails (see "Swallowed errors" in the TODO table).
+
+### Decisions (2026-10-16, after the Telugu review report)
+Vashya follows the book (old categories removed); Lahiri always; Tara keeps both directions; Gana orientation fixed; Lagna 3-tier; Bhakoot keeps its existing logic; Nadi unchanged except the 21-nakshatra list is only a suggestion; everything else confirmed correct as is; new rules from the book photos in `ref/` (pp. 63-71): Mahendra, Stree Deergha, Vedha, Gana distance. The book's Dina and directional Rasi koota were NOT used (Tara and Bhakoot cover them); their wording is in `docs/matchmaking_report_te.md`.
+Tests: `kootas_test.go`, `checks_test.go`, `matchmaking_test.go` (end to end + `TestResponseShape`), `handlers/matchmaking_test.go` (Lahiri override). Worked examples are by hand; the book's own example (groom Mrigashira, bride Dhanishta) is a test. A 300-pair regression check confirmed the restructure changed no calculated value.
+
+### Matchmaking review report (2026-10-16)
+`docs/matchmaking_report_te.pdf` (source: `docs/matchmaking_report_te.md`, Telugu) reviews every matchmaking calculation against the book pages in `ref/` and online sources, one verdict per item, with a checklist of decisions for the owner's father (section 5). **Status: decisions received 2026-10-16 and applied (see "Matchmaking decisions" above).** Remaining: the endpoint clean-up and the translations. Regenerate the PDF with `pandoc` (HTML) then `chromium --headless --print-to-pdf`; Noto Sans Telugu is installed.
