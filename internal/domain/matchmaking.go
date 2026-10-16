@@ -5,6 +5,29 @@ type MatchInput struct {
 	Bride BirthInput `json:"bride"`
 }
 
+// MatchmakingResult is the /api/vivaha-pontana response. It is organised in sections:
+//
+//	rule_set    which rule set and ayanamsa were used
+//	groom/bride each person: name, Moon details, individual chart risks
+//	lagna       ascendant compatibility (informational)
+//	ashtakoota  the eight scored kootas (36 points) and the summary
+//	checks      the other compatibility checks (not scored): each one satisfied or not
+type MatchmakingResult struct {
+	RuleSet    RuleSetInfo        `json:"rule_set"`
+	Groom      PersonMatchDetails `json:"groom"`
+	Bride      PersonMatchDetails `json:"bride"`
+	Lagna      LagnaCompatibility `json:"lagna"`
+	Ashtakoota Ashtakoota         `json:"ashtakoota"`
+	Checks     Checks             `json:"checks"`
+}
+
+type RuleSetInfo struct {
+	Name     string `json:"name"`
+	Ayanamsa string `json:"ayanamsa"`
+}
+
+// ---- people ----
+
 type MoonDetails struct {
 	Longitude     float64 `json:"longitude"`
 	Sign          string  `json:"sign"`
@@ -33,12 +56,66 @@ type PersonMatchDetails struct {
 	Risks IndividualRisks `json:"risks"`
 }
 
-type KootaResult struct {
-	Score       float64 `json:"score"`
-	Maximum     float64 `json:"maximum"`
-	GroomValue  string  `json:"groom_value,omitempty"`
-	BrideValue  string  `json:"bride_value,omitempty"`
-	Explanation string  `json:"explanation"`
+// ---- lagna ----
+
+// LagnaCompatibility compares the two ascendants. Distance is counted from the bride's lagna to the
+// groom's. Quality is Auspicious (1, 3, 5, 9, 11), Moderate (2, 7) or Inauspicious (4, 6, 8, 10, 12).
+type LagnaCompatibility struct {
+	GroomLagna        string `json:"groom_lagna"`
+	BrideLagna        string `json:"bride_lagna"`
+	GroomLagnaLord    string `json:"groom_lagna_lord"`
+	BrideLagnaLord    string `json:"bride_lagna_lord"`
+	Distance          int    `json:"distance"`
+	Quality           string `json:"quality"`
+	IsAuspicious      bool   `json:"is_auspicious"`
+	LordsRelationship string `json:"lords_relationship"`
+}
+
+// ---- ashtakoota (scored) ----
+
+type Ashtakoota struct {
+	Kootas  Kootas       `json:"kootas"`
+	Summary MatchSummary `json:"summary"`
+}
+
+type Kootas struct {
+	Varna       Koota `json:"varna"`
+	Vashya      Koota `json:"vashya"`
+	Tara        Koota `json:"tara"`
+	Yoni        Koota `json:"yoni"`
+	GrahaMaitri Koota `json:"graha_maitri"`
+	Gana        Koota `json:"gana"`
+	Bhakoot     Koota `json:"bhakoot"`
+	Nadi        Koota `json:"nadi"`
+}
+
+// Koota is one scored koota. Every koota has the same shape.
+//
+//	raw_score   the score before any cancellation
+//	score       the score counted in the total (equals raw_score unless a cancellation applied)
+//	groom/bride the value each person was classified as (varna, rasi, nakshatra, animal, lord, gana, nadi)
+//	dosha       true only for the kootas that have a named dosha (bhakoot, nadi) when it is present
+//	suggestion  a rule that may apply but is deliberately not counted in the score
+//	details     extra fields specific to the koota (tara, graha_maitri, bhakoot)
+type Koota struct {
+	Name                string  `json:"name"`
+	Maximum             float64 `json:"maximum"`
+	RawScore            float64 `json:"raw_score"`
+	Score               float64 `json:"score"`
+	Groom               string  `json:"groom"`
+	Bride               string  `json:"bride"`
+	Dosha               bool    `json:"dosha"`
+	CancellationApplied bool    `json:"cancellation_applied"`
+	CancellationReason  string  `json:"cancellation_reason,omitempty"`
+	Suggestion          string  `json:"suggestion,omitempty"`
+	Explanation         string  `json:"explanation"`
+	Details             any     `json:"details,omitempty"`
+}
+
+// TaraDetails are the two directional counts behind the Tara koota.
+type TaraDetails struct {
+	GroomToBride TaraDirection `json:"groom_to_bride"`
+	BrideToGroom TaraDirection `json:"bride_to_groom"`
 }
 
 type TaraDirection struct {
@@ -48,72 +125,19 @@ type TaraDirection struct {
 	Score          float64 `json:"score"`
 }
 
-type TaraKootaResult struct {
-	Score        float64       `json:"score"`
-	Maximum      float64       `json:"maximum"`
-	GroomToBride TaraDirection `json:"groom_to_bride"`
-	BrideToGroom TaraDirection `json:"bride_to_groom"`
-	Explanation  string        `json:"explanation"`
+// GrahaMaitriDetails: the koota's groom/bride values are the two rashi lords.
+type GrahaMaitriDetails struct {
+	GroomRashi                       string `json:"groom_rashi"`
+	BrideRashi                       string `json:"bride_rashi"`
+	GroomLordRelationshipToBrideLord string `json:"groom_lord_relationship_to_bride_lord"`
+	BrideLordRelationshipToGroomLord string `json:"bride_lord_relationship_to_groom_lord"`
 }
 
-type GrahaMaitriResult struct {
-	Score                            float64 `json:"score"`
-	Maximum                          float64 `json:"maximum"`
-	GroomRashi                       string  `json:"groom_rashi"`
-	BrideRashi                       string  `json:"bride_rashi"`
-	GroomRashiLord                   string  `json:"groom_rashi_lord"`
-	BrideRashiLord                   string  `json:"bride_rashi_lord"`
-	GroomLordRelationshipToBrideLord string  `json:"groom_lord_relationship_to_bride_lord"`
-	BrideLordRelationshipToGroomLord string  `json:"bride_lord_relationship_to_groom_lord"`
-	Explanation                      string  `json:"explanation"`
-}
-
-type BhakootResult struct {
-	RawScore             float64 `json:"raw_score"`
-	EffectiveScore       float64 `json:"effective_score"`
-	Maximum              float64 `json:"maximum"`
-	GroomRashi           string  `json:"groom_rashi"`
-	BrideRashi           string  `json:"bride_rashi"`
-	GroomToBrideDistance int     `json:"groom_to_bride_distance"`
-	BrideToGroomDistance int     `json:"bride_to_groom_distance"`
-	Relationship         string  `json:"relationship"`
-	Dosha                bool    `json:"dosha"`
-	CancellationApplied  bool    `json:"cancellation_applied"`
-	CancellationReason   string  `json:"cancellation_reason,omitempty"`
-	Explanation          string  `json:"explanation"`
-}
-
-type NadiResult struct {
-	RawScore            float64 `json:"raw_score"`
-	EffectiveScore      float64 `json:"effective_score"`
-	Maximum             float64 `json:"maximum"`
-	GroomNadi           string  `json:"groom_nadi"`
-	BrideNadi           string  `json:"bride_nadi"`
-	SameNadi            bool    `json:"same_nadi"`
-	Dosha               bool    `json:"dosha"`
-	CancellationApplied bool    `json:"cancellation_applied"`
-	CancellationReason  string  `json:"cancellation_reason,omitempty"`
-	Explanation         string  `json:"explanation"`
-}
-
-type RajjuResult struct {
-	GroomRajju          string `json:"groom_rajju"`
-	BrideRajju          string `json:"bride_rajju"`
-	Dosha               bool   `json:"dosha"`
-	CancellationApplied bool   `json:"cancellation_applied"`
-	CancellationReason  string `json:"cancellation_reason,omitempty"`
-	Explanation         string `json:"explanation"`
-}
-type Kootas struct {
-	Varna       KootaResult       `json:"varna"`
-	Vashya      KootaResult       `json:"vashya"`
-	Tara        TaraKootaResult   `json:"tara"`
-	Yoni        KootaResult       `json:"yoni"`
-	GrahaMaitri GrahaMaitriResult `json:"graha_maitri"`
-	Gana        KootaResult       `json:"gana"`
-	Bhakoot     BhakootResult     `json:"bhakoot"`
-	Nadi        NadiResult        `json:"nadi"`
-	Rajju       RajjuResult       `json:"rajju"`
+// BhakootDetails: the koota's groom/bride values are the two Moon signs.
+type BhakootDetails struct {
+	GroomToBrideDistance int    `json:"groom_to_bride_distance"`
+	BrideToGroomDistance int    `json:"bride_to_groom_distance"`
+	Relationship         string `json:"relationship"`
 }
 
 type MatchSummary struct {
@@ -124,38 +148,42 @@ type MatchSummary struct {
 	TraditionalThresholdMet bool    `json:"traditional_threshold_met"`
 }
 
-type DoshaCheck struct {
-	HasDosha    bool   `json:"has_dosha"`
-	Explanation string `json:"explanation"`
+// ---- checks (not scored) ----
+
+// Checks are compatibility checks that do not add to the 36 points. Each is a Check:
+// satisfied is true when there is no outstanding problem.
+type Checks struct {
+	Rajju        Check `json:"rajju"`
+	Vedha        Check `json:"vedha"`
+	Mahendra     Check `json:"mahendra"`
+	StreeDeergha Check `json:"stree_deergha"`
+	MrugaVairam  Check `json:"mruga_vairam"`
+	SpecialTara  Check `json:"special_tara"`
+	KalaSarpa    Check `json:"kala_sarpa"`
 }
 
-type MatchDoshas struct {
-	KalaSarpaMatch DoshaCheck `json:"kala_sarpa_match"`
-	MrugaVairam    DoshaCheck `json:"mruga_vairam"`
-	SpecialTara    DoshaCheck `json:"special_tara"`
+// Check is one non-scored check. groom/bride describe what each person was classified as
+// (rajju group, nakshatra, yoni animal, or Present/Absent for kala sarpa).
+type Check struct {
+	Name                string `json:"name"`
+	Satisfied           bool   `json:"satisfied"`
+	Groom               string `json:"groom,omitempty"`
+	Bride               string `json:"bride,omitempty"`
+	CancellationApplied bool   `json:"cancellation_applied,omitempty"`
+	CancellationReason  string `json:"cancellation_reason,omitempty"`
+	Explanation         string `json:"explanation"`
+	Details             any    `json:"details,omitempty"`
 }
 
-type LagnaCompatibility struct {
-	BrideLagna        string `json:"bride_lagna"`
-	GroomLagna        string `json:"groom_lagna"`
-	Distance          int    `json:"distance"`
-	IsAuspicious      bool   `json:"is_auspicious"`
-	BrideLagnaLord    string `json:"bride_lagna_lord"`
-	GroomLagnaLord    string `json:"groom_lagna_lord"`
-	LordsRelationship string `json:"lords_relationship"`
+// CountDetails: the count from the bride's nakshatra to the groom's (inclusive).
+type CountDetails struct {
+	BrideToGroomCount int `json:"bride_to_groom_count"`
 }
 
-type RuleSetInfo struct {
-	Name     string `json:"name"`
-	Ayanamsa string `json:"ayanamsa"`
-}
-
-type MatchmakingResult struct {
-	RuleSet    RuleSetInfo        `json:"rule_set"`
-	Groom      PersonMatchDetails `json:"groom"`
-	Bride      PersonMatchDetails `json:"bride"`
-	LagnaMatch LagnaCompatibility `json:"lagna_match"`
-	Kootas     Kootas             `json:"kootas"`
-	Doshas     MatchDoshas        `json:"doshas"`
-	Summary    MatchSummary       `json:"summary"`
+type StreeDeerghaDetails struct {
+	BrideToGroomCount           int    `json:"bride_to_groom_count"`
+	Navaka                      int    `json:"navaka"`
+	Quality                     string `json:"quality"`
+	SatisfiedByAlternateOpinion bool   `json:"satisfied_by_alternate_opinion"`
+	ExceptionApplies            bool   `json:"exception_applies"`
 }

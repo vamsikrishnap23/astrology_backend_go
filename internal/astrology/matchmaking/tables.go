@@ -1,6 +1,6 @@
 package matchmaking
 
-// classical-guna-milan-v1
+// classical-guna-milan-v2
 
 var Nakshatras = []string{
 	"Ashwini", "Bharani", "Krittika", "Rohini", "Mrigashira", "Ardra",
@@ -40,27 +40,22 @@ var VarnaRank = map[string]int{
 	"Shudra":    1,
 }
 
-// 2. Vashya Mapping (2 points)
-// Aries: Chatuspada, Taurus: Chatuspada, Gemini: Manav (Biped), Cancer: Jalchar
-// Leo: Vanchar (Wild), Virgo: Manav, Libra: Manav, Scorpio: Keeta (Insect)
-// Sagittarius: 1st half Biped, 2nd half Chatuspada (we'll just use Chatuspada as classical generic, or split)
-// Wait, classic Vashya: Sagittarius is Kshatriya/Chatuspada, Capricorn is Jalchar (1st half Chatuspada, 2nd half Jalchar).
-// Let's use standard simplified: Sagittarius=Chatuspada, Capricorn=Jalchar, Aquarius=Manav, Pisces=Jalchar
-var VashyaMapping = map[string]string{
-	"Aries": "Chatuspada", "Taurus": "Chatuspada", "Gemini": "Manav", "Cancer": "Jalchar",
-	"Leo": "Vanchar", "Virgo": "Manav", "Libra": "Manav", "Scorpio": "Keeta",
-	"Sagittarius": "Chatuspada", "Capricorn": "Jalchar", "Aquarius": "Manav", "Pisces": "Jalchar",
-}
-
-// Vashya Scores [Groom][Bride]
-// Manav, Chatuspada, Jalchar, Vanchar, Keeta
-// Same: 2, Enemy: 0, Friendly/Neutral: 1, 0.5 (We'll use classical table)
-var VashyaScores = map[string]map[string]float64{
-	"Manav":      {"Manav": 2, "Chatuspada": 1, "Jalchar": 1, "Vanchar": 0, "Keeta": 1},
-	"Chatuspada": {"Manav": 1, "Chatuspada": 2, "Jalchar": 1, "Vanchar": 0, "Keeta": 1},
-	"Jalchar":    {"Manav": 1, "Chatuspada": 1, "Jalchar": 2, "Vanchar": 1, "Keeta": 1},
-	"Vanchar":    {"Manav": 0, "Chatuspada": 0, "Jalchar": 1, "Vanchar": 2, "Keeta": 0},
-	"Keeta":      {"Manav": 1, "Chatuspada": 1, "Jalchar": 1, "Vanchar": 0, "Keeta": 2},
+// 2. Vashya (2 points): the book's table (pp. 69-70). Each rasi lists the rasis that are vashya to it;
+// a couple scores 2 if either rasi lists the other. The old 5-animal-category rule was removed.
+// NOTE: the book prints Aries as "Leo, Virgo" (common tables: "Leo, Scorpio"); kept as printed.
+var VashyaRasis = map[string][]string{
+	"Aries":       {"Leo", "Virgo"},
+	"Taurus":      {"Cancer", "Libra"},
+	"Gemini":      {"Virgo"},
+	"Cancer":      {"Scorpio", "Sagittarius"},
+	"Leo":         {"Libra"},
+	"Virgo":       {"Pisces", "Gemini"},
+	"Libra":       {"Capricorn", "Virgo"},
+	"Scorpio":     {"Cancer"},
+	"Sagittarius": {"Pisces"},
+	"Capricorn":   {"Aries", "Aquarius"},
+	"Aquarius":    {"Aries"},
+	"Pisces":      {"Capricorn"},
 }
 
 // 4. Yoni Mapping (4 points)
@@ -117,11 +112,17 @@ var NakshatraGana = map[string]string{
 	"Shatabhisha": "Rakshasa",
 }
 
-// Row=Groom, Col=Bride
+// Row=Bride, Col=Groom (published table: a Deva bride with a Manushya groom scores 6, a Manushya bride
+// with a Deva groom scores 5, a Deva bride with a Rakshasa groom 0, a Rakshasa bride with a Deva groom 1).
 var GanaScores = map[string]map[string]float64{
-	"Deva":     {"Deva": 6, "Manushya": 6, "Rakshasa": 1},
+	"Deva":     {"Deva": 6, "Manushya": 6, "Rakshasa": 0},
 	"Manushya": {"Deva": 5, "Manushya": 6, "Rakshasa": 0},
 	"Rakshasa": {"Deva": 1, "Manushya": 0, "Rakshasa": 6},
+}
+
+// Bride nakshatras whose gana score is raised to the full 6 whatever the groom's gana.
+var GanaExemptBrideNakshatras = map[string]bool{
+	"Ashlesha": true, "Chitra": true, "Vishakha": true, "Jyeshtha": true, "Mula": true, "Shatabhisha": true,
 }
 
 // 8. Nadi Koota (8 points)
@@ -146,7 +147,8 @@ var NakshatraRajju = map[string]string{
 	"Dhanishta": "Shiro", "Shatabhisha": "Kantha", "Purva Bhadrapada": "Nabhi", "Uttara Bhadrapada": "Uru", "Revati": "Pada",
 }
 
-// Jaimini Maharshi Nadi Exceptions
+// Jaimini Maharshi Nadi Exceptions (21 nakshatras). Not applied to the Nadi score: when both nakshatras
+// are in this list the rule is only reported in NadiResult.Suggestion.
 var JaiminiNadiExceptions = map[string]bool{
 	"Uttara Phalguni": true, "Shatabhisha": true, "Purva Bhadrapada": true, "Punarvasu": true, "Ardra": true, "Mula": true, "Ashwini": true, // Adi
 	"Purva Ashadha": true, "Anuradha": true, "Dhanishta": true, "Pushya": true, "Chitra": true, "Purva Phalguni": true, "Mrigashira": true, // Madhya

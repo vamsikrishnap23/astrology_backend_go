@@ -12,6 +12,9 @@ import (
 )
 
 func buildContext(input domain.BirthInput) (*domain.CalculationContext, error) {
+	// Matchmaking always uses the Lahiri ayanamsa, whatever the request says.
+	input.Ayanamsa = "Lahiri"
+
 	utcTime, err := astronomyTime.ParseLocalToUTC(input.DateOfBirth, input.TimeOfBirth, input.Timezone)
 	if err != nil {
 		return nil, err
