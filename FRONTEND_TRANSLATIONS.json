@@ -1,17 +1,254 @@
 {
-  "_comment": "This file contains exact string outputs from the backend mapped to English display names and Telugu terminology for React i18n mapping.",
-  "categories": {
-    "lagna_match": {
-      "en": "Ascendant Compatibility",
-      "te": "లగ్న కూటమి (Lagna Kootami)"
+  "_comment": "Translation mapping for POST /api/vivaha-pontana. Every key, enumerated value and piece of text the endpoint can output is covered; TestTranslationsCoverEveryOutputString (internal/astrology/matchmaking) fails if the backend can emit anything that is missing here. English is the backend's exact output; te is Telugu.",
+  "_usage": [
+    "1. JSON key names: look them up in `fields` (en/te label). The 8 koota keys under ashtakoota.kootas use `kootas`, the 7 keys under checks use `checks`, the 4 keys under groom.risks / bride.risks use `risks`.",
+    "2. Enumerated values (signs, nakshatras, planets, yoni animals, ganas, varnas, nadis, rajju groups, taras, relationships, qualities): `enum_paths` says which `enums` set translates the value found at a JSON path ('*' stands for groom or bride). Look the value up in enums.<set>.<value>.te.",
+    "3. Free text (every `explanation`, `cancellation_reason`, `suggestion` and each item of `risk_factors`): first look the exact English text up in `strings`. If it is not there, match it against `templates`: turn the template into a regular expression by escaping it and replacing each {param} with (.+?), anchored at both ends; the first template whose parameters are all valid wins. Translate each captured value with the enum named in the template's `params` (null = copy the value unchanged, it is a number), then put them into the template's `te` text.",
+    "4. Numbers, scores, booleans and the bhakoot `relationship` distance string (for example 10/4) are shown as they are. Person names (groom.name, bride.name) are user input and are never translated.",
+    "5. The `name` field of a koota or check equals kootas.<key>.en / checks.<key>.en; prefer translating by the JSON key."
+  ],
+  "rule_sets": {
+    "classical-guna-milan-v2": {
+      "en": "Classical Guna Milan (v2)",
+      "te": "శాస్త్రీయ గుణ మిలనం (v2)"
+    }
+  },
+  "fields": {
+    "rule_set": {
+      "en": "Rule set",
+      "te": "నియమావళి"
     },
-    "doshas": {
-      "en": "Mutual Fatal Flaws",
-      "te": "పరస్పర దోషాలు"
+    "name": {
+      "en": "Name",
+      "te": "పేరు"
+    },
+    "ayanamsa": {
+      "en": "Ayanamsa",
+      "te": "అయనాంశం"
+    },
+    "groom": {
+      "en": "Groom",
+      "te": "వరుడు"
+    },
+    "bride": {
+      "en": "Bride",
+      "te": "వధువు"
+    },
+    "moon": {
+      "en": "Moon",
+      "te": "చంద్రుడు"
     },
     "risks": {
-      "en": "Individual Chart Risks",
+      "en": "Individual chart risks",
       "te": "వ్యక్తిగత జాతక దోషాలు"
+    },
+    "has_risk": {
+      "en": "Risk present",
+      "te": "ప్రమాదం ఉంది"
+    },
+    "risk_factors": {
+      "en": "Risk factors",
+      "te": "కారణాలు"
+    },
+    "longitude": {
+      "en": "Longitude",
+      "te": "రేఖాంశం"
+    },
+    "sign": {
+      "en": "Sign",
+      "te": "రాశి"
+    },
+    "degree": {
+      "en": "Degree in sign",
+      "te": "రాశిలో అంశ"
+    },
+    "nakshatra": {
+      "en": "Nakshatra",
+      "te": "నక్షత్రం"
+    },
+    "pada": {
+      "en": "Pada",
+      "te": "పాదం"
+    },
+    "nakshatra_lord": {
+      "en": "Nakshatra lord",
+      "te": "నక్షత్రాధిపతి"
+    },
+    "rashi_lord": {
+      "en": "Rashi lord",
+      "te": "రాశ్యాధిపతి"
+    },
+    "lagna": {
+      "en": "Ascendant compatibility",
+      "te": "లగ్న కూటమి"
+    },
+    "groom_lagna": {
+      "en": "Groom's lagna",
+      "te": "వరుని లగ్నం"
+    },
+    "bride_lagna": {
+      "en": "Bride's lagna",
+      "te": "వధువు లగ్నం"
+    },
+    "groom_lagna_lord": {
+      "en": "Groom's lagna lord",
+      "te": "వరుని లగ్నాధిపతి"
+    },
+    "bride_lagna_lord": {
+      "en": "Bride's lagna lord",
+      "te": "వధువు లగ్నాధిపతి"
+    },
+    "distance": {
+      "en": "Distance from bride's lagna to groom's",
+      "te": "వధువు లగ్నం నుండి వరుని లగ్నానికి దూరం"
+    },
+    "quality": {
+      "en": "Quality",
+      "te": "స్థాయి"
+    },
+    "is_auspicious": {
+      "en": "Auspicious",
+      "te": "శుభం"
+    },
+    "lords_relationship": {
+      "en": "Relationship of the lords",
+      "te": "అధిపతుల సంబంధం"
+    },
+    "ashtakoota": {
+      "en": "Ashtakoota (36 points)",
+      "te": "అష్టకూటం (36 పాయింట్లు)"
+    },
+    "kootas": {
+      "en": "Kootas",
+      "te": "కూటాలు"
+    },
+    "summary": {
+      "en": "Summary",
+      "te": "సారాంశం"
+    },
+    "raw_total": {
+      "en": "Raw total",
+      "te": "ముడి మొత్తం"
+    },
+    "effective_total": {
+      "en": "Effective total",
+      "te": "ప్రభావిత మొత్తం"
+    },
+    "maximum": {
+      "en": "Maximum",
+      "te": "గరిష్టం"
+    },
+    "percentage": {
+      "en": "Percentage",
+      "te": "శాతం"
+    },
+    "traditional_threshold_met": {
+      "en": "Traditional minimum (18) met",
+      "te": "సంప్రదాయ కనీసం (18) సాధించారు"
+    },
+    "checks": {
+      "en": "Other checks",
+      "te": "ఇతర పరిశీలనలు"
+    },
+    "raw_score": {
+      "en": "Raw score",
+      "te": "ముడి స్కోర్"
+    },
+    "score": {
+      "en": "Score (counted in the total)",
+      "te": "స్కోర్ (మొత్తంలో లెక్కించినది)"
+    },
+    "dosha": {
+      "en": "Dosha",
+      "te": "దోషం"
+    },
+    "cancellation_applied": {
+      "en": "Cancellation applied",
+      "te": "పరిహారం వర్తించింది"
+    },
+    "cancellation_reason": {
+      "en": "Cancellation reason",
+      "te": "పరిహార కారణం"
+    },
+    "suggestion": {
+      "en": "Suggestion",
+      "te": "సూచన"
+    },
+    "explanation": {
+      "en": "Explanation",
+      "te": "వివరణ"
+    },
+    "details": {
+      "en": "Details",
+      "te": "వివరాలు"
+    },
+    "groom_to_bride": {
+      "en": "Groom to bride",
+      "te": "వరుడు నుండి వధువు"
+    },
+    "bride_to_groom": {
+      "en": "Bride to groom",
+      "te": "వధువు నుండి వరుడు"
+    },
+    "nakshatra_count": {
+      "en": "Nakshatra count",
+      "te": "నక్షత్ర సంఖ్య"
+    },
+    "tara": {
+      "en": "Tara",
+      "te": "తార"
+    },
+    "auspicious": {
+      "en": "Auspicious",
+      "te": "శుభం"
+    },
+    "groom_rashi": {
+      "en": "Groom's rashi",
+      "te": "వరుని రాశి"
+    },
+    "bride_rashi": {
+      "en": "Bride's rashi",
+      "te": "వధువు రాశి"
+    },
+    "groom_lord_relationship_to_bride_lord": {
+      "en": "Groom's lord towards bride's lord",
+      "te": "వరుని అధిపతికి వధువు అధిపతితో సంబంధం"
+    },
+    "bride_lord_relationship_to_groom_lord": {
+      "en": "Bride's lord towards groom's lord",
+      "te": "వధువు అధిపతికి వరుని అధిపతితో సంబంధం"
+    },
+    "groom_to_bride_distance": {
+      "en": "Distance from groom's rashi to bride's",
+      "te": "వరుని రాశి నుండి వధువు రాశికి దూరం"
+    },
+    "bride_to_groom_distance": {
+      "en": "Distance from bride's rashi to groom's",
+      "te": "వధువు రాశి నుండి వరుని రాశికి దూరం"
+    },
+    "relationship": {
+      "en": "Relationship (distances)",
+      "te": "సంబంధం (దూరాలు)"
+    },
+    "satisfied": {
+      "en": "Satisfied",
+      "te": "సరిపోయింది"
+    },
+    "bride_to_groom_count": {
+      "en": "Count from bride's nakshatra to groom's",
+      "te": "వధువు నక్షత్రం నుండి వరుని నక్షత్రం వరకు లెక్క"
+    },
+    "navaka": {
+      "en": "Navaka",
+      "te": "నవకం"
+    },
+    "satisfied_by_alternate_opinion": {
+      "en": "Satisfied by the alternate opinion",
+      "te": "ప్రత్యామ్నాయ అభిప్రాయం ప్రకారం సరిపోతుంది"
+    },
+    "exception_applies": {
+      "en": "Exception applies",
+      "te": "మినహాయింపు వర్తిస్తుంది"
     }
   },
   "kootas": {
@@ -24,8 +261,8 @@
       "te": "వశ్య (Vashya)"
     },
     "tara": {
-      "en": "Tara Balam",
-      "te": "తారా బలం (Tara Balam)"
+      "en": "Tara",
+      "te": "తార / దినకూటం (Tara)"
     },
     "yoni": {
       "en": "Yoni",
@@ -40,55 +277,45 @@
       "te": "గణ (Gana)"
     },
     "bhakoot": {
-      "en": "Bhakoot (Rasi)",
+      "en": "Bhakoot",
       "te": "రాశి కూటమి (Bhakoot)"
     },
     "nadi": {
       "en": "Nadi",
       "te": "నాడి (Nadi)"
-    },
+    }
+  },
+  "checks": {
     "rajju": {
       "en": "Rajju",
       "te": "రజ్జు (Rajju)"
-    }
-  },
-  "rajju_types": {
-    "Shiro": {
-      "en": "Head (Shiro)",
-      "te": "శిరో రజ్జు (Head)"
     },
-    "Kantha": {
-      "en": "Neck (Kantha)",
-      "te": "కంఠ రజ్జు (Neck)"
+    "vedha": {
+      "en": "Vedha",
+      "te": "వేధ (Vedha)"
     },
-    "Nabhi": {
-      "en": "Navel (Nabhi)",
-      "te": "నాభి రజ్జు (Navel)"
+    "mahendra": {
+      "en": "Mahendra",
+      "te": "మహేంద్రం (Mahendra)"
     },
-    "Kati": {
-      "en": "Waist (Kati)",
-      "te": "కటి రజ్జు (Waist)"
-    },
-    "Pada": {
-      "en": "Feet (Pada)",
-      "te": "పాద రజ్జు (Feet)"
-    }
-  },
-  "mutual_doshas": {
-    "kala_sarpa_match": {
-      "en": "Kala Sarpa Match",
-      "te": "కాలసర్ప దోషం"
+    "stree_deergha": {
+      "en": "Stree Deergha",
+      "te": "స్త్రీ దీర్ఘం (Stree Deergha)"
     },
     "mruga_vairam": {
-      "en": "Animal Enmity",
-      "te": "మృగ వైరం"
+      "en": "Mruga Vairam",
+      "te": "మృగ వైరం (Mruga Vairam)"
     },
     "special_tara": {
-      "en": "Inauspicious Star Pair",
+      "en": "Special Tara",
       "te": "అశుభ కూర్పు (Ashubha Kurpu)"
+    },
+    "kala_sarpa": {
+      "en": "Kala Sarpa",
+      "te": "కాలసర్ప దోషం (Kala Sarpa)"
     }
   },
-  "individual_risks": {
+  "risks": {
     "vaidhavya_dosham": {
       "en": "Widowhood Risk (Vaidhavya)",
       "te": "వైధవ్య దోషం / అల్పాయుష్షు"
@@ -106,25 +333,520 @@
       "te": "దాంపత్య మారకత్వ దోషం"
     }
   },
-  "relationships": {
-    "Friendly": {
-      "en": "Friendly",
-      "te": "మిత్ర (Mitra)"
+  "enums": {
+    "ayanamsas": {
+      "Lahiri": {
+        "en": "Lahiri (Chitrapaksha)",
+        "te": "లాహిరి (చిత్రపక్ష)"
+      }
     },
-    "Inimical": {
-      "en": "Inimical / Enemies",
-      "te": "శత్రు (Shatru)"
+    "planets": {
+      "Sun": {
+        "en": "Sun",
+        "te": "రవి / సూర్య"
+      },
+      "Moon": {
+        "en": "Moon",
+        "te": "చంద్ర"
+      },
+      "Mars": {
+        "en": "Mars",
+        "te": "కుజ / అంగారక"
+      },
+      "Mercury": {
+        "en": "Mercury",
+        "te": "బుధ"
+      },
+      "Jupiter": {
+        "en": "Jupiter",
+        "te": "గురు / బృహస్పతి"
+      },
+      "Venus": {
+        "en": "Venus",
+        "te": "శుక్ర"
+      },
+      "Saturn": {
+        "en": "Saturn",
+        "te": "శని"
+      },
+      "Rahu": {
+        "en": "Rahu",
+        "te": "రాహు"
+      },
+      "Ketu": {
+        "en": "Ketu",
+        "te": "కేతు"
+      }
     },
-    "Neutral": {
-      "en": "Neutral",
-      "te": "సమ (Sama)"
+    "signs": {
+      "Aries": {
+        "en": "Aries",
+        "te": "మేషం"
+      },
+      "Taurus": {
+        "en": "Taurus",
+        "te": "వృషభం"
+      },
+      "Gemini": {
+        "en": "Gemini",
+        "te": "మిథునం"
+      },
+      "Cancer": {
+        "en": "Cancer",
+        "te": "కర్కాటకం"
+      },
+      "Leo": {
+        "en": "Leo",
+        "te": "సింహం"
+      },
+      "Virgo": {
+        "en": "Virgo",
+        "te": "కన్య"
+      },
+      "Libra": {
+        "en": "Libra",
+        "te": "తుల"
+      },
+      "Scorpio": {
+        "en": "Scorpio",
+        "te": "వృశ్చికం"
+      },
+      "Sagittarius": {
+        "en": "Sagittarius",
+        "te": "ధనుస్సు"
+      },
+      "Capricorn": {
+        "en": "Capricorn",
+        "te": "మకరం"
+      },
+      "Aquarius": {
+        "en": "Aquarius",
+        "te": "కుంభం"
+      },
+      "Pisces": {
+        "en": "Pisces",
+        "te": "మీనం"
+      }
     },
-    "Same": {
-      "en": "Same / Identical",
-      "te": "సమాన (Samana)"
+    "nakshatras": {
+      "Ashwini": {
+        "en": "Ashwini",
+        "te": "అశ్వని"
+      },
+      "Bharani": {
+        "en": "Bharani",
+        "te": "భరణి"
+      },
+      "Krittika": {
+        "en": "Krittika",
+        "te": "కృత్తిక"
+      },
+      "Rohini": {
+        "en": "Rohini",
+        "te": "రోహిణి"
+      },
+      "Mrigashira": {
+        "en": "Mrigashira",
+        "te": "మృగశిర"
+      },
+      "Ardra": {
+        "en": "Ardra",
+        "te": "ఆర్ద్ర"
+      },
+      "Punarvasu": {
+        "en": "Punarvasu",
+        "te": "పునర్వసు"
+      },
+      "Pushya": {
+        "en": "Pushya",
+        "te": "పుష్యమి"
+      },
+      "Ashlesha": {
+        "en": "Ashlesha",
+        "te": "ఆశ్లేష"
+      },
+      "Magha": {
+        "en": "Magha",
+        "te": "మఖ"
+      },
+      "Purva Phalguni": {
+        "en": "Purva Phalguni",
+        "te": "పూర్వ ఫల్గుణి (పుబ్బ)"
+      },
+      "Uttara Phalguni": {
+        "en": "Uttara Phalguni",
+        "te": "ఉత్తర ఫల్గుణి (ఉత్తర)"
+      },
+      "Hasta": {
+        "en": "Hasta",
+        "te": "హస్త"
+      },
+      "Chitra": {
+        "en": "Chitra",
+        "te": "చిత్త"
+      },
+      "Swati": {
+        "en": "Swati",
+        "te": "స్వాతి"
+      },
+      "Vishakha": {
+        "en": "Vishakha",
+        "te": "విశాఖ"
+      },
+      "Anuradha": {
+        "en": "Anuradha",
+        "te": "అనూరాధ"
+      },
+      "Jyeshtha": {
+        "en": "Jyeshtha",
+        "te": "జ్యేష్ఠ"
+      },
+      "Mula": {
+        "en": "Mula",
+        "te": "మూల"
+      },
+      "Purva Ashadha": {
+        "en": "Purva Ashadha",
+        "te": "పూర్వాషాఢ"
+      },
+      "Uttara Ashadha": {
+        "en": "Uttara Ashadha",
+        "te": "ఉత్తరాషాఢ"
+      },
+      "Shravana": {
+        "en": "Shravana",
+        "te": "శ్రవణం"
+      },
+      "Dhanishta": {
+        "en": "Dhanishta",
+        "te": "ధనిష్ఠ"
+      },
+      "Shatabhisha": {
+        "en": "Shatabhisha",
+        "te": "శతభిషం"
+      },
+      "Purva Bhadrapada": {
+        "en": "Purva Bhadrapada",
+        "te": "పూర్వాభాద్ర"
+      },
+      "Uttara Bhadrapada": {
+        "en": "Uttara Bhadrapada",
+        "te": "ఉత్తరాభాద్ర"
+      },
+      "Revati": {
+        "en": "Revati",
+        "te": "రేవతి"
+      }
+    },
+    "yoni_animals": {
+      "Horse": {
+        "en": "Horse",
+        "te": "అశ్వం (గుర్రం)"
+      },
+      "Elephant": {
+        "en": "Elephant",
+        "te": "గజం (ఏనుగు)"
+      },
+      "Sheep": {
+        "en": "Sheep",
+        "te": "మేషం (గొర్రె)"
+      },
+      "Serpent": {
+        "en": "Serpent",
+        "te": "సర్పం (పాము)"
+      },
+      "Dog": {
+        "en": "Dog",
+        "te": "శ్వానం (కుక్క)"
+      },
+      "Cat": {
+        "en": "Cat",
+        "te": "మార్జాలం (పిల్లి)"
+      },
+      "Rat": {
+        "en": "Rat",
+        "te": "మూషికం (ఎలుక)"
+      },
+      "Cow": {
+        "en": "Cow",
+        "te": "గోవు (ఆవు)"
+      },
+      "Buffalo": {
+        "en": "Buffalo",
+        "te": "మహిషం (గేదె)"
+      },
+      "Tiger": {
+        "en": "Tiger",
+        "te": "వ్యాఘ్రం (పులి)"
+      },
+      "Hare": {
+        "en": "Hare",
+        "te": "మృగం (లేడి)"
+      },
+      "Monkey": {
+        "en": "Monkey",
+        "te": "వానరం (కోతి)"
+      },
+      "Mongoose": {
+        "en": "Mongoose",
+        "te": "నకులం (ముంగిస)"
+      },
+      "Lion": {
+        "en": "Lion",
+        "te": "సింహం"
+      }
+    },
+    "ganas": {
+      "Deva": {
+        "en": "Deva",
+        "te": "దేవ గణం"
+      },
+      "Manushya": {
+        "en": "Manushya",
+        "te": "మనుష్య గణం"
+      },
+      "Rakshasa": {
+        "en": "Rakshasa",
+        "te": "రాక్షస గణం"
+      }
+    },
+    "varnas": {
+      "Brahmin": {
+        "en": "Brahmin",
+        "te": "బ్రాహ్మణ"
+      },
+      "Kshatriya": {
+        "en": "Kshatriya",
+        "te": "క్షత్రియ"
+      },
+      "Vaishya": {
+        "en": "Vaishya",
+        "te": "వైశ్య"
+      },
+      "Shudra": {
+        "en": "Shudra",
+        "te": "శూద్ర"
+      }
+    },
+    "nadis": {
+      "Adi": {
+        "en": "Adi",
+        "te": "ఆది నాడి"
+      },
+      "Madhya": {
+        "en": "Madhya",
+        "te": "మధ్య నాడి"
+      },
+      "Antya": {
+        "en": "Antya",
+        "te": "అంత్య నాడి"
+      }
+    },
+    "rajju_groups": {
+      "Pada": {
+        "en": "Feet (Pada)",
+        "te": "పాద రజ్జు (Feet)"
+      },
+      "Uru": {
+        "en": "Thigh (Uru)",
+        "te": "ఊరు రజ్జు (Thigh)"
+      },
+      "Nabhi": {
+        "en": "Navel (Nabhi)",
+        "te": "నాభి రజ్జు (Navel)"
+      },
+      "Kantha": {
+        "en": "Neck (Kantha)",
+        "te": "కంఠ రజ్జు (Neck)"
+      },
+      "Shiro": {
+        "en": "Head (Shiro)",
+        "te": "శిరో రజ్జు (Head)"
+      }
+    },
+    "taras": {
+      "Janma": {
+        "en": "Janma",
+        "te": "జన్మ"
+      },
+      "Sampat": {
+        "en": "Sampat",
+        "te": "సంపత్"
+      },
+      "Vipat": {
+        "en": "Vipat",
+        "te": "విపత్"
+      },
+      "Kshema": {
+        "en": "Kshema",
+        "te": "క్షేమ"
+      },
+      "Pratyari": {
+        "en": "Pratyari",
+        "te": "ప్రత్యరి"
+      },
+      "Sadhaka": {
+        "en": "Sadhaka",
+        "te": "సాధక"
+      },
+      "Vadha": {
+        "en": "Vadha",
+        "te": "వధ"
+      },
+      "Mitra": {
+        "en": "Mitra",
+        "te": "మిత్ర"
+      },
+      "Ati-Mitra": {
+        "en": "Ati-Mitra",
+        "te": "అతిమిత్ర"
+      }
+    },
+    "lagna_quality": {
+      "Auspicious": {
+        "en": "Auspicious",
+        "te": "శుభం"
+      },
+      "Moderate": {
+        "en": "Moderate",
+        "te": "మధ్యమం"
+      },
+      "Inauspicious": {
+        "en": "Inauspicious",
+        "te": "అశుభం"
+      }
+    },
+    "lords_relationships": {
+      "Friendly": {
+        "en": "Friendly",
+        "te": "మిత్ర (Mitra)"
+      },
+      "Inimical": {
+        "en": "Inimical / Enemies",
+        "te": "శత్రు (Shatru)"
+      },
+      "Neutral": {
+        "en": "Neutral",
+        "te": "సమ (Sama)"
+      },
+      "Same": {
+        "en": "Same / Identical",
+        "te": "సమాన (Samana)"
+      }
+    },
+    "maitri_relationships": {
+      "Same": {
+        "en": "Same lord",
+        "te": "ఒకే అధిపతి"
+      },
+      "Friend": {
+        "en": "Friend",
+        "te": "మిత్రుడు"
+      },
+      "Neutral": {
+        "en": "Neutral",
+        "te": "సముడు (తటస్థుడు)"
+      },
+      "Enemy": {
+        "en": "Enemy",
+        "te": "శత్రువు"
+      }
+    },
+    "stree_deergha_quality": {
+      "Kalaham (quarrel)": {
+        "en": "Kalaham (quarrel)",
+        "te": "కలహం"
+      },
+      "Samanyam (average)": {
+        "en": "Samanyam (average)",
+        "te": "సామాన్యం"
+      },
+      "Shubham (auspicious)": {
+        "en": "Shubham (auspicious)",
+        "te": "శుభం"
+      }
+    },
+    "present_absent": {
+      "Present": {
+        "en": "Present",
+        "te": "ఉంది"
+      },
+      "Absent": {
+        "en": "Absent",
+        "te": "లేదు"
+      }
     }
   },
-  "risk_factors_backend_strings": {
+  "enum_paths": {
+    "*.moon.sign": "signs",
+    "*.moon.nakshatra": "nakshatras",
+    "*.moon.nakshatra_lord": "planets",
+    "*.moon.rashi_lord": "planets",
+    "rule_set.ayanamsa": "ayanamsas",
+    "lagna.groom_lagna": "signs",
+    "lagna.bride_lagna": "signs",
+    "lagna.groom_lagna_lord": "planets",
+    "lagna.bride_lagna_lord": "planets",
+    "lagna.quality": "lagna_quality",
+    "lagna.lords_relationship": "lords_relationships",
+    "ashtakoota.kootas.varna.groom": "varnas",
+    "ashtakoota.kootas.varna.bride": "varnas",
+    "ashtakoota.kootas.vashya.groom": "signs",
+    "ashtakoota.kootas.vashya.bride": "signs",
+    "ashtakoota.kootas.tara.groom": "nakshatras",
+    "ashtakoota.kootas.tara.bride": "nakshatras",
+    "ashtakoota.kootas.yoni.groom": "yoni_animals",
+    "ashtakoota.kootas.yoni.bride": "yoni_animals",
+    "ashtakoota.kootas.graha_maitri.groom": "planets",
+    "ashtakoota.kootas.graha_maitri.bride": "planets",
+    "ashtakoota.kootas.gana.groom": "ganas",
+    "ashtakoota.kootas.gana.bride": "ganas",
+    "ashtakoota.kootas.bhakoot.groom": "signs",
+    "ashtakoota.kootas.bhakoot.bride": "signs",
+    "ashtakoota.kootas.nadi.groom": "nadis",
+    "ashtakoota.kootas.nadi.bride": "nadis",
+    "ashtakoota.kootas.tara.details.groom_to_bride.tara": "taras",
+    "ashtakoota.kootas.tara.details.bride_to_groom.tara": "taras",
+    "ashtakoota.kootas.graha_maitri.details.groom_rashi": "signs",
+    "ashtakoota.kootas.graha_maitri.details.bride_rashi": "signs",
+    "ashtakoota.kootas.graha_maitri.details.groom_lord_relationship_to_bride_lord": "maitri_relationships",
+    "ashtakoota.kootas.graha_maitri.details.bride_lord_relationship_to_groom_lord": "maitri_relationships",
+    "checks.rajju.groom": "rajju_groups",
+    "checks.rajju.bride": "rajju_groups",
+    "checks.vedha.groom": "nakshatras",
+    "checks.vedha.bride": "nakshatras",
+    "checks.mahendra.groom": "nakshatras",
+    "checks.mahendra.bride": "nakshatras",
+    "checks.stree_deergha.groom": "nakshatras",
+    "checks.stree_deergha.bride": "nakshatras",
+    "checks.special_tara.groom": "nakshatras",
+    "checks.special_tara.bride": "nakshatras",
+    "checks.mruga_vairam.groom": "yoni_animals",
+    "checks.mruga_vairam.bride": "yoni_animals",
+    "checks.kala_sarpa.groom": "present_absent",
+    "checks.kala_sarpa.bride": "present_absent",
+    "checks.stree_deergha.details.quality": "stree_deergha_quality"
+  },
+  "strings": {
+    "Calculated cyclic distances between birth nakshatras.": "జన్మ నక్షత్రాల మధ్య చక్రీయ దూరాల లెక్క.",
+    "Natural relationship between moon sign lords.": "చంద్ర రాశ్యాధిపతుల మధ్య సహజ మైత్రి.",
+    "Nadi mapping.": "నాడి నిర్ణయం.",
+    "Sign distance between Moons.": "ఇద్దరి చంద్ర రాశుల మధ్య దూరం.",
+    "Sign distance between Moons. WARNING: Groom's Moon is 2nd from Bride's Moon (Risk of Vaidhavya/Poverty per Telugu rules).": "ఇద్దరి చంద్ర రాశుల మధ్య దూరం. హెచ్చరిక: వధువు చంద్రుడి నుండి వరుడి చంద్రుడు 2వ స్థానంలో ఉన్నాడు (వైధవ్య/దారిద్ర్య ప్రమాదం).",
+    "Sign distance between Moons. WARNING: Groom's Moon is 5th from Bride's Moon (Risk of Vaidhavya/Loss of children per Telugu rules).": "ఇద్దరి చంద్ర రాశుల మధ్య దూరం. హెచ్చరిక: వధువు చంద్రుడి నుండి వరుడి చంద్రుడు 5వ స్థానంలో ఉన్నాడు (సంతాన నష్టం/వైధవ్య ప్రమాదం).",
+    "Sign distance between Moons. WARNING: Groom's Moon is 3rd from Bride's Moon (Risk of Sorrows/Hardships).": "ఇద్దరి చంద్ర రాశుల మధ్య దూరం. హెచ్చరిక: వధువు చంద్రుడి నుండి వరుడి చంద్రుడు 3వ స్థానంలో ఉన్నాడు (కష్టాలు/దుఃఖం).",
+    "Sign distance between Moons. WARNING: Groom's Moon is 6th from Bride's Moon (Risk of Loss of children/Quarrels).": "ఇద్దరి చంద్ర రాశుల మధ్య దూరం. హెచ్చరిక: వధువు చంద్రుడి నుండి వరుడి చంద్రుడు 6వ స్థానంలో ఉన్నాడు (సంతాన నష్టం/కలహాలు).",
+    "Bhakoot dosha cancelled because this specific sign combination is highly auspicious.": "ఈ నిర్దిష్ట రాశి కలయిక అత్యంత శుభకరం అయినందున భకూట్ దోషం రద్దు చేయబడింది.",
+    "Bhakoot dosha cancelled because Rashi lords are same or friends (Graha Maitri).": "రాశ్యాధిపతులు ఒకరే లేదా మిత్రులు (గ్రహ మైత్రి) అయినందున భకూట్ దోషం రద్దు చేయబడింది.",
+    "Nadi dosha cancelled due to same Nakshatra but different Padas.": "ఒకే నక్షత్రం కానీ వేర్వేరు పాదాలు అయినందున నాడీ దోషం రద్దు చేయబడింది.",
+    "Nadi dosha cancelled due to same Rashi but different Nakshatras.": "ఒకే రాశి కానీ వేర్వేరు నక్షత్రాలు అయినందున నాడీ దోషం రద్దు చేయబడింది.",
+    "Rajju dosha cancelled because Rasi Lords are same or friendly.": "రాశ్యాధిపతులు ఒకరే లేదా మిత్రులు అయినందున రజ్జు దోషం రద్దు చేయబడింది.",
+    "Rajju dosha cancelled because Lagna Lords are same or friendly.": "లగ్నాధిపతులు ఒకరే లేదా మిత్రులు అయినందున రజ్జు దోషం రద్దు చేయబడింది.",
+    "The two nakshatras do not obstruct each other (no vedha).": "ఈ రెండు నక్షత్రాల మధ్య వేధ లేదు.",
+    "Checks if the Yoni (Animal) of the couple are natural enemies.": "ఇద్దరి యోని జంతువులు సహజ శత్రువులా అని పరిశీలిస్తుంది.",
+    "Checks for specifically rejected Tara combinations (Ashubha Kurpu).": "ప్రత్యేకంగా నిషిద్ధమైన తార కూర్పులను (అశుభ కూర్పు) పరిశీలిస్తుంది.",
+    "Checks if both Bride and Groom have Kala Sarpa Dosha. (If both have it, the match is rejected).": "వరుడు, వధువు ఇద్దరికీ కాలసర్ప దోషం ఉందా అని పరిశీలిస్తుంది. (ఇద్దరికీ ఉంటే సంబంధం తిరస్కరించబడుతుంది.)",
+    "FATAL DOSHA: Both the Groom and the Bride suffer from Kala Sarpa Dosha in their natal charts. The match is explicitly rejected.": "తీవ్ర దోషం: వరుడు మరియు వధువు ఇరువురి జాతకాలలో కాలసర్ప దోషం ఉంది. కావున ఈ సంబంధం ఖచ్చితంగా తిరస్కరించబడింది.",
     "Mars, Venus, and Rahu conjunction.": "కుజ, శుక్ర, రాహువుల సంయోగం.",
     "Ketu in Aquarius (Madhyamayuvu).": "కుంభ రాశిలో కేతువు (మధ్యమాయుష్షు).",
     "Exchange (Parivartana) of 7th and 8th lords.": "7, 8 అధిపతుల పరివర్తన.",
@@ -136,7 +858,6 @@
     "Mars and Venus conjunct in 7th house (Groom chart).": "వరుని జాతకంలో 7వ స్థానంలో కుజ, శుక్రుల సంయోగం.",
     "Lagna Lord, 7th Lord, and Venus are conjunct together in a Dual Sign.": "ద్విస్వభావ రాశిలో లగ్నాధిపతి, 7వ అధిపతి, శుక్రుడి సంయోగం.",
     "Saturn in 2nd/6th/12th in a water sign with malefic in Lagna.": "లగ్నంలో పాప గ్రహం ఉండి, జల రాశిలో (2, 6, 12 స్థానాల్లో) శని.",
-    "Saturn debilitated in 6th or 12th with Malefic in Lagna.": "లగ్నంలో పాప గ్రహం ఉండి, 6 లేదా 12వ స్థానంలో శని నీచ స్థితి.",
     "Moon and Venus conjunct with Mars and Saturn in opposition.": "చంద్ర, శుక్రుల సంయోగానికి ఎదురుగా కుజ, శనుల దృష్టి.",
     "5th and 7th lords connection/exchange.": "5, 7 అధిపతుల సంబంధం లేదా పరివర్తన.",
     "7th and 8th lords placement/exchange.": "7, 8 అధిపతుల స్థితి లేదా పరివర్తన.",
@@ -158,230 +879,124 @@
     "Saturn is in the 8th house (risk of Alpayush/Vaidhavya).": "8వ స్థానంలో శని (అల్పాయుష్షు/వైధవ్య ప్రమాదం).",
     "Ashtamadhipati (8th Lord) is in an inauspicious house.": "అష్టమాధిపతి (8వ అధిపతి) అశుభ స్థానంలో ఉన్నాడు.",
     "Lagnadhipati (Lagna Lord) is in the 6th, 8th, or 12th house.": "లగ్నాధిపతి 6, 8, లేదా 12వ స్థానంలో ఉన్నాడు.",
-    "Nadi dosha cancelled per Jaimini Maharshi exemptions for these specific Nakshatras.": "ఈ నిర్దిష్ట నక్షత్రాల కోసం జైమిని మహర్షి మినహాయింపుల ప్రకారం నాడీ దోషం రద్దు చేయబడింది.",
-    "Nadi dosha cancelled due to same Nakshatra but different Padas.": "ఒకే నక్షత్రం కానీ వేర్వేరు పాదాలు అయినందున నాడీ దోషం రద్దు చేయబడింది.",
-    "Nadi dosha cancelled due to same Rashi but different Nakshatras.": "ఒకే రాశి కానీ వేర్వేరు నక్షత్రాలు అయినందున నాడీ దోషం రద్దు చేయబడింది.",
-    "Bhakoot dosha cancelled because Rashi lords are same or friends (Graha Maitri).": "రాశ్యాధిపతులు ఒకరే లేదా మిత్రులు (గ్రహ మైత్రి) అయినందున భకూట్ దోషం రద్దు చేయబడింది.",
-    "Bhakoot dosha cancelled because this specific sign combination is highly auspicious.": "ఈ నిర్దిష్ట రాశి కలయిక అత్యంత శుభకరం అయినందున భకూట్ దోషం రద్దు చేయబడింది.",
-    "Rajju dosha cancelled because Rasi Lords are same or friendly.": "రాశ్యాధిపతులు ఒకరే లేదా మిత్రులు అయినందున రజ్జు దోషం రద్దు చేయబడింది.",
-    "Rajju dosha cancelled because Lagna Lords are same or friendly.": "లగ్నాధిపతులు ఒకరే లేదా మిత్రులు అయినందున రజ్జు దోషం రద్దు చేయబడింది.",
     "Saptamadhipati (7th Lord) is in the 1st, 2nd, 6th, or 8th house.": "సప్తమాధిపతి (7వ అధిపతి) 1, 2, 6, లేదా 8వ స్థానంలో ఉన్నాడు.",
     "Mars and Venus conjunction outside of own signs.": "స్వక్షేత్రాలు కాకుండా ఇతర రాశులలో కుజ, శుక్రుల సంయోగం.",
     "Sun is in the 8th house.": "8వ స్థానంలో రవి.",
-    "Mars and Rahu conjunct in the 8th house.": "8వ స్థానంలో కుజ, రాహువుల సంయోగం."
+    "Mars and Rahu conjunct in the 8th house.": "8వ స్థానంలో కుజ, రాహువుల సంయోగం.",
+    "Rasi koota and graha maitri are good, so the shortfall can be tolerated.": "రాశి కూటం, గ్రహమైత్రి బాగున్నాయి, కాబట్టి లోపాన్ని సహించవచ్చు."
   },
-  "bhakoot_warnings": {
-    "WARNING: Groom's Moon is 2nd from Bride's Moon (Risk of Vaidhavya/Poverty per Telugu rules).": "హెచ్చరిక: వధువు చంద్రుడి నుండి వరుడి చంద్రుడు 2వ స్థానంలో ఉన్నాడు (వైధవ్య/దారిద్ర్య ప్రమాదం).",
-    "WARNING: Groom's Moon is 5th from Bride's Moon (Risk of Vaidhavya/Loss of children per Telugu rules).": "హెచ్చరిక: వధువు చంద్రుడి నుండి వరుడి చంద్రుడు 5వ స్థానంలో ఉన్నాడు (సంతాన నష్టం/వైధవ్య ప్రమాదం).",
-    "WARNING: Groom's Moon is 3rd from Bride's Moon (Risk of Sorrows/Hardships).": "హెచ్చరిక: వధువు చంద్రుడి నుండి వరుడి చంద్రుడు 3వ స్థానంలో ఉన్నాడు (కష్టాలు/దుఃఖం).",
-    "WARNING: Groom's Moon is 6th from Bride's Moon (Risk of Loss of children/Quarrels).": "హెచ్చరిక: వధువు చంద్రుడి నుండి వరుడి చంద్రుడు 6వ స్థానంలో ఉన్నాడు (సంతాన నష్టం/కలహాలు)."
-  },
-  "planets": {
-    "Sun": {
-      "en": "Sun",
-      "te": "రవి / సూర్య"
+  "templates": {
+    "Groom varna {groomVarna} (Rank {groomRank}) vs Bride varna {brideVarna} (Rank {brideRank})": {
+      "te": "వరుడు: {groomVarna} (స్థాయి {groomRank}); వధువు: {brideVarna} (స్థాయి {brideRank})",
+      "params": {
+        "groomVarna": "varnas",
+        "groomRank": null,
+        "brideVarna": "varnas",
+        "brideRank": null
+      }
     },
-    "Moon": {
-      "en": "Moon",
-      "te": "చంద్ర"
+    "Bride's rasi {brideSign} is vashya to groom's rasi {groomSign}.": {
+      "te": "వరుని రాశి {groomSign}, వధువు రాశి {brideSign}: వధువు రాశి వరుని రాశికి వశ్యం.",
+      "params": {
+        "brideSign": "signs",
+        "groomSign": "signs"
+      }
     },
-    "Mars": {
-      "en": "Mars",
-      "te": "కుజ / అంగారక"
+    "Groom's rasi {groomSign} is vashya to bride's rasi {brideSign}.": {
+      "te": "వరుని రాశి {groomSign}, వధువు రాశి {brideSign}: వరుని రాశి వధువు రాశికి వశ్యం.",
+      "params": {
+        "groomSign": "signs",
+        "brideSign": "signs"
+      }
     },
-    "Mercury": {
-      "en": "Mercury",
-      "te": "బుధ"
+    "No vashya relation is listed between {groomSign} and {brideSign}.": {
+      "te": "వరుని రాశి {groomSign}, వధువు రాశి {brideSign}: వీటి మధ్య వశ్య సంబంధం పట్టికలో లేదు.",
+      "params": {
+        "groomSign": "signs",
+        "brideSign": "signs"
+      }
     },
-    "Jupiter": {
-      "en": "Jupiter",
-      "te": "గురు / బృహస్పతి"
+    "Groom yoni {groomAnimal} vs Bride yoni {brideAnimal}": {
+      "te": "వరుడు: {groomAnimal}; వధువు: {brideAnimal}",
+      "params": {
+        "groomAnimal": "yoni_animals",
+        "brideAnimal": "yoni_animals"
+      }
     },
-    "Venus": {
-      "en": "Venus",
-      "te": "శుక్ర"
+    "Groom gana {groomGana} vs Bride gana {brideGana}": {
+      "te": "వరుడు: {groomGana}; వధువు: {brideGana}",
+      "params": {
+        "groomGana": "ganas",
+        "brideGana": "ganas"
+      }
     },
-    "Saturn": {
-      "en": "Saturn",
-      "te": "శని"
+    "The count from the bride's nakshatra to the groom's is {count} (more than 14), which greatly reduces the harm of a gana mismatch (Telugu muhurta book, p. 65). This is a suggestion only and is not counted in the score.": {
+      "te": "వధువు నక్షత్రం నుండి వరుని నక్షత్రం వరకు లెక్క {count} (14 కంటే ఎక్కువ); ఇది గణ పొంతన లోపం వల్ల కలిగే చెడును గణనీయంగా తగ్గిస్తుంది (తెలుగు ముహూర్త గ్రంథం, పేజీ 65). ఇది కేవలం సూచన మాత్రమే; స్కోర్‌లో లెక్కించబడలేదు.",
+      "params": {
+        "count": null
+      }
     },
-    "Rahu": {
-      "en": "Rahu",
-      "te": "రాహు"
+    "Per the Jaimini Maharshi exemption list, Nadi dosha does not apply when both nakshatras ({groomNakshatra} and {brideNakshatra}) are in that list. This is a suggestion only and is not counted in the score.": {
+      "te": "జైమిని మహర్షి మినహాయింపు జాబితా ప్రకారం, రెండు నక్షత్రాలూ ({groomNakshatra}, {brideNakshatra}) ఆ జాబితాలో ఉంటే నాడీ దోషం వర్తించదు. ఇది కేవలం సూచన మాత్రమే; స్కోర్‌లో లెక్కించబడలేదు.",
+      "params": {
+        "groomNakshatra": "nakshatras",
+        "brideNakshatra": "nakshatras"
+      }
     },
-    "Ketu": {
-      "en": "Ketu",
-      "te": "కేతు"
+    "Groom Rajju is {groomRajju}. Bride Rajju is {brideRajju}.": {
+      "te": "వరుని రజ్జు {groomRajju}. వధువు రజ్జు {brideRajju}.",
+      "params": {
+        "groomRajju": "rajju_groups",
+        "brideRajju": "rajju_groups"
+      }
+    },
+    "Groom Rajju is {groomRajju}. Bride Rajju is {brideRajju}. FATAL DOSHA: Both belong to the same Rajju. This is highly inauspicious.": {
+      "te": "వరుని రజ్జు {groomRajju}. వధువు రజ్జు {brideRajju}. తీవ్ర దోషం: ఇరువురూ ఒకే రజ్జుకు చెందినవారు. ఇది అత్యంత అశుభకరం.",
+      "params": {
+        "groomRajju": "rajju_groups",
+        "brideRajju": "rajju_groups"
+      }
+    },
+    "{groomNakshatra} and {brideNakshatra} obstruct each other (vedha); marriage should proceed only with remedial indications.": {
+      "te": "{groomNakshatra}, {brideNakshatra} నక్షత్రాలు ఒకదానికొకటి అడ్డంకి (వేధ); పరిహార సూచనలు ఉంటేనే వివాహం చేయాలి.",
+      "params": {
+        "groomNakshatra": "nakshatras",
+        "brideNakshatra": "nakshatras"
+      }
+    },
+    "The groom's nakshatra is number {count} counting from the bride's, one of 4, 7, 10, 13, 16, 19, 22, 25: auspicious, increases married life.": {
+      "te": "వధువు నక్షత్రం నుండి లెక్కిస్తే వరుని నక్షత్రం {count}వది; ఇది 4, 7, 10, 13, 16, 19, 22, 25లలో ఒకటి: శుభం, వైవాహిక జీవితాన్ని వృద్ధి చేస్తుంది.",
+      "params": {
+        "count": null
+      }
+    },
+    "The groom's nakshatra is number {count} counting from the bride's, not one of 4, 7, 10, 13, 16, 19, 22, 25.": {
+      "te": "వధువు నక్షత్రం నుండి లెక్కిస్తే వరుని నక్షత్రం {count}వది; ఇది 4, 7, 10, 13, 16, 19, 22, 25లలో ఒకటి కాదు.",
+      "params": {
+        "count": null
+      }
+    },
+    "The groom's nakshatra is number {count} counting from the bride's, in navaka {navaka}: {quality}.": {
+      "te": "వధువు నక్షత్రం నుండి లెక్కిస్తే వరుని నక్షత్రం {count}వది, {navaka}వ నవకంలో ఉంది: {quality}.",
+      "params": {
+        "count": null,
+        "navaka": null,
+        "quality": "stree_deergha_quality"
+      }
+    },
+    "MRUGA VAIRAM DOSHA: Groom's Yoni animal is {groomAnimal} and Bride's Yoni animal is {brideAnimal}. These are natural enemies, indicating extreme incompatibility.": {
+      "te": "మృగ వైర దోషం: వరుని యోని జంతువు {groomAnimal} మరియు వధువు యోని జంతువు {brideAnimal}. ఇవి సహజ శత్రువులు, కావున తీవ్రమైన ప్రతికూలతను సూచిస్తాయి.",
+      "params": {
+        "groomAnimal": "yoni_animals",
+        "brideAnimal": "yoni_animals"
+      }
+    },
+    "ASHUBHA KURPU DOSHA: The pairing of Bride's {brideNakshatra} and Groom's {groomNakshatra} is explicitly forbidden in the Telugu matchmaking text.": {
+      "te": "అశుభ కూర్పు దోషం: వధువు నక్షత్రం {brideNakshatra} మరియు వరుని నక్షత్రం {groomNakshatra} జంట తెలుగు వివాహ పొంతన గ్రంథాల ప్రకారం ఖచ్చితంగా నిషిద్ధం.",
+      "params": {
+        "brideNakshatra": "nakshatras",
+        "groomNakshatra": "nakshatras"
+      }
     }
-  },
-  "signs": {
-    "Aries": {
-      "en": "Aries",
-      "te": "మేషం"
-    },
-    "Taurus": {
-      "en": "Taurus",
-      "te": "వృషభం"
-    },
-    "Gemini": {
-      "en": "Gemini",
-      "te": "మిథునం"
-    },
-    "Cancer": {
-      "en": "Cancer",
-      "te": "కర్కాటకం"
-    },
-    "Leo": {
-      "en": "Leo",
-      "te": "సింహం"
-    },
-    "Virgo": {
-      "en": "Virgo",
-      "te": "కన్య"
-    },
-    "Libra": {
-      "en": "Libra",
-      "te": "తుల"
-    },
-    "Scorpio": {
-      "en": "Scorpio",
-      "te": "వృశ్చికం"
-    },
-    "Sagittarius": {
-      "en": "Sagittarius",
-      "te": "ధనుస్సు"
-    },
-    "Capricorn": {
-      "en": "Capricorn",
-      "te": "మకరం"
-    },
-    "Aquarius": {
-      "en": "Aquarius",
-      "te": "కుంభం"
-    },
-    "Pisces": {
-      "en": "Pisces",
-      "te": "మీనం"
-    }
-  },
-  "yoni_animals": {
-    "Horse": {
-      "en": "Horse",
-      "te": "అశ్వం (గుర్రం)"
-    },
-    "Elephant": {
-      "en": "Elephant",
-      "te": "గజం (ఏనుగు)"
-    },
-    "Sheep": {
-      "en": "Sheep",
-      "te": "మేషం (గొర్రె)"
-    },
-    "Serpent": {
-      "en": "Serpent",
-      "te": "సర్పం (పాము)"
-    },
-    "Dog": {
-      "en": "Dog",
-      "te": "శ్వానం (కుక్క)"
-    },
-    "Cat": {
-      "en": "Cat",
-      "te": "మార్జాలం (పిల్లి)"
-    },
-    "Rat": {
-      "en": "Rat",
-      "te": "మూషికం (ఎలుక)"
-    },
-    "Cow": {
-      "en": "Cow",
-      "te": "గోవు (ఆవు)"
-    },
-    "Buffalo": {
-      "en": "Buffalo",
-      "te": "మహిషం (గేదె)"
-    },
-    "Tiger": {
-      "en": "Tiger",
-      "te": "వ్యాఘ్రం (పులి)"
-    },
-    "Deer": {
-      "en": "Deer",
-      "te": "మృగం (లేడి)"
-    },
-    "Monkey": {
-      "en": "Monkey",
-      "te": "వానరం (కోతి)"
-    },
-    "Mongoose": {
-      "en": "Mongoose",
-      "te": "ముంగిస"
-    },
-    "Lion": {
-      "en": "Lion",
-      "te": "సింహం"
-    }
-  },
-  "ganas": {
-    "Deva": {
-      "en": "Deva",
-      "te": "దేవ గణ"
-    },
-    "Manushya": {
-      "en": "Manushya",
-      "te": "మనుష్య గణ"
-    },
-    "Rakshasa": {
-      "en": "Rakshasa",
-      "te": "రాక్షస గణ"
-    }
-  },
-  "varnas": {
-    "Brahmin": {
-      "en": "Brahmin",
-      "te": "బ్రాహ్మణ"
-    },
-    "Kshatriya": {
-      "en": "Kshatriya",
-      "te": "క్షత్రియ"
-    },
-    "Vaishya": {
-      "en": "Vaishya",
-      "te": "వైశ్య"
-    },
-    "Shudra": {
-      "en": "Shudra",
-      "te": "శూద్ర"
-    }
-  },
-  "vashyas": {
-    "Chatuspada": {
-      "en": "Chatuspada",
-      "te": "చతుష్పాద"
-    },
-    "Manav": {
-      "en": "Manav",
-      "te": "మానవ (ద్విపాద)"
-    },
-    "Jalachar": {
-      "en": "Jalachar",
-      "te": "జలచర"
-    },
-    "Vanachar": {
-      "en": "Vanachar",
-      "te": "వనచర"
-    },
-    "Keeta": {
-      "en": "Keeta",
-      "te": "కీట"
-    }
-  },
-  "dynamic_templates": {
-    "MRUGA VAIRAM DOSHA: Groom's Yoni animal is {groomAnimal} and Bride's Yoni animal is {brideAnimal}. These are natural enemies, indicating extreme incompatibility.": "మృగ వైర దోషం: వరుని యోని జంతువు {groomAnimal} మరియు వధువు యోని జంతువు {brideAnimal}. ఇవి సహజ శత్రువులు, కావున తీవ్రమైన ప్రతికూలతను సూచిస్తాయి.",
-    "ASHUBHA KURPU DOSHA: The pairing of Bride's {brideStar} and Groom's {groomStar} is explicitly forbidden in the Telugu matchmaking text.": "అశుభ కూర్పు దోషం: వధువు నక్షత్రం {brideStar} మరియు వరుని నక్షత్రం {groomStar} జంట తెలుగు వివాహ పొంతన గ్రంథాల ప్రకారం ఖచ్చితంగా నిషిద్ధం.",
-    "FATAL DOSHA: Both the Groom and the Bride suffer from Kala Sarpa Dosha in their natal charts. The match is explicitly rejected.": "తీవ్ర దోషం: వరుడు మరియు వధువు ఇరువురి జాతకాలలో కాలసర్ప దోషం ఉంది. కావున ఈ సంబంధం ఖచ్చితంగా తిరస్కరించబడింది.",
-    "Groom Rajju is {groomRajju}. Bride Rajju is {brideRajju}. FATAL DOSHA: Both belong to the same Rajju. This is highly inauspicious.": "వరుని రజ్జు {groomRajju}. వధువు రజ్జు {brideRajju}. తీవ్ర దోషం: ఇరువురూ ఒకే రజ్జుకు చెందినవారు. ఇది అత్యంత అశుభకరం.",
-    "Groom gana {groomGana} vs Bride gana {brideGana}": "వరుని {groomGana} గణ మరియు వధువు {brideGana} గణ",
-    "Groom's lord {groomLord} and Bride's lord {brideLord} are {relationship}.": "వరుని రాశ్యాధిపతి {groomLord} మరియు వధువు రాశ్యాధిపతి {brideLord} {relationship}."
   }
 }
