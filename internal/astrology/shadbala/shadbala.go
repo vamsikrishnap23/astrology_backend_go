@@ -64,6 +64,8 @@ func CalculateShadbala(ctx *domain.CalculationContext) (domain.ShadbalaResult, e
 	var res domain.ShadbalaResult
 	res.CalculationTimeUTC = ctx.UTCTime.Format(time.RFC3339)
 
+	mercuryMalefic := mercuryIsMalefic(signs)
+
 	for _, pName := range TargetPlanets {
 		lon := lons[pName]
 
@@ -95,7 +97,7 @@ func CalculateShadbala(ctx *domain.CalculationContext) (domain.ShadbalaResult, e
 		dig := CalculateDigBala(pName, lon, ascLon, mcLon)
 
 		// Kala Bala
-		kala := CalculateKalaBala(pName, ctx, lons["Sun"], lons["Moon"], decl[pName])
+		kala := CalculateKalaBala(pName, ctx, lons["Sun"], lons["Moon"], decl[pName], mercuryMalefic)
 
 		// Cheshta Bala
 		cheshta := CalculateCheshtaBala(pName, retro[pName], kala.AyanaBala)

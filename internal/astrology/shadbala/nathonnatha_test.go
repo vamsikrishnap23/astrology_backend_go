@@ -85,7 +85,7 @@ func kalaFor(t *testing.T, date, clock string, lat, lon float64, planet string) 
 		UTCTime:     utc,
 		JulianDayUT: astronomyTime.UTCToJulianDay(utc),
 	}
-	return CalculateKalaBala(planet, &ctx, 0, 0, 0)
+	return CalculateKalaBala(planet, &ctx, 0, 0, 0, false)
 }
 
 // Regression: the old code picked the wrong sunrise for night births and swapped noon and midnight
