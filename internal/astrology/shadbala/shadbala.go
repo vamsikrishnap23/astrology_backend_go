@@ -23,6 +23,13 @@ var MinimumRequirements = map[string]float64{
 	"Saturn":  5.0,
 }
 
+// planetParts holds the components of one planet's Shadbala before the totals are formed.
+type planetParts struct {
+	sthana                         domain.SthanaBala
+	kala                           domain.KalaBala
+	dig, cheshta, naisargika, drik float64
+}
+
 func CalculateShadbala(ctx *domain.CalculationContext) (domain.ShadbalaResult, error) {
 	calcPlanets, err := planets.CalculatePlanets(ctx)
 	if err != nil {
@@ -65,6 +72,7 @@ func CalculateShadbala(ctx *domain.CalculationContext) (domain.ShadbalaResult, e
 	mercuryMalefic := mercuryIsMalefic(signs)
 	benefic := beneficMap(lons, signs)
 
+	parts := map[string]*planetParts{}
 	for _, pName := range TargetPlanets {
 		lon := lons[pName]
 
@@ -107,18 +115,36 @@ func CalculateShadbala(ctx *domain.CalculationContext) (domain.ShadbalaResult, e
 		// Drik Bala
 		drik := CalculateDrikBala(pName, lons, benefic)
 
-		total := sthana.Total + dig + kala.Total + cheshta + naisargika + drik
+		parts[pName] = &planetParts{sthana: sthana, dig: dig, kala: kala, cheshta: cheshta, naisargika: naisargika, drik: drik}
+	}
+
+	// Yuddha Bala: planets less than a degree apart fight, and the winner's Kala Bala gains what the
+	// loser's loses (Raman art. 76). The aggregates use Sthana, Dig and Kala up to Hora Bala.
+	aggregate := map[string]float64{}
+	for _, pName := range TargetPlanets {
+		pp := parts[pName]
+		aggregate[pName] = pp.sthana.Total + pp.dig + pp.kala.Total - pp.kala.AyanaBala
+	}
+	for pName, y := range yuddhaBala(lons, aggregate) {
+		pp := parts[pName]
+		pp.kala.YuddhaBala = y
+		pp.kala.Total += y
+	}
+
+	for _, pName := range TargetPlanets {
+		pp := parts[pName]
+		total := pp.sthana.Total + pp.dig + pp.kala.Total + pp.cheshta + pp.naisargika + pp.drik
 		rupas := total / 60.0
 		req := MinimumRequirements[pName]
 
 		ps := domain.PlanetShadbala{
 			Planet:          pName,
-			SthanaBala:      sthana,
-			DigBala:         math.Round(dig*100) / 100,
-			KalaBala:        kala,
-			CheshtaBala:     math.Round(cheshta*100) / 100,
-			NaisargikaBala:  math.Round(naisargika*100) / 100,
-			DrikBala:        math.Round(drik*100) / 100,
+			SthanaBala:      pp.sthana,
+			DigBala:         math.Round(pp.dig*100) / 100,
+			KalaBala:        pp.kala,
+			CheshtaBala:     math.Round(pp.cheshta*100) / 100,
+			NaisargikaBala:  math.Round(pp.naisargika*100) / 100,
+			DrikBala:        math.Round(pp.drik*100) / 100,
 			TotalShadbala:   math.Round(total*100) / 100,
 			Rupas:           math.Round(rupas*1000) / 1000,
 			MinimumRequired: req,
