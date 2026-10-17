@@ -44,6 +44,12 @@ func TestShadbalaHandler(t *testing.T) {
 	if len(res.Planets) != 7 {
 		t.Errorf("got %d planets", len(res.Planets))
 	}
+	if res.RuleSet == "" || res.Unit == "" || len(res.Tables.Planets) != 7 {
+		t.Errorf("rule set %q, unit %q, table planets %v", res.RuleSet, res.Unit, res.Tables.Planets)
+	}
+	if len(res.Tables.SthanaBala.Rows) != 5 || len(res.Tables.KalaBala.Rows) != 9 || len(res.Tables.ShadbalaPinda.Rows) != 6 {
+		t.Errorf("tables: %d Sthana rows, %d Kala rows, %d pinda rows", len(res.Tables.SthanaBala.Rows), len(res.Tables.KalaBala.Rows), len(res.Tables.ShadbalaPinda.Rows))
+	}
 	for _, p := range res.Planets {
 		if (p.Planet == "Sun" || p.Planet == "Moon") && p.CheshtaBala != 0 {
 			t.Errorf("%s has no Cheshta Bala in the total, got %v", p.Planet, p.CheshtaBala)

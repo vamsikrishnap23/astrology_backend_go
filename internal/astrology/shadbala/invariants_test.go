@@ -127,7 +127,7 @@ func TestShadbalaInvariants(t *testing.T) {
 				inRange(t, who, "ayana", k.AyanaBala, 0, 60)
 			}
 			sum := k.NathonnathaBala + k.PakshaBala + k.TribhagaBala + k.VarshaBala + k.MasaBala + k.DinaBala + k.HoraBala + k.AyanaBala + k.YuddhaBala
-			near(t, who+" kala sum", k.Total, sum, 1e-9)
+			near(t, who+" kala sum", k.Total, sum, 0.05)
 			inRange(t, who, "cheshta", p.CheshtaBala, 0, 60)
 			if p.Planet == "Sun" || p.Planet == "Moon" {
 				near(t, who+" cheshta", p.CheshtaBala, 0, 0)
@@ -163,23 +163,23 @@ func TestShadbalaInvariants(t *testing.T) {
 		if nTri != 2 || by["Jupiter"].KalaBala.TribhagaBala != 60 {
 			t.Errorf("%s: Tribhaga Bala goes to %d planets (Jupiter %v), want 2 including Jupiter", who, nTri, by["Jupiter"].KalaBala.TribhagaBala)
 		}
-		near(t, who+" yuddha sum", yud, 0, 1e-9)
+		near(t, who+" yuddha sum", yud, 0, 0.011)
 		// Nathonnatha: Sun, Jupiter, Venus share one value, Moon, Mars, Saturn the complement, Mercury 60.
 		nb := func(p string) float64 { return by[p].KalaBala.NathonnathaBala }
 		near(t, who+" nath Sun/Jupiter", nb("Sun"), nb("Jupiter"), 1e-9)
 		near(t, who+" nath Sun/Venus", nb("Sun"), nb("Venus"), 1e-9)
 		near(t, who+" nath Moon/Mars", nb("Moon"), nb("Mars"), 1e-9)
 		near(t, who+" nath Moon/Saturn", nb("Moon"), nb("Saturn"), 1e-9)
-		near(t, who+" nath Sun+Moon", nb("Sun")+nb("Moon"), 60, 1e-9)
+		near(t, who+" nath Sun+Moon", nb("Sun")+nb("Moon"), 60, 0.011)
 		near(t, who+" nath Mercury", nb("Mercury"), 60, 0)
 		// Paksha: Sun, Mars, Saturn equal; Jupiter and Venus equal and the complement; Moon doubled.
 		pk := func(p string) float64 { return by[p].KalaBala.PakshaBala }
 		near(t, who+" paksha Sun/Mars", pk("Sun"), pk("Mars"), 1e-9)
 		near(t, who+" paksha Sun/Saturn", pk("Sun"), pk("Saturn"), 1e-9)
 		near(t, who+" paksha Jupiter/Venus", pk("Jupiter"), pk("Venus"), 1e-9)
-		near(t, who+" paksha Sun+Jupiter", pk("Sun")+pk("Jupiter"), 60, 1e-9)
-		near(t, who+" paksha Moon", pk("Moon"), 2*pk("Jupiter"), 1e-9)
-		if m := pk("Mercury"); math.Abs(m-pk("Jupiter")) > 1e-9 && math.Abs(m-pk("Sun")) > 1e-9 {
+		near(t, who+" paksha Sun+Jupiter", pk("Sun")+pk("Jupiter"), 60, 0.011)
+		near(t, who+" paksha Moon", pk("Moon"), 2*pk("Jupiter"), 0.011)
+		if m := pk("Mercury"); math.Abs(m-pk("Jupiter")) > 0.011 && math.Abs(m-pk("Sun")) > 0.011 {
 			t.Errorf("%s: Mercury's Paksha Bala %v is neither the benefic nor the malefic value", who, m)
 		}
 	}

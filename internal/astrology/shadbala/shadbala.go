@@ -146,7 +146,7 @@ func CalculateShadbala(ctx *domain.CalculationContext) (domain.ShadbalaResult, e
 			Planet:          pName,
 			SthanaBala:      pp.sthana,
 			DigBala:         math.Round(pp.dig*100) / 100,
-			KalaBala:        pp.kala,
+			KalaBala:        roundKala(pp.kala),
 			CheshtaBala:     math.Round(pp.cheshta*100) / 100,
 			NaisargikaBala:  math.Round(pp.naisargika*100) / 100,
 			DrikBala:        math.Round(pp.drik*100) / 100,
@@ -160,5 +160,19 @@ func CalculateShadbala(ctx *domain.CalculationContext) (domain.ShadbalaResult, e
 		res.Planets = append(res.Planets, ps)
 	}
 
+	assignRanks(res.Planets)
+	res.RuleSet = RuleSet
+	res.Unit = "shashtiamsas (virupas); 60 = 1 rupa"
+	res.Tables = buildTables(res.Planets)
 	return res, nil
+}
+
+// roundKala rounds the Kala Bala parts and their total to two decimals for the response (the Shadbala
+// total is formed from the unrounded values).
+func roundKala(k domain.KalaBala) domain.KalaBala {
+	return domain.KalaBala{
+		NathonnathaBala: round2(k.NathonnathaBala), PakshaBala: round2(k.PakshaBala), TribhagaBala: round2(k.TribhagaBala),
+		VarshaBala: round2(k.VarshaBala), MasaBala: round2(k.MasaBala), DinaBala: round2(k.DinaBala), HoraBala: round2(k.HoraBala),
+		AyanaBala: round2(k.AyanaBala), YuddhaBala: round2(k.YuddhaBala), Total: round2(k.Total),
+	}
 }
