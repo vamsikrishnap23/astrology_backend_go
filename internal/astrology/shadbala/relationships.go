@@ -93,31 +93,34 @@ var OwnSigns = map[string][]string{
 	"Saturn":  {"Capricorn", "Aquarius"},
 }
 
-// moolatrikonaPortion is the part of a sign that is a planet's Moolatrikona, in degrees from the start
-// of the sign (BPHS 3.51-54): the Sun's first 20 deg of Leo, the Moon's Taurus beyond 3 deg (the first 3
-// are its exaltation), Mars's first 12 deg of Aries, Mercury's 15 to 20 deg of Virgo (the first 15 are
-// its exaltation), Jupiter's first 10 deg of Sagittarius, Venus's first 15 deg of Libra and Saturn's
-// first 20 deg of Aquarius. The rest of such a sign is the planet's own sign (the Moon's Taurus is not).
-type moolatrikonaPortion struct {
-	sign     string
-	from, to float64
+// MoolatrikonaSigns are the Moolatrikona signs of the planets. Following Raman (art. 30, "Moolatrikona Rasi")
+// the whole sign counts, and only in the Rasi chart; in the other vargas the same sign is the planet's own.
+//
+// BPHS 3.51-54 limits the Moolatrikona to a part of the sign (degrees from the start of the sign), and the
+// rest of the sign is the planet's own sign. Not used for now; to follow BPHS, make isMoolatrikona also
+// test the degree of the planet in the sign (the longitude is already passed to calculateSaptavargajaBala):
+//
+//	Sun     Leo          0 to 20
+//	Moon    Taurus       3 to 30   (the first 3 degrees are the Moon's exaltation)
+//	Mars    Aries        0 to 12
+//	Mercury Virgo       15 to 20   (the first 15 degrees are its exaltation)
+//	Jupiter Sagittarius  0 to 10
+//	Venus   Libra        0 to 15
+//	Saturn  Aquarius     0 to 20
+var MoolatrikonaSigns = map[string]string{
+	"Sun":     "Leo",
+	"Moon":    "Taurus",
+	"Mars":    "Aries",
+	"Mercury": "Virgo",
+	"Jupiter": "Sagittarius",
+	"Venus":   "Libra",
+	"Saturn":  "Aquarius",
 }
 
-var moolatrikonaPortions = map[string]moolatrikonaPortion{
-	"Sun":     {"Leo", 0, 20},
-	"Moon":    {"Taurus", 3, 30},
-	"Mars":    {"Aries", 0, 12},
-	"Mercury": {"Virgo", 15, 20},
-	"Jupiter": {"Sagittarius", 0, 10},
-	"Venus":   {"Libra", 0, 15},
-	"Saturn":  {"Aquarius", 0, 20},
-}
-
-// isMoolatrikona reports whether a planet standing at degreeInSign (0..30) of the named sign is in its
-// Moolatrikona portion.
-func isMoolatrikona(planet, sign string, degreeInSign float64) bool {
-	m, ok := moolatrikonaPortions[planet]
-	return ok && m.sign == sign && degreeInSign >= m.from && degreeInSign < m.to
+// isMoolatrikona reports whether a planet standing in the named sign of the Rasi chart is in its
+// Moolatrikona sign (see the note above for the BPHS degree limits).
+func isMoolatrikona(planet, sign string) bool {
+	return MoolatrikonaSigns[planet] == sign
 }
 
 func getSignIndexByName(name string) int {

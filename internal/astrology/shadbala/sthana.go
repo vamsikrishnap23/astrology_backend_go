@@ -43,7 +43,7 @@ func calculateSaptavargajaBala(planet string, vargas domain.VargasResult, natalS
 				// Find planet in this varga
 				for _, vp := range varga.Planets {
 					if vp.Planet == planet {
-						mt := div == 1 && isMoolatrikona(planet, vp.DivisionalSign, math.Mod(longitude, 30.0))
+						mt := div == 1 && isMoolatrikona(planet, vp.DivisionalSign) // longitude would be needed for the BPHS degree limits, see relationships.go
 						rel := GetPlacementStrength(planet, vp.DivisionalSign, natalSigns, mt)
 						switch rel {
 						case Moolatrikona:

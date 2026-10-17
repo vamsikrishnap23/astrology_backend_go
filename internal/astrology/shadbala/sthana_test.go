@@ -40,24 +40,21 @@ func TestDrekkanaBalaRules(t *testing.T) {
 	near(t, "Moon 20", calculateDrekkanaBala("Moon", 20), 15, 0)
 }
 
-// BPHS 3.51-54: the Moolatrikona portions.
+// Raman art. 30: the Moolatrikona sign of each planet (the whole sign; BPHS's degree limits are only noted in
+// relationships.go).
 func TestIsMoolatrikona(t *testing.T) {
 	cases := []struct {
 		planet, sign string
-		deg          float64
 		want         bool
 	}{
-		{"Sun", "Leo", 0, true}, {"Sun", "Leo", 19.99, true}, {"Sun", "Leo", 20, false}, {"Sun", "Aries", 5, false},
-		{"Moon", "Taurus", 2.99, false}, {"Moon", "Taurus", 3, true}, {"Moon", "Taurus", 29.9, true}, {"Moon", "Cancer", 10, false},
-		{"Mars", "Aries", 11.99, true}, {"Mars", "Aries", 12, false}, {"Mars", "Scorpio", 5, false},
-		{"Mercury", "Virgo", 14.99, false}, {"Mercury", "Virgo", 15, true}, {"Mercury", "Virgo", 19.99, true}, {"Mercury", "Virgo", 20, false},
-		{"Jupiter", "Sagittarius", 9.99, true}, {"Jupiter", "Sagittarius", 10, false}, {"Jupiter", "Pisces", 3, false},
-		{"Venus", "Libra", 14.99, true}, {"Venus", "Libra", 15, false}, {"Venus", "Taurus", 3, false},
-		{"Saturn", "Aquarius", 19.99, true}, {"Saturn", "Aquarius", 20, false}, {"Saturn", "Capricorn", 3, false},
+		{"Sun", "Leo", true}, {"Sun", "Aries", false}, {"Moon", "Taurus", true}, {"Moon", "Cancer", false},
+		{"Mars", "Aries", true}, {"Mars", "Scorpio", false}, {"Mercury", "Virgo", true}, {"Mercury", "Gemini", false},
+		{"Jupiter", "Sagittarius", true}, {"Jupiter", "Pisces", false}, {"Venus", "Libra", true}, {"Venus", "Taurus", false},
+		{"Saturn", "Aquarius", true}, {"Saturn", "Capricorn", false},
 	}
 	for _, c := range cases {
-		if got := isMoolatrikona(c.planet, c.sign, c.deg); got != c.want {
-			t.Errorf("%s in %s %.2f: got %v want %v", c.planet, c.sign, c.deg, got, c.want)
+		if got := isMoolatrikona(c.planet, c.sign); got != c.want {
+			t.Errorf("%s in %s: got %v want %v", c.planet, c.sign, got, c.want)
 		}
 	}
 }
@@ -67,7 +64,7 @@ func TestIsMoolatrikona(t *testing.T) {
 func TestMoolatrikonaOnlyInRasi(t *testing.T) {
 	signs := map[string]int{"Sun": 4, "Moon": 1, "Venus": 0, "Mars": 0, "Jupiter": 0, "Mercury": 0, "Saturn": 0}
 	if got := GetPlacementStrength("Sun", "Leo", signs, true); got != Moolatrikona {
-		t.Errorf("Sun in the Moolatrikona portion of Leo in the Rasi: got %v", got)
+		t.Errorf("Sun in its Moolatrikona sign Leo in the Rasi: got %v", got)
 	}
 	if got := GetPlacementStrength("Sun", "Leo", signs, false); got != OwnHouse {
 		t.Errorf("Sun in Leo in another varga: got %v, want OwnHouse", got)
