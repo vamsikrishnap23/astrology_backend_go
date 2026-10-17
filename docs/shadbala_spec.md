@@ -71,4 +71,6 @@ difference of the two Shadbalas); the Sun's minimum (BPHS 390, Raman 300).
 - Whether Mercury "joins a malefic" is judged by sidereal sign (same sign as the Sun, Mars, Saturn, Rahu or Ketu), so when
   Mercury and such a planet are close to a sign boundary two ayanamsas can disagree about it; Paksha and Drik Bala of
   Mercury (and the aspects Mercury casts) then differ between them. Every other component is independent of the ayanamsa.
-- Kala Bala components in the JSON are not rounded (the other components are rounded to two decimals).
+- The response also carries `rule_set` (`raman-shadbala-v1`), a `rank` per planet (by strength ratio, Raman example 57) and
+  `tables` laid out as his examples 13, 35, 56 and 57 (`tables.go`); all parts are rounded to two decimals for display and the
+  totals are formed from the unrounded values.

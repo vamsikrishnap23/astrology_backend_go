@@ -163,7 +163,7 @@ Returns the Bhinnashtakavarga (`bav` array for the 7 planets) and the composite 
 **Payload:** `BirthInput`
 
 **Response:**
-Returns `planets` array breaking down the 6-fold strength (Sthana, Dig, Kala, Cheshta, Naisargika, Drik) resolving to the ultimate strength ratio and `rupas`.
+Returns `planets` (each planet's Sthana, Dig, Kala, Cheshta, Naisargika and Drik Bala, `total_shadbala`, `rupas`, `strength_ratio`, `meets_minimum` and `rank`) and `tables`: one table per bala with a row per part and a value per planet plus totals, and the final `shadbala_pinda` table with rupas, requirement, ratio and rank. Returns 400 where the Sun does not rise or set (polar latitudes). Full description: `docs/api_shadbala.md`; rules and sources: `docs/shadbala_spec.md`.
 
 ---
 
