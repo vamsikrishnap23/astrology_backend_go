@@ -65,6 +65,7 @@ func CalculateShadbala(ctx *domain.CalculationContext) (domain.ShadbalaResult, e
 	res.CalculationTimeUTC = ctx.UTCTime.Format(time.RFC3339)
 
 	mercuryMalefic := mercuryIsMalefic(signs)
+	benefic := beneficMap(lons, signs)
 
 	for _, pName := range TargetPlanets {
 		lon := lons[pName]
@@ -106,7 +107,7 @@ func CalculateShadbala(ctx *domain.CalculationContext) (domain.ShadbalaResult, e
 		naisargika := CalculateNaisargikaBala(pName)
 
 		// Drik Bala
-		drik := CalculateDrikBala(pName, lon, lons)
+		drik := CalculateDrikBala(pName, lons, benefic)
 
 		total := sthana.Total + dig + kala.Total + cheshta + naisargika + drik
 		rupas := total / 60.0
