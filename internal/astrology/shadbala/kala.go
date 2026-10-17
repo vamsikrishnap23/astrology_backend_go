@@ -21,29 +21,14 @@ func CalculateKalaBala(planet string, ctx *domain.CalculationContext, sunLon, mo
 
 	sunriseJD := resRise.Time
 	sunsetJD := resSet.Time
-	noonJD := (sunriseJD + sunsetJD) / 2.0
-	midnightJD := noonJD - 0.5
-	if ctx.JulianDayUT < midnightJD {
-		midnightJD = noonJD + 0.5
-	}
 
-	// 1. Nathonnatha Bala
+	// 1. Nathonnatha Bala (from local apparent time; see nathonnatha.go)
 	nathonnatha := 0.0
-	diffNoon := math.Abs(ctx.JulianDayUT-noonJD) * 24.0 // in hours
-	if diffNoon > 12.0 {
-		diffNoon = 24.0 - diffNoon
-	}
-	diffMidnight := math.Abs(ctx.JulianDayUT-midnightJD) * 24.0
-	if diffMidnight > 12.0 {
-		diffMidnight = 24.0 - diffMidnight
-	}
-
-	if planet == "Moon" || planet == "Mars" || planet == "Saturn" {
-		nathonnatha = (12.0 - diffMidnight) * 5.0
-	} else if planet == "Sun" || planet == "Jupiter" || planet == "Venus" {
-		nathonnatha = (12.0 - diffNoon) * 5.0
-	} else if planet == "Mercury" {
-		nathonnatha = 60.0
+	ephemeris.Lock()
+	apparentHours, errLAT := localApparentHours(ctx.JulianDayUT, ctx.Input.Longitude)
+	ephemeris.Unlock()
+	if errLAT == nil {
+		nathonnatha = nathonnathaBala(planet, apparentHours)
 	}
 
 	// 2. Paksha Bala
