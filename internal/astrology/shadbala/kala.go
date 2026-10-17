@@ -1,6 +1,8 @@
 package shadbala
 
 import (
+	"math"
+
 	"github.com/tejzpr/go-swisseph"
 	"github.com/vamsikrishnap23/astrology_backend_go/internal/astronomy/ephemeris"
 	"github.com/vamsikrishnap23/astrology_backend_go/internal/domain"
@@ -94,11 +96,20 @@ func CalculateKalaBala(planet string, ctx *domain.CalculationContext, sunLon, mo
 
 	// 5. Dina Bala and Hora Bala: the Hindu day starts at sunrise; the weekday lord of that sunrise
 	// gets 45, and the planet ruling the running 60-minute hora gets 60 (see hora.go).
-	dinaBala, horaBala := 0.0, 0.0
+	dinaBala, horaBala, varshaBala, masaBala := 0.0, 0.0, 0.0, 0.0
 	if sunrise, ok := lastSunrise(ctx.JulianDayUT, geopos); ok {
 		dayLord := weekdayLordOfSunrise(sunrise, ctx.Input.Timezone)
 		if planet == dayLord {
 			dinaBala = 45.0
+		}
+		// Varsha and Masa Bala: lords of the 360-day year and 30-day month of the Hindu day of birth
+		// (see ahargana.go); the Hindu day is the one whose sunrise began it.
+		ahargana := aharganaOfJDN(int64(math.Floor(sunrise + ctx.Input.Timezone/24.0 + 0.5)))
+		if planet == abdadhipathi(ahargana) {
+			varshaBala = 15.0
+		}
+		if planet == masadhipathi(ahargana) {
+			masaBala = 30.0
 		}
 		if planet == horaLord(dayLord, (ctx.JulianDayUT-sunrise)*24.0) {
 			horaBala = 60.0
@@ -110,8 +121,8 @@ func CalculateKalaBala(planet string, ctx *domain.CalculationContext, sunLon, mo
 		NathonnathaBala: nathonnatha,
 		PakshaBala:      paksha,
 		TribhagaBala:    tribhaga,
-		VarshaBala:      0.0, // Simplified for now
-		MasaBala:        0.0, // Simplified for now
+		VarshaBala:      varshaBala,
+		MasaBala:        masaBala,
 		DinaBala:        dinaBala,
 		HoraBala:        horaBala,
 		AyanaBala:       ayana,
