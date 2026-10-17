@@ -44,7 +44,6 @@ func CalculateShadbala(ctx *domain.CalculationContext) (domain.ShadbalaResult, e
 	// Create lookup maps
 	lons := make(map[string]float64)
 	signs := make(map[string]int)
-	retro := make(map[string]bool)
 	decl := make(map[string]float64)
 
 	var navamshaVarga domain.VargaChart
@@ -57,7 +56,6 @@ func CalculateShadbala(ctx *domain.CalculationContext) (domain.ShadbalaResult, e
 	for _, p := range calcPlanets {
 		lons[p.Planet] = p.SiderealLongitude
 		signs[p.Planet] = int(math.Floor(math.Mod(p.SiderealLongitude, 360.0) / 30.0))
-		retro[p.Planet] = p.Retrograde
 		decl[p.Planet] = p.Declination
 	}
 
@@ -101,7 +99,7 @@ func CalculateShadbala(ctx *domain.CalculationContext) (domain.ShadbalaResult, e
 		kala := CalculateKalaBala(pName, ctx, lons["Sun"], lons["Moon"], decl[pName], mercuryMalefic)
 
 		// Cheshta Bala
-		cheshta := CalculateCheshtaBala(pName, retro[pName], kala.AyanaBala)
+		cheshta := CalculateCheshtaBala(pName, ctx, lons)
 
 		// Naisargika Bala
 		naisargika := CalculateNaisargikaBala(pName)
