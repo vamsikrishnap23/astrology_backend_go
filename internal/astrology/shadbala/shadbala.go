@@ -29,6 +29,7 @@ var MinimumRequirements = map[string]float64{
 type planetParts struct {
 	sthana                         domain.SthanaBala
 	kala                           domain.KalaBala
+	uchcha                         float64
 	dig, cheshta, naisargika, drik float64
 }
 
@@ -54,6 +55,7 @@ func CalculateShadbala(ctx *domain.CalculationContext) (domain.ShadbalaResult, e
 	lons := make(map[string]float64)
 	signs := make(map[string]int)
 	decl := make(map[string]float64)
+	var sunTropical float64
 
 	var navamshaVarga domain.VargaChart
 	for _, v := range vargasRes.Vargas {
@@ -66,6 +68,9 @@ func CalculateShadbala(ctx *domain.CalculationContext) (domain.ShadbalaResult, e
 		lons[p.Planet] = p.SiderealLongitude
 		signs[p.Planet] = int(math.Floor(math.Mod(p.SiderealLongitude, 360.0) / 30.0))
 		decl[p.Planet] = p.Declination
+		if p.Planet == "Sun" {
+			sunTropical = p.TropicalLongitude
+		}
 	}
 
 	var res domain.ShadbalaResult
@@ -120,7 +125,7 @@ func CalculateShadbala(ctx *domain.CalculationContext) (domain.ShadbalaResult, e
 		// Drik Bala
 		drik := CalculateDrikBala(pName, lons, benefic)
 
-		parts[pName] = &planetParts{sthana: sthana, dig: dig, kala: kala, cheshta: cheshta, naisargika: naisargika, drik: drik}
+		parts[pName] = &planetParts{uchcha: uchcha, sthana: sthana, dig: dig, kala: kala, cheshta: cheshta, naisargika: naisargika, drik: drik}
 	}
 
 	// Yuddha Bala: planets less than a degree apart fight, and the winner's Kala Bala gains what the
@@ -161,9 +166,23 @@ func CalculateShadbala(ctx *domain.CalculationContext) (domain.ShadbalaResult, e
 	}
 
 	assignRanks(res.Planets)
+
+	// Bhava Bala and Ishta/Kashta Phala build on the Shadbala results (Raman chapters IX and X).
+	totals := map[string]float64{}
+	uchchaBala := map[string]float64{}
+	cheshtaBala := map[string]float64{}
+	for _, pName := range TargetPlanets {
+		pp := parts[pName]
+		totals[pName] = pp.sthana.Total + pp.dig + pp.kala.Total + pp.cheshta + pp.naisargika + pp.drik
+		uchchaBala[pName] = pp.uchcha
+		cheshtaBala[pName] = pp.cheshta
+	}
+	res.BhavaBala = calculateBhavaBala(ascLon, mcLon, lons, benefic, totals)
+	res.IshtaKashtaPhala = calculateIshtaKashta(uchchaBala, cheshtaBala, sunTropical, lons["Sun"], lons["Moon"])
 	res.RuleSet = RuleSet
 	res.Unit = "shashtiamsas (virupas); 60 = 1 rupa"
 	res.Tables = buildTables(res.Planets)
+	res.Tables.IshtaKashtaPhala = ishtaKashtaTable(res.IshtaKashtaPhala)
 	return res, nil
 }
 

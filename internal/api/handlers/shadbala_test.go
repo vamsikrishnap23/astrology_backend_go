@@ -50,6 +50,12 @@ func TestShadbalaHandler(t *testing.T) {
 	if len(res.Tables.SthanaBala.Rows) != 5 || len(res.Tables.KalaBala.Rows) != 9 || len(res.Tables.ShadbalaPinda.Rows) != 6 {
 		t.Errorf("tables: %d Sthana rows, %d Kala rows, %d pinda rows", len(res.Tables.SthanaBala.Rows), len(res.Tables.KalaBala.Rows), len(res.Tables.ShadbalaPinda.Rows))
 	}
+	if len(res.BhavaBala.Bhavas) != 12 || res.BhavaBala.StrongestHouse < 1 || res.BhavaBala.WeakestHouse < 1 {
+		t.Errorf("bhava bala: %d houses, strongest %d, weakest %d", len(res.BhavaBala.Bhavas), res.BhavaBala.StrongestHouse, res.BhavaBala.WeakestHouse)
+	}
+	if len(res.IshtaKashtaPhala) != 7 || len(res.Tables.IshtaKashtaPhala.Rows) != 4 {
+		t.Errorf("ishta/kashta: %d planets, %d table rows", len(res.IshtaKashtaPhala), len(res.Tables.IshtaKashtaPhala.Rows))
+	}
 	for _, p := range res.Planets {
 		if (p.Planet == "Sun" || p.Planet == "Moon") && p.CheshtaBala != 0 {
 			t.Errorf("%s has no Cheshta Bala in the total, got %v", p.Planet, p.CheshtaBala)

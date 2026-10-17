@@ -103,3 +103,24 @@ func assignRanks(ps []domain.PlanetShadbala) {
 		ps[i].Rank = rank + 1
 	}
 }
+
+// ishtaKashtaTable lays the Ishta and Kashta Phala out like the other tables: the parts they are made from
+// and the two phalas, each by planet (there is no total; the parts are not added).
+func ishtaKashtaTable(list []domain.IshtaKashtaPlanet) domain.ShadbalaTable {
+	row := func(component, label string, get func(domain.IshtaKashtaPlanet) float64) domain.ShadbalaTableRow {
+		r := domain.ShadbalaTableRow{Component: component, Label: label, Values: map[string]float64{}}
+		for _, p := range list {
+			r.Values[p.Planet] = get(p)
+		}
+		return r
+	}
+	return domain.ShadbalaTable{
+		Title: "Ishta and Kashta Phala (benefic and malefic tendency)",
+		Rows: []domain.ShadbalaTableRow{
+			row("uchcha_bala", "Uchcha Bala", func(p domain.IshtaKashtaPlanet) float64 { return p.UchchaBala }),
+			row("chesta_bala", "Chesta Bala", func(p domain.IshtaKashtaPlanet) float64 { return p.ChestaBala }),
+			row("ishta_phala", "Ishta Phala", func(p domain.IshtaKashtaPlanet) float64 { return p.IshtaPhala }),
+			row("kashta_phala", "Kashta Phala", func(p domain.IshtaKashtaPlanet) float64 { return p.KashtaPhala }),
+		},
+	}
+}

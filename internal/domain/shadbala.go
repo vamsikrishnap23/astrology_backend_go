@@ -51,7 +51,7 @@ type ShadbalaTableRow struct {
 type ShadbalaTable struct {
 	Title string             `json:"title"`
 	Rows  []ShadbalaTableRow `json:"rows"`
-	Total map[string]float64 `json:"total"` // per planet
+	Total map[string]float64 `json:"total,omitempty"` // per planet; absent where parts are not added
 }
 
 // ShadbalaPindaTable is the final table: the six balas, their total in shashtiamsas and rupas, the
@@ -76,6 +76,43 @@ type ShadbalaTables struct {
 	NaisargikaBala ShadbalaTable      `json:"naisargika_bala"`
 	DrikBala       ShadbalaTable      `json:"drik_bala"`
 	ShadbalaPinda  ShadbalaPindaTable `json:"shadbala_pinda"`
+
+	IshtaKashtaPhala ShadbalaTable `json:"ishta_kashta_phala"`
+}
+
+// BhavaBalaHouse is the strength of one house (bhava), Raman chapter IX.
+type BhavaBalaHouse struct {
+	House             int     `json:"house"`        // 1..12
+	Name              string  `json:"name"`         // Thanu, Dhana, Bhratru, Matru, Putra, Satru, Kalatra, Ayur, Bhagya, Karma, Labha, Vyaya
+	BhavaMadhya       float64 `json:"bhava_madhya"` // sidereal longitude of the middle of the house (Sripati)
+	Sign              string  `json:"sign"`
+	Lord              string  `json:"lord"`               // lord of the sign of the bhava madhya
+	SignGroup         string  `json:"sign_group"`         // nara, jalachara, chathushpada or keeta
+	BhavadhipathiBala float64 `json:"bhavadhipathi_bala"` // Shadbala Pinda of the lord, in shashtiamsas
+	BhavaDigbala      float64 `json:"bhava_digbala"`
+	SubhaDrishtiBala  float64 `json:"subha_drishti_bala"`  // benefic aspects on the bhava madhya
+	AsubhaDrishtiBala float64 `json:"asubha_drishti_bala"` // malefic aspects
+	BhavaDrishtiBala  float64 `json:"bhava_drishti_bala"`  // subha - asubha
+	TotalBhavaBala    float64 `json:"total_bhava_bala"`    // shashtiamsas
+	Rupas             float64 `json:"rupas"`
+	Rank              int     `json:"rank"` // 1 = strongest house
+}
+
+// BhavaBalaResult is the strength of the twelve houses.
+type BhavaBalaResult struct {
+	Bhavas         []BhavaBalaHouse `json:"bhavas"`
+	StrongestHouse int              `json:"strongest_house"`
+	WeakestHouse   int              `json:"weakest_house"`
+}
+
+// IshtaKashtaPlanet is the benefic (ishta) and malefic (kashta) tendency of a planet, Raman chapter X.
+type IshtaKashtaPlanet struct {
+	Planet      string  `json:"planet"`
+	UchchaBala  float64 `json:"uchcha_bala"`
+	ChestaBala  float64 `json:"chesta_bala"` // the Sun's and Moon's come from Raman art. 136-137 and are not part of the Shadbala total
+	IshtaPhala  float64 `json:"ishta_phala"`
+	KashtaPhala float64 `json:"kashta_phala"`
+	Inclination string  `json:"inclination"` // ishta if the benefic tendency is greater, otherwise kashta
 }
 
 type ShadbalaResult struct {
@@ -84,4 +121,7 @@ type ShadbalaResult struct {
 	CalculationTimeUTC string           `json:"calculation_time_utc"`
 	Planets            []PlanetShadbala `json:"planets"`
 	Tables             ShadbalaTables   `json:"tables"`
+
+	IshtaKashtaPhala []IshtaKashtaPlanet `json:"ishta_kashta_phala"`
+	BhavaBala        BhavaBalaResult     `json:"bhava_bala"`
 }

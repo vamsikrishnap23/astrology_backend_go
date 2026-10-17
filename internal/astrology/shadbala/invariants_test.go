@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math"
 	"math/rand"
+	"sort"
 	"sync"
 	"testing"
 	"time"
@@ -311,5 +312,79 @@ func TestShadbalaConcurrentCalculations(t *testing.T) {
 	close(errs)
 	for e := range errs {
 		t.Error(e)
+	}
+}
+
+// Bhava Bala and Ishta/Kashta Phala over random charts: the twelve house middles go once round the zodiac in
+// order with the four kendras exact, every part is in range, the totals add up and the ranks are 1 to 12.
+func TestBhavaBalaAndIshtaKashtaInvariants(t *testing.T) {
+	if err := ephemeris.Init(mustAbs(t, "../../../ephe_data")); err != nil {
+		t.Fatal(err)
+	}
+	n := 400
+	if testing.Short() {
+		n = 40
+	}
+	for i, c := range randomCharts(n, 8128) {
+		ctx := c.context(t)
+		res, err := CalculateShadbala(&ctx)
+		if err != nil {
+			t.Fatalf("chart %d: %v", i, err)
+		}
+		who := fmt.Sprintf("chart %d (%s %s %.1f,%.1f)", i, c.date, c.clock, c.lat, c.lon)
+		b := res.BhavaBala
+		if len(b.Bhavas) != 12 {
+			t.Fatalf("%s: %d houses", who, len(b.Bhavas))
+		}
+		totals := map[string]float64{}
+		for _, p := range res.Planets {
+			totals[p.Planet] = p.TotalShadbala
+		}
+		sumArcs := 0.0
+		ranks := make([]int, 0, 12)
+		for k, h := range b.Bhavas {
+			next := b.Bhavas[(k+1)%12]
+			arc := math.Mod(next.BhavaMadhya-h.BhavaMadhya+720, 360)
+			if arc <= 0 || arc >= 180 {
+				t.Errorf("%s: house %d to %d is %.2f deg", who, h.House, next.House, arc)
+			}
+			sumArcs += arc
+			if h.House != k+1 || h.Name != bhavaNames[k] {
+				t.Errorf("%s: house %d is %s", who, h.House, h.Name)
+			}
+			if h.Sign != zodiacSigns[int(h.BhavaMadhya/30)%12] || h.Lord != signRulers[int(h.BhavaMadhya/30)%12] {
+				t.Errorf("%s: house %d sign %s lord %s for %.2f", who, h.House, h.Sign, h.Lord, h.BhavaMadhya)
+			}
+			if math.Mod(h.BhavaDigbala, 10) != 0 || h.BhavaDigbala < 0 || h.BhavaDigbala > 60 {
+				t.Errorf("%s: house %d Digbala %v", who, h.House, h.BhavaDigbala)
+			}
+			near(t, who+" lord's pinda", h.BhavadhipathiBala, totals[h.Lord], 0.006)
+			if h.SubhaDrishtiBala < 0 || h.AsubhaDrishtiBala < 0 {
+				t.Errorf("%s: house %d aspects %v %v", who, h.House, h.SubhaDrishtiBala, h.AsubhaDrishtiBala)
+			}
+			near(t, who+" drishti", h.BhavaDrishtiBala, h.SubhaDrishtiBala-h.AsubhaDrishtiBala, 0.011)
+			near(t, who+" total", h.TotalBhavaBala, h.BhavadhipathiBala+h.BhavaDigbala+h.BhavaDrishtiBala, 0.02)
+			near(t, who+" rupas", h.Rupas, h.TotalBhavaBala/60, 0.006)
+			ranks = append(ranks, h.Rank)
+		}
+		near(t, who+" arcs go once round", sumArcs, 360, 1e-6)
+		sort.Ints(ranks)
+		for r, v := range ranks {
+			if v != r+1 {
+				t.Fatalf("%s: ranks %v", who, ranks)
+			}
+		}
+		if b.Bhavas[b.StrongestHouse-1].Rank != 1 || b.Bhavas[b.WeakestHouse-1].Rank != 12 {
+			t.Errorf("%s: strongest %d weakest %d", who, b.StrongestHouse, b.WeakestHouse)
+		}
+		for _, p := range res.IshtaKashtaPhala {
+			inRange(t, who+" "+p.Planet, "uchcha", p.UchchaBala, 0, 60)
+			inRange(t, who+" "+p.Planet, "chesta", p.ChestaBala, 0, 60)
+			inRange(t, who+" "+p.Planet, "ishta", p.IshtaPhala, 0, 60)
+			inRange(t, who+" "+p.Planet, "kashta", p.KashtaPhala, 0, 60)
+			if (p.Inclination == "ishta") != (p.IshtaPhala > p.KashtaPhala) && math.Abs(p.IshtaPhala-p.KashtaPhala) > 0.011 {
+				t.Errorf("%s %s: %s with %v and %v", who, p.Planet, p.Inclination, p.IshtaPhala, p.KashtaPhala)
+			}
+		}
 	}
 }
