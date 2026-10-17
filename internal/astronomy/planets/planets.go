@@ -42,7 +42,7 @@ func CalculatePlanets(ctx *domain.CalculationContext) ([]domain.PlanetPosition, 
 	swisseph.SetSidMode(int32(ctx.Config.AyanamsaMode), 0, 0)
 
 	// Pre-calculate ayanamsa value
-	ctx.Ayanamsa = swisseph.GetAyanamsaUT(ctx.JulianDayUT)
+	ctx.Ayanamsa = ephemeris.AyanamsaUT(ctx.JulianDayUT)
 
 	planetNames := []string{"Sun", "Moon", "Mars", "Mercury", "Jupiter", "Venus", "Saturn", "Uranus", "Neptune", "Pluto"}
 

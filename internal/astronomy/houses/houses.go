@@ -20,7 +20,7 @@ func CalculateHouses(ctx *domain.CalculationContext) (float64, float64, []domain
 	swisseph.SetSidMode(int32(ctx.Config.AyanamsaMode), 0, 0)
 
 	// Pre-calculate ayanamsa value
-	ctx.Ayanamsa = swisseph.GetAyanamsaUT(ctx.JulianDayUT)
+	ctx.Ayanamsa = ephemeris.AyanamsaUT(ctx.JulianDayUT)
 
 	calcJD := ctx.JulianDayUT
 

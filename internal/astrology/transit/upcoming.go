@@ -27,7 +27,7 @@ func getSiderealLon(jd float64, planet string, ayanamsaMode int) float64 {
 	defer ephemeris.Unlock()
 
 	swisseph.SetSidMode(int32(ayanamsaMode), 0, 0)
-	ayanamsa := swisseph.GetAyanamsaUT(jd)
+	ayanamsa := ephemeris.AyanamsaUT(jd)
 
 	var seID int
 	var isKetu bool

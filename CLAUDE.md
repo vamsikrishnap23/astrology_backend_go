@@ -216,7 +216,7 @@ Status key: FIXED = done and tested; PLANNED = owner will fix later; KEEP = inte
 | Panchang/KP | Vara and KP day lord use the calendar date, not sunrise (Kala Bala dina does use sunrise) | VERIFY / decide |
 | Transits | `/api/transits/upcoming` defaults search start to the birth date, not now | VERIFY intent |
 | KP | Uranus/Neptune/Pluto appear in significators/four-step because they are in the planetary table | VERIFY intent |
-| Sidereal | Manual `tropical - GetAyanamsaUT` (planets, houses, transit, matchmaking) vs `FlagSidereal` (panchang nakshatra/yoga/Telugu Sun) — see explanation below | DECIDE |
+| Sidereal | Manual path used `GetAyanamsaUT` (no nutation) against apparent longitudes, leaving up to ~17" of nutation in sidereal values; now `ephemeris.AyanamsaUT` (includes nutation) = `FlagSidereal`. Test `TestManualSiderealMatchesFlagSidereal`. Houses, Asc and MC verified equal to SE sidereal houses (600 random setups, 0.0000") | **FIXED 2026-10-17** |
 | Ayanamsa | "True ChitraPaksha" is aliased to plain Lahiri (SE has a separate true-Citra mode) | VERIFY |
 | Houses | Placidus silently falls back to Porphyry at polar latitudes; `selected_house_system` echoes the request | VERIFY |
 | Progression | Natal Neptune/Pluto kept in aspect list but excluded on progressed side | VERIFY |
@@ -224,7 +224,7 @@ Status key: FIXED = done and tested; PLANNED = owner will fix later; KEEP = inte
 
 Verified correct while reviewing (no action): Ashtakavarga rule tables (BAV totals 48/49/39/54/56/52/39), vargas D1-D150 formulas, Rahu Kalam / Yamaganda slots, Varjyam/Amrita tables, karana mapping, tithi/nakshatra/yoga boundary search, KP sub-lord subdivision, vimshottari arithmetic, Vedha tables, Telugu samvatsara formula.
 
-### Sidereal derivation inconsistency (measured 2026-10-15)
+### Sidereal derivation inconsistency (measured 2026-10-15; FIXED 2026-10-17, see below)
 Two ways of producing sidereal longitude coexist:
 - **Manual**: `CalcUT(jd, body, FlagSwieph)` (tropical, true equinox incl. nutation) minus `GetAyanamsaUT(jd)`. Used in `planets.go`, `houses.go`, `transit/upcoming.go`, `matchmaking/nakshatra.go`.
 - **`FlagSidereal`**: SE applies its own sidereal transform. Used in `panchang/{nakshatra,yoga,telugu_calendar}.go`.
@@ -278,3 +278,5 @@ The root-level `FRONTEND_TRANSLATIONS.json` translates everything `/api/vivaha-p
 
 ### Matchmaking review report (2026-10-16)
 `docs/matchmaking_report_te.pdf` (source: `docs/matchmaking_report_te.md`, Telugu) reviews every matchmaking calculation against the book pages in `ref/` and online sources, one verdict per item, with a checklist of decisions for the owner's father (section 5). **Status: decisions received 2026-10-16 and applied (see "Matchmaking decisions" above).** Remaining: the endpoint clean-up and the translations. Regenerate the PDF with `pandoc` (HTML) then `chromium --headless --print-to-pdf`; Noto Sans Telugu is installed.
+
+**Resolution (2026-10-17)**: the gap was nutation. SE's sidereal flag sets `SEFLG_NONUT` (`sweph.c:6093`) and subtracts the mean ayanamsa; `swe_get_ayanamsa_ut` never includes nutation, so the manual path left delta-psi in every sidereal longitude. All manual call sites (planets, houses, transit/upcoming, matchmaking) now use `ephemeris.AyanamsaUT` (`swe_get_ayanamsa_ex_ut`, includes nutation), which agrees with `FlagSidereal` to <0.05". Do not call `swisseph.GetAyanamsaUT` for subtracting from `CalcUT` output.

@@ -29,7 +29,7 @@ func buildContext(input domain.BirthInput) (*domain.CalculationContext, error) {
 
 	ephemeris.Lock()
 	swisseph.SetSidMode(int32(config.AyanamsaMode), 0, 0)
-	ayanamsa := swisseph.GetAyanamsaUT(jd)
+	ayanamsa := ephemeris.AyanamsaUT(jd)
 	ephemeris.Unlock()
 
 	return &domain.CalculationContext{

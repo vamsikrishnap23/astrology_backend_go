@@ -97,3 +97,16 @@ func GetHouseSystemCode(name string) byte {
 		return 'P'
 	}
 }
+
+// AyanamsaUT returns the ayanamsa to subtract from an apparent (true equinox of date) tropical
+// longitude to get the sidereal longitude. Must be called under Lock, after SetSidMode.
+// swisseph.GetAyanamsaUT omits nutation, so subtracting it from an apparent longitude leaves
+// up to ~17" of nutation in the result; the value here includes it, which equals what
+// FlagSidereal produces (mean longitude minus mean ayanamsa).
+func AyanamsaUT(jdUT float64) float64 {
+	res := swisseph.GetAyanamsaExUT(jdUT, swisseph.FlagSwieph)
+	if res.Error != "" || len(res.Data) == 0 {
+		return swisseph.GetAyanamsaUT(jdUT)
+	}
+	return res.Data[0]
+}
