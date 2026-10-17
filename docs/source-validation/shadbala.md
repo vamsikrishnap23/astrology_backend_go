@@ -1,3 +1,5 @@
+> **Superseded.** This note was written before the module was rewritten and several of its rules (Drekkana, Cheshta, Hora, Varsha/Masa, Moolatrikona) were wrong. The current rules and their page references are in `docs/shadbala_spec.md`.
+
 # Feature 23: Shadbala (Six-fold Planetary Strength)
 
 ## Overview & Authority

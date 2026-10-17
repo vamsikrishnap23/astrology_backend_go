@@ -3,7 +3,7 @@
 **Endpoint:** `POST /api/shadbala`
 
 ## Description
-Calculates the 6-fold planetary strength (Shadbala) for the 7 classical planets exactly following the classical Brihat Parashara Hora Shastra mathematical formulas. Determines the ultimate strength in Rupas, and compares it against the minimum required thresholds.
+Calculates the 6-fold planetary strength (Shadbala) for the 7 classical planets following B.V. Raman's *Graha and Bhava Balas* (BPHS where Raman is silent); see `docs/shadbala_spec.md` for every rule and its page reference. The Sun and Moon have no Cheshta Bala (`cheshta_bala` is 0 for them), as in Raman's example 56. Determines the ultimate strength in Rupas, and compares it against the minimum required thresholds.
 
 ## Request Payload
 Standard `BirthInput`.
@@ -48,3 +48,6 @@ Standard `BirthInput`.
   ]
 }
 ```
+
+## Errors
+- `400` with the text `shadbala cannot be calculated: the Sun does not rise or set at this latitude on this date`: at polar latitudes in polar day or night there is no sunrise to count Tribhaga, Dina, Hora, Varsha and Masa Bala from. Try another date or place.
