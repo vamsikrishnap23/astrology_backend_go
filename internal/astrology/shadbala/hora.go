@@ -1,6 +1,7 @@
 package shadbala
 
 import (
+	"errors"
 	"math"
 
 	"github.com/tejzpr/go-swisseph"
@@ -29,27 +30,46 @@ func horaLord(dayLord string, hoursSinceSunrise float64) string {
 	return horaOrder[((start+n)%7+7)%7]
 }
 
-// lastSunrise returns the Julian day (UT) of the latest sunrise at or before jd for the given
-// geographic position (lon, lat, 0). It is the start of the Hindu day that jd falls in.
-func lastSunrise(jd float64, geopos [3]float64) (float64, bool) {
+// ErrNoSunriseSunset is returned when the Sun does not rise or set at the birth place around the
+// birth date (polar day or night). Hora, Dina, Varsha, Masa and Tribhaga Bala all count from sunrise,
+// so Shadbala cannot be given for such a chart; an error is better than silently giving them 0.
+var ErrNoSunriseSunset = errors.New("shadbala cannot be calculated: the Sun does not rise or set at this latitude on this date")
+
+// hinduDay is the Hindu day a moment falls in: it begins at Sunrise, its daytime ends at Sunset and
+// the next day begins at NextSunrise (all Julian days, UT).
+type hinduDay struct {
+	Sunrise, Sunset, NextSunrise float64
+}
+
+// hinduDayAt finds the Hindu day containing jd for the geographic position (lon, lat, 0): the latest
+// sunrise at or before jd, the sunset after it and the sunrise after that. It returns
+// ErrNoSunriseSunset if any of the three cannot be found.
+func hinduDayAt(jd float64, geopos [3]float64) (hinduDay, error) {
 	ephemeris.Lock()
 	defer ephemeris.Unlock()
-	rise := func(from float64) (float64, bool) {
-		r := swisseph.RiseTrans(from, swisseph.Sun, "", int32(swisseph.FlagSwieph), int32(swisseph.CalcRise), geopos, 0, 0)
+	event := func(from float64, kind int) (float64, bool) {
+		r := swisseph.RiseTrans(from, swisseph.Sun, "", int32(swisseph.FlagSwieph), int32(kind), geopos, 0, 0)
 		return r.Time, r.Error == "" && r.Flag >= 0
 	}
-	t, ok := rise(jd - 1.0)
+	sunrise, ok := event(jd-1.0, swisseph.CalcRise)
 	if !ok {
-		return 0, false
+		return hinduDay{}, ErrNoSunriseSunset
 	}
-	if t > jd {
-		// Sunrise is a minute or so later than 24 h after the previous one; take the one before.
-		t, ok = rise(jd - 2.0)
-		if !ok || t > jd {
-			return 0, false
+	if sunrise > jd {
+		// The next sunrise after jd-1 can fall a minute or so after jd; take the one before it.
+		if sunrise, ok = event(jd-2.0, swisseph.CalcRise); !ok || sunrise > jd {
+			return hinduDay{}, ErrNoSunriseSunset
 		}
 	}
-	return t, true
+	sunset, ok := event(sunrise, swisseph.CalcSet)
+	if !ok {
+		return hinduDay{}, ErrNoSunriseSunset
+	}
+	next, ok := event(sunset, swisseph.CalcRise)
+	if !ok {
+		return hinduDay{}, ErrNoSunriseSunset
+	}
+	return hinduDay{Sunrise: sunrise, Sunset: sunset, NextSunrise: next}, nil
 }
 
 // weekdayLordOfSunrise is the lord of the weekday whose sunrise is sunriseJD (UT), using the civil

@@ -30,7 +30,10 @@ func calculateUchchaBala(planet string, longitude float64) float64 {
 	return arc / 3.0
 }
 
-func calculateSaptavargajaBala(planet string, vargas domain.VargasResult, natalSigns map[string]int) float64 {
+// calculateSaptavargajaBala adds the values of the planet's placement in the Rasi, Hora, Drekkana,
+// Saptamsa, Navamsa, Dwadasamsa and Trimsamsa (Raman art. 30); longitude is its sidereal longitude, used
+// to tell whether it is in its Moolatrikona portion of the Rasi.
+func calculateSaptavargajaBala(planet string, vargas domain.VargasResult, natalSigns map[string]int, longitude float64) float64 {
 	total := 0.0
 	targetDivisions := []int{1, 2, 3, 7, 9, 12, 30}
 
@@ -40,7 +43,8 @@ func calculateSaptavargajaBala(planet string, vargas domain.VargasResult, natalS
 				// Find planet in this varga
 				for _, vp := range varga.Planets {
 					if vp.Planet == planet {
-						rel := GetPlacementStrength(planet, vp.DivisionalSign, natalSigns)
+						mt := div == 1 && isMoolatrikona(planet, vp.DivisionalSign, math.Mod(longitude, 30.0))
+						rel := GetPlacementStrength(planet, vp.DivisionalSign, natalSigns, mt)
 						switch rel {
 						case Moolatrikona:
 							total += 45.0
@@ -98,6 +102,9 @@ func calculateKendradiBala(planet string, rasiSign, ascSign int) float64 {
 	return 15.0
 }
 
+// calculateDrekkanaBala gives 15 shashtiamsas to a male planet (Sun, Mars, Jupiter) in the first
+// drekkana, a hermaphrodite planet (Mercury, Saturn) in the second and a female planet (Moon, Venus) in
+// the last (Raman art. 36-39 and the summary on p. 105).
 func calculateDrekkanaBala(planet string, longitude float64) float64 {
 	degreeInSign := math.Mod(longitude, 30.0)
 	drekkana := 1
@@ -107,12 +114,19 @@ func calculateDrekkanaBala(planet string, longitude float64) float64 {
 		drekkana = 2
 	}
 
-	if (planet == "Sun" || planet == "Mars" || planet == "Jupiter") && drekkana == 1 {
-		return 15.0
-	} else if (planet == "Moon" || planet == "Venus") && drekkana == 2 {
-		return 15.0
-	} else if (planet == "Mercury" || planet == "Saturn") && drekkana == 3 {
-		return 15.0
+	switch planet {
+	case "Sun", "Mars", "Jupiter":
+		if drekkana == 1 {
+			return 15.0
+		}
+	case "Mercury", "Saturn":
+		if drekkana == 2 {
+			return 15.0
+		}
+	case "Moon", "Venus":
+		if drekkana == 3 {
+			return 15.0
+		}
 	}
 	return 0.0
 }

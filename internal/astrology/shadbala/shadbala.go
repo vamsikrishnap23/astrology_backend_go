@@ -13,8 +13,10 @@ import (
 
 var TargetPlanets = []string{"Sun", "Moon", "Mars", "Mercury", "Jupiter", "Venus", "Saturn"}
 
+// MinimumRequirements are the Shadbala Pindas, in rupas, at which a planet is strong (Raman art. 122 and
+// the table on p. 109: 300, 360, 300, 420, 390, 330 and 300 shashtiamsas).
 var MinimumRequirements = map[string]float64{
-	"Sun":     6.5,
+	"Sun":     5.0,
 	"Moon":    6.0,
 	"Mars":    5.0,
 	"Mercury": 7.0,
@@ -86,7 +88,7 @@ func CalculateShadbala(ctx *domain.CalculationContext) (domain.ShadbalaResult, e
 
 		// Sthana Bala
 		uchcha := calculateUchchaBala(pName, lon)
-		sapta := calculateSaptavargajaBala(pName, vargasRes, signs)
+		sapta := calculateSaptavargajaBala(pName, vargasRes, signs, lon)
 		oja := calculateOjayugmaBala(pName, signs[pName], navSign)
 		kendra := calculateKendradiBala(pName, signs[pName], ascSign)
 		drekkana := calculateDrekkanaBala(pName, lon)
@@ -104,7 +106,10 @@ func CalculateShadbala(ctx *domain.CalculationContext) (domain.ShadbalaResult, e
 		dig := CalculateDigBala(pName, lon, ascLon, mcLon)
 
 		// Kala Bala
-		kala := CalculateKalaBala(pName, ctx, lons["Sun"], lons["Moon"], decl[pName], mercuryMalefic)
+		kala, err := CalculateKalaBala(pName, ctx, lons["Sun"], lons["Moon"], decl[pName], mercuryMalefic)
+		if err != nil {
+			return domain.ShadbalaResult{}, err
+		}
 
 		// Cheshta Bala
 		cheshta := CalculateCheshtaBala(pName, ctx, lons)

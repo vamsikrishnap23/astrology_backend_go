@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
 
 	"github.com/vamsikrishnap23/astrology_backend_go/internal/astrology/shadbala"
@@ -44,6 +45,10 @@ func ShadbalaHandler(w http.ResponseWriter, r *http.Request) {
 
 	res, err := shadbala.CalculateShadbala(&ctx)
 	if err != nil {
+		if errors.Is(err, shadbala.ErrNoSunriseSunset) {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}

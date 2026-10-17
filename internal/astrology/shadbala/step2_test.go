@@ -131,7 +131,10 @@ func TestHoraAndDinaRamanChart(t *testing.T) {
 		planet     string
 		hora, dina float64
 	}{{"Moon", 60, 0}, {"Mercury", 0, 45}, {"Sun", 0, 0}, {"Saturn", 0, 0}} {
-		kb := CalculateKalaBala(c.planet, &ctx, 0, 0, 0, false)
+		kb, err := CalculateKalaBala(c.planet, &ctx, 0, 0, 0, false)
+		if err != nil {
+			t.Fatal(err)
+		}
 		near(t, c.planet+" hora", kb.HoraBala, c.hora, 0)
 		near(t, c.planet+" dina", kb.DinaBala, c.dina, 0)
 	}

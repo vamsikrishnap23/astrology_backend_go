@@ -137,6 +137,11 @@ func (m ramanMeans) shifted(delta float64) ramanMeans {
 // CalculateCheshtaBala returns the Cheshta Bala of planet for the chart in ctx; lons holds the
 // sidereal (true) longitudes of the planets in the chart's ayanamsa. The Sun and Moon return 0.
 func CalculateCheshtaBala(planet string, ctx *domain.CalculationContext, lons map[string]float64) float64 {
+	switch planet {
+	case "Mars", "Mercury", "Jupiter", "Venus", "Saturn":
+	default:
+		return 0 // the Sun and Moon have none in the total
+	}
 	trueLon, ok := lons[planet]
 	if !ok {
 		return 0

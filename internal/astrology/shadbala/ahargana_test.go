@@ -126,7 +126,10 @@ func TestVarshaMasaRamanChart(t *testing.T) {
 	jd := swisseph.Julday(1918, 10, 16, 14.0+6.0/60+16.0/3600-lon/15, swisseph.GregCal)
 	ctx := domain.CalculationContext{Input: domain.BirthInput{Latitude: 13, Longitude: lon, Timezone: 5.5}, JulianDayUT: jd}
 	for _, p := range TargetPlanets {
-		kb := CalculateKalaBala(p, &ctx, 0, 0, 0, false)
+		kb, err := CalculateKalaBala(p, &ctx, 0, 0, 0, false)
+		if err != nil {
+			t.Fatal(err)
+		}
 		wantV, wantM := 0.0, 0.0
 		if p == "Saturn" {
 			wantV = 15

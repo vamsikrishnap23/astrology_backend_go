@@ -93,15 +93,31 @@ var OwnSigns = map[string][]string{
 	"Saturn":  {"Capricorn", "Aquarius"},
 }
 
-// Strictly speaking, Moolatrikona is based on exact degrees. In Saptavargaja, if placed in the Moolatrikona sign, it gets MT points.
-var MoolatrikonaSigns = map[string]string{
-	"Sun":     "Leo",
-	"Moon":    "Taurus",
-	"Mars":    "Aries",
-	"Mercury": "Virgo",
-	"Jupiter": "Sagittarius",
-	"Venus":   "Libra",
-	"Saturn":  "Aquarius",
+// moolatrikonaPortion is the part of a sign that is a planet's Moolatrikona, in degrees from the start
+// of the sign (BPHS 3.51-54): the Sun's first 20 deg of Leo, the Moon's Taurus beyond 3 deg (the first 3
+// are its exaltation), Mars's first 12 deg of Aries, Mercury's 15 to 20 deg of Virgo (the first 15 are
+// its exaltation), Jupiter's first 10 deg of Sagittarius, Venus's first 15 deg of Libra and Saturn's
+// first 20 deg of Aquarius. The rest of such a sign is the planet's own sign (the Moon's Taurus is not).
+type moolatrikonaPortion struct {
+	sign     string
+	from, to float64
+}
+
+var moolatrikonaPortions = map[string]moolatrikonaPortion{
+	"Sun":     {"Leo", 0, 20},
+	"Moon":    {"Taurus", 3, 30},
+	"Mars":    {"Aries", 0, 12},
+	"Mercury": {"Virgo", 15, 20},
+	"Jupiter": {"Sagittarius", 0, 10},
+	"Venus":   {"Libra", 0, 15},
+	"Saturn":  {"Aquarius", 0, 20},
+}
+
+// isMoolatrikona reports whether a planet standing at degreeInSign (0..30) of the named sign is in its
+// Moolatrikona portion.
+func isMoolatrikona(planet, sign string, degreeInSign float64) bool {
+	m, ok := moolatrikonaPortions[planet]
+	return ok && m.sign == sign && degreeInSign >= m.from && degreeInSign < m.to
 }
 
 func getSignIndexByName(name string) int {
@@ -114,9 +130,11 @@ func getSignIndexByName(name string) int {
 	return 0
 }
 
-func GetPlacementStrength(planet string, vargaSign string, natalSigns map[string]int) Relationship {
-	// First check Moolatrikona
-	if MoolatrikonaSigns[planet] == vargaSign {
+// GetPlacementStrength is the relationship of planet to the sign it occupies in a varga. moolatrikona
+// says that the planet is in its Moolatrikona portion of the Rasi chart: Moolatrikona counts only
+// there, never in the other six vargas (Raman art. 30), where the same sign is just the planet's own.
+func GetPlacementStrength(planet string, vargaSign string, natalSigns map[string]int, moolatrikona bool) Relationship {
+	if moolatrikona {
 		return Moolatrikona
 	}
 	// Then Own Sign
