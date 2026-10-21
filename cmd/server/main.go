@@ -10,6 +10,7 @@ import (
 	"github.com/vamsikrishnap23/astrology_backend_go/internal/api/handlers"
 	"github.com/vamsikrishnap23/astrology_backend_go/internal/api/middleware"
 	"github.com/vamsikrishnap23/astrology_backend_go/internal/astronomy/ephemeris"
+	"github.com/vamsikrishnap23/astrology_backend_go/internal/site"
 )
 
 func main() {
@@ -77,6 +78,9 @@ func main() {
 
 	// Wrap apiMux with SupabaseAuthMiddleware
 	http.Handle("/api/", middleware.SupabaseAuthMiddleware(apiMux))
+
+	// Public website endpoints (no login): /site/panchang, /site/chart, /site/values
+	site.Register(http.DefaultServeMux)
 
 	// Serve static UI on root
 	http.Handle("/", http.FileServer(http.Dir("static")))

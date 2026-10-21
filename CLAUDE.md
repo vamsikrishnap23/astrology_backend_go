@@ -28,6 +28,7 @@ go vet ./internal/... ./cmd/...    # clean
 | `SUPABASE_PUBLIC_KEY` | `middleware/auth.go` | static ES256 PEM public key (accepts `\n`-escaped or space-separated PEM). Takes priority over JWKS |
 | `SUPABASE_PROJECT_REF` | `middleware/auth.go` | fallback: fetches `https://<ref>.supabase.co/auth/v1/.well-known/jwks.json` (refresh 1h) |
 | `SUPABASE_ANON_KEY` | `middleware/auth.go` | sent as `apikey` header on JWKS fetch |
+| `SITE_ALLOWED_ORIGINS` | `internal/site/site.go` | comma-separated CORS origins for `/site/*`; unset = any origin |
 
 No `.env` loading; no config file.
 
@@ -40,6 +41,7 @@ internal/api/middleware/auth.go   Supabase JWT + approved_users gate
 internal/astronomy/           low-level Swiss Ephemeris wrappers: ephemeris, planets, houses, time, retrogrades
 internal/astrology/           Vedic logic: panchang, dasha, vargas, shadbala, ashtakavarga, kp, btr, matchmaking,
                               transit, progression, jaimini, manglik, bhava_chalit, tables, avastha, pushkara, mrityu
+internal/site/                public website endpoints /site/panchang, /site/chart, /site/values (no auth, CORS, values.json = every value + Telugu); see docs/api_site.md
 internal/domain/              request/response structs (JSON tags) + CalculationContext
 ephe_data/                    sepl_18.se1, semo_18.se1 (1800-2399 planets+moon only)
 static/index.html             served at "/" (calls /api/v1/vargas and /api/v1/dasha — see inconsistencies)
@@ -85,6 +87,8 @@ Most take the standard **BirthInput** (`domain.BirthInput`, `internal/domain/mod
 | `/api/btr` | `BTRHandler` | BirthInput + `gender` (required, "Male"/"Female"), `return_full_table`, `scan_minus_minutes`, `scan_plus_minutes`, `sign_type_override`, `sunrise_override`, `ascendant_override`, `star_lord_override` | `BTRResult` (Birth Time Rectification, Nadi Tatwa method) |
 | `/api/retrogrades` | `RetrogradesHandler` | `start_date`, `end_date` (required), `timezone` | `RetrogradesResult` (map planet -> phases; Mercury..Saturn only) |
 | `/api/manglik-dosha` | `ManglikHandler` | BirthInput | `ManglikResult` |
+
+**Website endpoints** (`internal/site`, `docs/api_site.md`): `GET|POST /site/panchang` (daily panchang, Lahiri, Telugu calendar at sunrise), `POST /site/chart` (D1, Lahiri + Placidus, 9 grahas, `signs[]` boxes), `GET /site/values` (embedded `values.json`). Public: no Supabase auth, CORS via `SITE_ALLOWED_ORIGINS`, JSON errors. `site_test.go` fails if a returned value is missing from `values.json`.
 
 Exact field-level response shapes: see `internal/domain/*.go` and `docs/api_*.md`. **TODO: verify** docs are in sync with code (not checked field by field).
 
